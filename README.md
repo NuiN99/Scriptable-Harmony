@@ -8,4 +8,6 @@ How to add to a Unity project
 4. Paste the link found below into the field and select 'Apply'
 
 ### Clone link: 
+```
 https://github.com/NuiN99/Scriptable-Harmony-Package.git
+```
