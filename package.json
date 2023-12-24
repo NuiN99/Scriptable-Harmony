@@ -3,8 +3,8 @@
     "version": "1.0.0",
     "displayName": "Scriptable Harmony",
     "description": "Systems and Tools for Decoupling using Scriptable Objects",
-    "unity": "2023.15",
-    "type": "module",
+    "unity": "2023.1",
+    "type": "asset",
     "repository": "https://github.com/NuiN99/Scriptable-Harmony-Package.git",
     "author": {
         "name": "NuiN",
