@@ -27,11 +27,11 @@ namespace NuiN.ScriptableHarmony.Internal.Logging
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void SetLoggingState()
         {
-            logging = SHLoggerOptionsWindow.IsLoggingEnabled();
-            variableLogging = SHLoggerOptionsWindow.IsVariableLoggingEnabled();
-            listVariableLogging = SHLoggerOptionsWindow.IsListVariableLoggingEnabled();
-            runtimeSetLogging = SHLoggerOptionsWindow.IsRuntimeSetLoggingEnabled();
-            runtimeSingleLogging = SHLoggerOptionsWindow.IsRuntimeSingleLoggingEnabled();
+            logging = SHLoggerSettings.IsLoggingEnabled();
+            variableLogging = SHLoggerSettings.IsVariableLoggingEnabled();
+            listVariableLogging = SHLoggerSettings.IsListVariableLoggingEnabled();
+            runtimeSetLogging = SHLoggerSettings.IsRuntimeSetLoggingEnabled();
+            runtimeSingleLogging = SHLoggerSettings.IsRuntimeSingleLoggingEnabled();
         }
         
         // ReSharper disable Unity.PerformanceAnalysis

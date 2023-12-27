@@ -40,6 +40,7 @@ namespace NuiN.ScriptableHarmony.ListVariable.Base
             serializedDictionary.ValidateAndApply(ref dictionary);
         }
 
+#if UNITY_EDITOR
         [MethodButton("ValidateDictionary")]
         public void ValidateDictionary()
         {
@@ -47,6 +48,7 @@ namespace NuiN.ScriptableHarmony.ListVariable.Base
             serializedDictionary.ValidateAndApply(ref dictionary);
             EditorUtility.SetDirty(this);
         }
+#endif
 
         protected override void SaveDefaultValue()
         {
