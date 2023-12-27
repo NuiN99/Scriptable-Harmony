@@ -52,9 +52,6 @@ namespace NuiN.ScriptableHarmony.Variable.Base
         {
             T oldValue = value;
             value = defaultValue;
-            
-            onChangeWithOld?.Invoke(oldValue, value);
-            onChange?.Invoke(value);
         }
 
         protected override bool ResetsOnSceneLoad() => resetOn == ResetOn.SceneLoad;
