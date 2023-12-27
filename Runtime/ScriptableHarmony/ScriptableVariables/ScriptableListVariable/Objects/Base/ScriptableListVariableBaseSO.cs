@@ -53,7 +53,11 @@ namespace NuiN.ScriptableHarmony.ListVariable.Base
         protected override void ResetValueToDefault()
         {
             var oldValues = new List<T>(values);
+            
             values = new List<T>(defaultValues);
+            
+            onReplaceWithOld?.Invoke(oldValues, values);
+            onReplace?.Invoke(values);
         }
 
         protected override bool ResetsOnSceneLoad() => resetOn == ResetOn.SceneLoad;

@@ -13,7 +13,7 @@ namespace NuiN.ScriptableHarmony.Base
     
         protected new virtual void OnEnable()
         {
-            base.OnEnable();
+            base.OnEnable();;
             GameLoadedEvent.OnGameLoaded += SaveDefaultValue;
             SceneManager.activeSceneChanged += ResetValueOnSceneLoad;
             VariableEvents.OnResetAllVariableObjects += ResetValueToDefault;
