@@ -58,23 +58,5 @@ namespace NuiN.ScriptableHarmony.Particles
             ParticleSystem randSystem = particleSystems[Random.Range(0, particleSystems.Count)];
             Spawn(randSystem, position, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
         }
-
-        public void Spawn(ParticleSystem particleSystem, GetVariable<Vector3> position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
-            => Spawn(particleSystem, position.Val, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
-        public void Spawn(ParticleSystem particleSystem, SetVariable<Vector3> position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
-            => Spawn(particleSystem, position.Val, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
-        public void Spawn(ParticleSystem particleSystem, GetVariable<Vector2> position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
-            => Spawn(particleSystem, position.Val, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
-        public void Spawn(ParticleSystem particleSystem, SetVariable<Vector2> position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
-            => Spawn(particleSystem, position.Val, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
-        
-        public void SpawnRandom(List<ParticleSystem> particleSystems, GetVariable<Vector3> position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
-            => Spawn(particleSystems[Random.Range(0, particleSystems.Count)], position.Val, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
-        public void SpawnRandom(List<ParticleSystem> particleSystems, SetVariable<Vector3> position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
-            => Spawn(particleSystems[Random.Range(0, particleSystems.Count)], position.Val, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
-        public void SpawnRandom(List<ParticleSystem> particleSystems, GetVariable<Vector2> position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
-            => Spawn(particleSystems[Random.Range(0, particleSystems.Count)], position.Val, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
-        public void SpawnRandom(List<ParticleSystem> particleSystems, SetVariable<Vector2> position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
-            => Spawn(particleSystems[Random.Range(0, particleSystems.Count)], position.Val, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
     }
 }
