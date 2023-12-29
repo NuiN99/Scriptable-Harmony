@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using NuiN.ScriptableHarmony.References;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -26,7 +25,7 @@ namespace NuiN.ScriptableHarmony.Particles
             {
                 ParticleSystem.MainModule main = newSystem.main;
                 ParticleSystem.MinMaxCurve curve = main.startLifetime;
-                float startLifetime = 0f;
+                float startLifetime;
                 if (curve.curveMax != null && curve.curveMax.length > 0)
                 {
                     Keyframe lastFrame = curve.curveMax[curve.curveMax.length-1];
@@ -35,8 +34,8 @@ namespace NuiN.ScriptableHarmony.Particles
                 else startLifetime = curve.constantMax;
             
                 ParticleSystem.MinMaxCurve delayCurve = main.startDelay;
-                float delay = 0f;
-                if (delayCurve.curveMax != null && delayCurve.curveMax.length > 0)
+                float delay;
+                if (delayCurve.curveMax is { length: > 0 })
                 {
                     Keyframe delayLastFrame = delayCurve.curveMax[delayCurve.curveMax.length-1];
                     delay = delayLastFrame.time;
