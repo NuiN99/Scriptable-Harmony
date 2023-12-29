@@ -9,6 +9,8 @@ namespace NuiN.ScriptableHarmony.ListVariable.References.Base
     public abstract class ReferenceScriptableListVariableBase<T>
     {
         [SerializeField] protected ScriptableListVariableBaseSO<T> list;
+        
+        public void SetToResource(string resourceName) => list = Resources.Load<ScriptableListVariableBaseSO<T>>(resourceName);
 
         public void SubOnAdd(Action<T> onAdd) => list.onAdd += onAdd;
         public void UnSubOnAdd(Action<T> onAdd) => list.onAdd -= onAdd;

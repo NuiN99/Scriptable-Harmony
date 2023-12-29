@@ -11,6 +11,8 @@ namespace NuiN.ScriptableHarmony.RuntimeSet.References.Base
     {
         [SerializeField] protected RuntimeSetBaseSO<T> runtimeSet;
         
+        public void SetToResource(string resourceName) => runtimeSet = Resources.Load<RuntimeSetBaseSO<T>>(resourceName);
+        
         public void SubOnAdd(Action<T> onAdd) => runtimeSet.onAdd += onAdd;
         public void UnSubOnAdd(Action<T> onAdd) => runtimeSet.onAdd -= onAdd;
         public void SubOnAddWithOld(Action<List<T>,T> onAddWithOld) => runtimeSet.onAddWithOld += onAddWithOld;

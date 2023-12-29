@@ -6,8 +6,10 @@ using UnityEngine;
 namespace NuiN.ScriptableHarmony.ListVariable.References.Base
 {
     [Serializable]
-    public abstract class ReferenceScriptableDictionaryVariableBase<T,TU>
+    public abstract class ReferenceScriptableDictionaryVariableBase<TKey,TValue>
     {
-        [SerializeField] protected ScriptableDictionaryVariableBaseSO<T,TU> dictionary;
+        [SerializeField] protected ScriptableDictionaryVariableBaseSO<TKey,TValue> dictionary;
+        
+        public void SetToResource(string resourceName) => dictionary = Resources.Load<ScriptableDictionaryVariableBaseSO<TKey,TValue>>(resourceName);
     }
 }
