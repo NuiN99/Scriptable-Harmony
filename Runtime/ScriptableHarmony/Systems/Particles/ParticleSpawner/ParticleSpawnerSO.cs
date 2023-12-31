@@ -12,9 +12,9 @@ namespace NuiN.ScriptableHarmony.Particles
         [SerializeField] float globalScaleMultiplier = 1f;
         [SerializeField] bool disableParticles;
         
-        public void Spawn(ParticleSystem particleSystem, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
+        public ParticleSystem Spawn(ParticleSystem particleSystem, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
         {
-            if (disableParticles) return;
+            if (disableParticles) return null;
             ParticleSystem newSystem = Instantiate(particleSystem, position, rotation, parent);
             var emission = newSystem.emission;
             
@@ -48,6 +48,7 @@ namespace NuiN.ScriptableHarmony.Particles
             }
             
             Destroy(newSystem.gameObject, (float)lifetime);
+            return newSystem;
         }
         
         public void SpawnRandom(List<ParticleSystem> particleSystems, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
