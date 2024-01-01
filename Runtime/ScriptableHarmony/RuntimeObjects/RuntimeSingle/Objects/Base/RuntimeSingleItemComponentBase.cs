@@ -1,3 +1,4 @@
+using NuiN.ScriptableHarmony.Internal.Helpers;
 using NuiN.ScriptableHarmony.References;
 using UnityEngine;
 
@@ -5,12 +6,10 @@ namespace NuiN.ScriptableHarmony.RuntimeSingle.Components.Base
 {
     public class RuntimeSingleItemComponentBase<T> : MonoBehaviour
     {
-        enum Type{ OnEnableOnDisable, OnAwakeOnDestroy }
-    
         [SerializeField] T thisObject;
     
         [SerializeField] SetRuntimeSingle<T> runtimeSingle;
-        [SerializeField] Type lifetimeType;
+        [SerializeField] LifetimeType lifetimeType;
 
         [SerializeField] bool overwriteExisting;
         
@@ -20,18 +19,22 @@ namespace NuiN.ScriptableHarmony.RuntimeSingle.Components.Base
     
         void Reset() => thisObject ??= GetComponent<T>();
         
-        void OnEnable() => SetItem(Type.OnEnableOnDisable);
-        void OnDisable() => RemoveFromSet(Type.OnEnableOnDisable);
+        void OnEnable() => SetItem(LifetimeType.OnEnableOnDisable);
+        void OnDisable()
+        {
+            if(lifetimeType == LifetimeType.OnlyRemoveOnDestroyAndDisable) RemoveFromSet();
+            else RemoveFromSetCondition(LifetimeType.OnEnableOnDisable);
+        }
 
         void Awake()
         {
             thisObject ??= GetComponent<T>();
-            SetItem(Type.OnAwakeOnDestroy);
+            SetItem(LifetimeType.OnAwakeOnDestroy);
         }
 
-        void OnDestroy() => RemoveFromSet(lifetimeType);
+        void OnDestroy() => RemoveFromSet();
 
-        void SetItem(Type type)
+        void SetItem(LifetimeType type)
         {
             if (SelfDestructIfNullObject(thisObject)) return;
             if (lifetimeType != type) return;
@@ -44,10 +47,12 @@ namespace NuiN.ScriptableHarmony.RuntimeSingle.Components.Base
                 case true when !overwriteExisting: runtimeSingle.TrySetNoInvoke(thisObject); break;
             }
         }
-        void RemoveFromSet(Type type)
+        void RemoveFromSetCondition(LifetimeType type)
         {
-            if (lifetimeType != type) return;
-            
+            if (lifetimeType == type) RemoveFromSet();
+        }
+        void RemoveFromSet()
+        {
             if (!dontInvokeOnRemove) runtimeSingle.Remove();
             else runtimeSingle.RemoveNoInvoke();
         }
