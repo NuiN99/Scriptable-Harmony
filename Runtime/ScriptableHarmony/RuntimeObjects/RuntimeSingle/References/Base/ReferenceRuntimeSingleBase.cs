@@ -10,6 +10,8 @@ namespace NuiN.ScriptableHarmony.RuntimeSingle.References.Base
     {
         [SerializeField] protected RuntimeSingleBaseSO<T> runtimeSingle;
         
+        public bool IsNull => runtimeSingle == null;
+        
         public void SetToResource(string resourceName) => runtimeSingle = Resources.Load<RuntimeSingleBaseSO<T>>(resourceName);
         
         public void SubOnSet(Action<T> onSet) => runtimeSingle.onSet += onSet;

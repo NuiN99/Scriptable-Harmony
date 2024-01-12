@@ -10,6 +10,8 @@ namespace NuiN.ScriptableHarmony.ListVariable.References.Base
     {
         [SerializeField] protected ScriptableDictionaryVariableBaseSO<TKey,TValue> dictionary;
         
+        public bool IsNull => dictionary == null;
+        
         public void SetToResource(string resourceName) => dictionary = Resources.Load<ScriptableDictionaryVariableBaseSO<TKey,TValue>>(resourceName);
     }
 }

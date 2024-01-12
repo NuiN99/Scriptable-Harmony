@@ -9,6 +9,8 @@ namespace NuiN.ScriptableHarmony.Variable.References.Base
     {
         [SerializeField] protected ScriptableVariableBaseSO<T> variable;
 
+        public bool IsNull => variable == null;
+
         public void SetToResource(string resourceName) => variable = Resources.Load<ScriptableVariableBaseSO<T>>(resourceName);
         
         public void SubOnChange(Action<T> onChange) => variable.onChange += onChange;

@@ -10,6 +10,8 @@ namespace NuiN.ScriptableHarmony.ListVariable.References.Base
     {
         [SerializeField] protected ScriptableListVariableBaseSO<T> list;
         
+        public bool IsNull => list == null;
+        
         public void SetToResource(string resourceName) => list = Resources.Load<ScriptableListVariableBaseSO<T>>(resourceName);
 
         public void SubOnAdd(Action<T> onAdd) => list.onAdd += onAdd;
