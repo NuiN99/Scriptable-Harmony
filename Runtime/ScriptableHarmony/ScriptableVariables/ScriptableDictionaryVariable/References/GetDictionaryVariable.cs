@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using NuiN.ScriptableHarmony.ListVariable.References.Base;
 
 namespace NuiN.ScriptableHarmony.References

@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using NuiN.ScriptableHarmony.Internal.Helpers;
 using NuiN.ScriptableHarmony.Internal.Logging;
-using NuiN.ScriptableHarmony.Variable.Base;
 using NuiN.ScriptableHarmony.Variable.References.Base;
 using UnityEditor;
 

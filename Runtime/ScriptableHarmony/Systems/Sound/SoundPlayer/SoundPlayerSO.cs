@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
-using Random = UnityEngine.Random;
 
 namespace NuiN.ScriptableHarmony.Sound
 {

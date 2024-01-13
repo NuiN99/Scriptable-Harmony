@@ -1,7 +1,6 @@
 using System;
 using NuiN.ScriptableHarmony.RuntimeSingle.Base;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace NuiN.ScriptableHarmony.RuntimeSingle.References.Base
 {

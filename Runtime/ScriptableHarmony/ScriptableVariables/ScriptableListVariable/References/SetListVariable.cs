@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using NuiN.ScriptableHarmony.Internal.Helpers;
 using NuiN.ScriptableHarmony.Internal.Logging;
-using NuiN.ScriptableHarmony.ListVariable.Base;
 using NuiN.ScriptableHarmony.ListVariable.References.Base;
 using UnityEditor;
 

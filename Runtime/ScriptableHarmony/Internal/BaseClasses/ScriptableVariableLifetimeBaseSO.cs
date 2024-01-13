@@ -1,7 +1,6 @@
 using NuiN.NExtensions;
 using NuiN.ScriptableHarmony.Editor.Attributes;
 using NuiN.ScriptableHarmony.Events;
-using NuiN.ScriptableHarmony.Internal.Helpers;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using NuiN.ScriptableHarmony.RuntimeSet.Base;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace NuiN.ScriptableHarmony.RuntimeSet.References.Base
 {

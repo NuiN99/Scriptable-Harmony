@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NuiN.ScriptableHarmony.Editor.Attributes;
-using UnityEditor;
 using UnityEngine;
 
 namespace NuiN.ScriptableHarmony.Internal.Helpers
