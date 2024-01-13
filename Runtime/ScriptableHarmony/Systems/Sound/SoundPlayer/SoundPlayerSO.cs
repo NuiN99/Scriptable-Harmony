@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace NuiN.ScriptableHarmony.Sound
 {
-    [CreateAssetMenu(menuName = "ScriptableHarmony/Sound/Player", fileName = "New Sound Player")]
+    [CreateAssetMenu(menuName = "ScriptableHarmony/Sound/New Sound Player", fileName = "New Sound Player")]
     public class SoundPlayerSO : ScriptableObject
     {
         UnityEngine.Pool.ObjectPool<AudioSource> _sourcePool;

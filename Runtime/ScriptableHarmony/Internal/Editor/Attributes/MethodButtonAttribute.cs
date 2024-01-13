@@ -22,7 +22,7 @@ namespace NuiN.ScriptableHarmony.Editor.Attributes
     }
     
 #if UNITY_EDITOR
-    [CustomEditor(typeof(Object), true)]
+    [CustomEditor(typeof(Object), true), CanEditMultipleObjects]
     public class MethodButtonAttributeDrawer : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
