@@ -3,21 +3,38 @@ using UnityEngine;
 namespace NuiN.ScriptableHarmony.Sound
 {
     [CreateAssetMenu(menuName = "ScriptableHarmony/Sound/Sound Object", fileName = "New Sound")]
-    public class SoundSO : SoundBaseSO
+    public class SoundSO : ScriptableObject
     {
-        [SerializeField] AudioClip audioClip;
-
-        public AudioClip Clip => audioClip;
-
-        public void Play(float volumeMult = 1f)
-            => player.Play(this, volumeMult);
-        public void PlaySpatial(Vector3 position, float volumeMult = 1f, Transform parent = null)
-            => player.PlaySpatial(this, position, volumeMult, parent);
+        [SerializeField] SoundPlayerSO player;
+        [SerializeField] SoundSettings settings;
         
-        public static SoundSO CreateInstance(AudioClip clip, SoundPlayerSO soundPlayer)
+        void Reset() => player = Resources.Load<SoundPlayerSO>("Default Sound Player");
+
+        // ReSharper disable Unity.PerformanceAnalysis 
+        public void Play()
         {
-            var obj = CreateInstance<SoundSO>();
-            obj.audioClip = clip;
+            if (!ClipsAreValid()) return;
+            player.Play(settings);
+        }
+
+        // ReSharper disable Unity.PerformanceAnalysis
+        public void PlaySpatial(Vector3 position, Transform parent = null)
+        {
+            if (!ClipsAreValid()) return;
+            player.PlaySpatial(settings, position, parent);
+        }
+
+        bool ClipsAreValid()
+        {
+            if (settings.Clips.Length != 0) return true;
+            Debug.LogError("SoundSO had no clips when attempting to play", this);
+            return false;
+        }
+        
+        public static SoundSO CreateInstance(AudioClip[] clips, SoundPlayerSO soundPlayer)
+        {
+            var obj = ScriptableObject.CreateInstance<SoundSO>();
+            obj.settings.SetClips(clips);
             obj.player = soundPlayer;
             return obj;
         }

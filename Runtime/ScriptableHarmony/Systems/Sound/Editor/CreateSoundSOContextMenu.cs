@@ -11,36 +11,26 @@ namespace NuiN.ScriptableHarmony.Sound
     public static class CreateSoundSOContextMenu
     {
         const string NEW_SOUND_NAME = "New SoundSO";
-        const string NEW_SOUND_ARRAY_NAME = "New SoundArraySO";
     
         [MenuItem("Assets/Create/ScriptableHarmony/Sound/Sound Object from Selection", false, 0)]
         public static void Test()
         {
-            List<AudioClip> selectedClips = Selection.objects?
+            AudioClip[] selectedClips = Selection.objects?
                 .Where(obj => obj != null && obj is AudioClip)
-                .Select(obj => (AudioClip)obj).ToList();
+                .Select(obj => (AudioClip)obj).ToArray();
         
-            if (selectedClips is { Count: <= 0 })
+            if (selectedClips is { Length: <= 0 } or null)
             {
-                Debug.LogWarning("No AudioClip Selected!");
+                Debug.LogWarning("No AudioClips Selected!");
                 return;
             }
-
-            bool isArray = selectedClips!.Count > 1;
-
-            AudioClip clip = selectedClips[0];
+            
             SoundPlayerSO defaultSoundPlayer = Resources.Load<SoundPlayerSO>("Default Sound Player");
-            
-            Object newSoundObj = isArray 
-                ? SoundArraySO.CreateInstance(selectedClips.ToArray(), defaultSoundPlayer) 
-                : SoundSO.CreateInstance(clip, defaultSoundPlayer);
-            
-            string assetName = isArray 
-                ? NEW_SOUND_ARRAY_NAME 
-                : NEW_SOUND_NAME;
+
+            Object newSoundObj = SoundSO.CreateInstance(selectedClips.ToArray(), defaultSoundPlayer);
         
-            string directory = Path.GetDirectoryName(AssetDatabase.GetAssetPath(clip));
-            string assetPath = $"{directory}/{assetName}.asset";
+            string directory = Path.GetDirectoryName(AssetDatabase.GetAssetPath(selectedClips[0]));
+            string assetPath = $"{directory}/{NEW_SOUND_NAME}.asset";
             string uniqueAssetPath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
         
             AssetDatabase.CreateAsset(newSoundObj, uniqueAssetPath);

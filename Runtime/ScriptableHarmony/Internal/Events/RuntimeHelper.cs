@@ -14,6 +14,17 @@ namespace NuiN.NExtensions
         {
             return RuntimeHelperInstance.MonoInstance.StartCoroutine(coroutine);
         }
+
+        public static Coroutine DoAfter(float seconds, Action onComplete)
+        {
+            return RuntimeHelperInstance.MonoInstance.StartCoroutine(DoAfterRoutine(seconds, onComplete));
+        }
+
+        static IEnumerator DoAfterRoutine(float seconds, Action onComplete)
+        {
+            yield return new WaitForSeconds(seconds);
+            onComplete?.Invoke();
+        }
     }
     
     internal class RuntimeHelperInstance : MonoBehaviour
@@ -48,7 +59,7 @@ namespace NuiN.NExtensions
         #if UNITY_EDITOR
         static void UnloadInstance(PlayModeStateChange newMode)
         {
-            if (newMode != PlayModeStateChange.ExitingPlayMode) return;
+            if (newMode != PlayModeStateChange.EnteredEditMode) return;
             
             MonoInstance.StopAllCoroutines();
             Destroy(instance.gameObject);
