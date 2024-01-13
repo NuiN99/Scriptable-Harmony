@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -32,11 +33,9 @@ namespace NuiN.ScriptableHarmony.Sound
         public int Priority => priority;
         public float ReverbZoneMix => reverbZoneMix;
         public bool Loop => loop;
-
-
+        
         public float Volume => Random.Range(MinVolume, MaxVolume);
         public float Pitch => Random.Range(MinPitch, MaxPitch);
-
         public AudioClip Clip => Clips[Random.Range(0, Clips.Length)];
 
         internal void SetClips(AudioClip[] newClips) => clips = newClips;
