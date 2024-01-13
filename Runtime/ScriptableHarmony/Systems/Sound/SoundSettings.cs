@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -13,10 +12,14 @@ namespace NuiN.ScriptableHarmony.Sound
         [Header("Volume")]
         [SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] float minVolume = 0.5f;
         [SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] float maxVolume = 0.5f;
+        [SerializeField] bool useSetVolumes;
+        [SerializeField, Range(0f, 1f)] float[] possibleVolumes;
 
         [Header("Pitch")]
         [SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] float minPitch = 1f;
         [SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] float maxPitch = 1f;
+        [SerializeField] bool useSetPitches;
+        [SerializeField, Range(0.05f, 3f)] float[] possiblePitches;
 
         [Header("Other")]
         [SerializeField, Range(-1f, 1f), Tooltip("Default - 0")] float stereoPan = 0f;
@@ -34,8 +37,12 @@ namespace NuiN.ScriptableHarmony.Sound
         public float ReverbZoneMix => reverbZoneMix;
         public bool Loop => loop;
         
-        public float Volume => Random.Range(MinVolume, MaxVolume);
-        public float Pitch => Random.Range(MinPitch, MaxPitch);
+        public float Volume => useSetVolumes && possibleVolumes.Length > 0 
+            ? possibleVolumes[Random.Range(0, possibleVolumes.Length)] 
+            : Random.Range(MinVolume, MaxVolume);
+        public float Pitch => useSetPitches && possiblePitches.Length > 0 
+            ? possiblePitches[Random.Range(0, possiblePitches.Length)] 
+            :Random.Range(MinPitch, MaxPitch);
         public AudioClip Clip => Clips[Random.Range(0, Clips.Length)];
 
         internal void SetClips(AudioClip[] newClips) => clips = newClips;
