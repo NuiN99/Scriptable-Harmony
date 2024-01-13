@@ -7,20 +7,31 @@ namespace NuiN.ScriptableHarmony.Sound
     [Serializable]
     internal class SoundSettings
     {
-        [field: SerializeField] public AudioClip[] Clips { get; private set; }
+        [SerializeField] AudioClip[] clips;
         
-        [field: Header("Volume"), SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] public float MinVolume { get; private set; } = 0.5f;
-        [field: SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] public float MaxVolume { get; private set; } = 0.5f;
-        
-        [field: Header("Pitch"), SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] public float MinPitch { get; private set; } = 1;
-        [field: SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] public float MaxPitch { get; private set; } = 1;
-        
-        [field: Header("Other"), SerializeField, Range(-1f, 1f), Tooltip("Default - 0")] public float StereoPan { get; private set; }
-        
-        [field: SerializeField, Range(0, 256), Tooltip("Default - 128")] public int Priority { get; private set; } = 128;
-        
-        [field: SerializeField, Range(0f, 1.1f), Tooltip("Default - 1")] public float ReverbZoneMix { get; private set; } = 1f;
-        [field: SerializeField, Tooltip("Default - False")] public bool Loop { get; private set; }
+        [Header("Volume")]
+        [SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] float minVolume = 0.5f;
+        [SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] float maxVolume = 0.5f;
+
+        [Header("Pitch")]
+        [SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] float minPitch = 1f;
+        [SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] float maxPitch = 1f;
+
+        [Header("Other")]
+        [SerializeField, Range(-1f, 1f), Tooltip("Default - 0")] float stereoPan = 0f;
+        [SerializeField, Range(0, 256), Tooltip("Default - 128")] int priority = 128;
+        [SerializeField, Range(0f, 1.1f), Tooltip("Default - 1")] float reverbZoneMix = 1f;
+        [SerializeField, Tooltip("Default - False")] bool loop = false;
+
+        public AudioClip[] Clips => clips;
+        public float MinVolume => minVolume;
+        public float MaxVolume => maxVolume;
+        public float MinPitch => minPitch;
+        public float MaxPitch => maxPitch;
+        public float StereoPan => stereoPan;
+        public int Priority => priority;
+        public float ReverbZoneMix => reverbZoneMix;
+        public bool Loop => loop;
 
 
         public float Volume => Random.Range(MinVolume, MaxVolume);
@@ -28,6 +39,6 @@ namespace NuiN.ScriptableHarmony.Sound
 
         public AudioClip Clip => Clips[Random.Range(0, Clips.Length)];
 
-        internal void SetClips(AudioClip[] newClips) => Clips = newClips;
+        internal void SetClips(AudioClip[] newClips) => clips = newClips;
     }
 }
