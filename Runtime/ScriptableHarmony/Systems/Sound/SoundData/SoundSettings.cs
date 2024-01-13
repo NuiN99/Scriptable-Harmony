@@ -16,8 +16,8 @@ namespace NuiN.ScriptableHarmony.Sound
         [field: Header("Volume"), SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] public float MinVolume { get; private set; } = 0.5f;
         [field: SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] public float MaxVolume { get; private set; } = 0.5f;
         
-        [field: Header("Pitch"), SerializeField, Range(-3f, 3f), Tooltip("Default - 1")] public float MinPitch { get; private set; } = 1;
-        [field: SerializeField, Range(-3f, 3f), Tooltip("Default - 1")] public float MaxPitch { get; private set; } = 1;
+        [field: Header("Pitch"), SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] public float MinPitch { get; private set; } = 1;
+        [field: SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] public float MaxPitch { get; private set; } = 1;
         
         [field: SerializeField, Range(-1f, 1f), Tooltip("Default - 0")] public float StereoPan { get; private set; }
         

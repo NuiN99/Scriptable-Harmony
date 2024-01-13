@@ -42,7 +42,12 @@ namespace NuiN.ScriptableHarmony.Sound
             AudioSource sourcePrefab = new GameObject("AudioSourcePrefab").AddComponent<AudioSource>();
             _sourcePool = new ObjectPool<AudioSource>(
                 createFunc: () => Instantiate(sourcePrefab),
-                actionOnRelease: s => s.transform.SetParent(null));
+                actionOnGet: s => s.gameObject.SetActive(true),
+                actionOnRelease: s =>
+                {
+                    s.transform.SetParent(null);
+                    s.gameObject.SetActive(false);
+                });
             
             DontDestroyOnLoad(sourcePrefab);
 
