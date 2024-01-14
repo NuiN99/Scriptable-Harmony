@@ -62,14 +62,19 @@ namespace NuiN.ScriptableHarmony.Sound
         }
 
         // ReSharper disable Unity.PerformanceAnalysis 
-        AudioSource InitializeNewSource(SoundSettings settings, bool spatial)
+        AudioSource InitializeNewSource(SoundSO sound, bool spatial)
         {
+            SoundSettings settings = sound.Settings;
+            
             AudioSource source = _sourcePool.Get();
             
             AudioClip clip = settings.Clip;
             if (clip == null) 
             {
-                Debug.LogWarning("Cannot play null clip");
+                #if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.LogWarning($"SoundSO {sound.name}: Attempted to play null clip", sound);
+                #endif
+                
                 return source;
             }
             
@@ -94,17 +99,17 @@ namespace NuiN.ScriptableHarmony.Sound
             return source;
         }
 
-        internal void Play(SoundSettings settings)
+        internal void Play(SoundSO sound)
         {
             if (AudioDisabled) return;
-            InitializeNewSource(settings, false);
+            InitializeNewSource(sound, false);
         }
 
-        internal void PlaySpatial(SoundSettings settings, Vector3 position, Transform parent = null)
+        internal void PlaySpatial(SoundSO sound, Vector3 position, Transform parent = null)
         {
             if (AudioDisabled) return;
 
-            AudioSource source = InitializeNewSource(settings, true);
+            AudioSource source = InitializeNewSource(sound, true);
             source.transform.position = position;
             source.transform.SetParent(parent);
         }

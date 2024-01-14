@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace NuiN.ScriptableHarmony.Sound
 {
     [Serializable]
-    internal class SoundSettings
+    public class SoundSettings
     {
         [SerializeField] AudioClip[] clips;
         
@@ -27,7 +28,7 @@ namespace NuiN.ScriptableHarmony.Sound
         [SerializeField, Range(0f, 1.1f), Tooltip("Default - 1")] float reverbZoneMix = 1f;
         [SerializeField, Tooltip("Default - False")] bool loop = false;
 
-        public AudioClip[] Clips => clips;
+        public ReadOnlyCollection<AudioClip> Clips => Array.AsReadOnly(clips);
         public float MinVolume => minVolume;
         public float MaxVolume => maxVolume;
         public float MinPitch => minPitch;
@@ -43,7 +44,7 @@ namespace NuiN.ScriptableHarmony.Sound
         public float Pitch => useSetPitches && possiblePitches.Length > 0 
             ? possiblePitches[Random.Range(0, possiblePitches.Length)] 
             :Random.Range(MinPitch, MaxPitch);
-        public AudioClip Clip => Clips[Random.Range(0, Clips.Length)];
+        public AudioClip Clip => Clips[Random.Range(0, Clips.Count)];
 
         internal void SetClips(AudioClip[] newClips) => clips = newClips;
     }

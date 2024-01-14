@@ -9,6 +9,8 @@ namespace NuiN.ScriptableHarmony.Sound
     {
         [SerializeField] SoundPlayerSO player;
         [SerializeField] SoundSettings settings;
+
+        public SoundSettings Settings => settings;
         
         void Reset() => player = Resources.Load<SoundPlayerSO>("Default Sound Player");
 
@@ -16,20 +18,24 @@ namespace NuiN.ScriptableHarmony.Sound
         public void Play()
         {
             if (!ClipsAreValid()) return;
-            player.Play(settings);
+            player.Play(this);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
         public void PlaySpatial(Vector3 position, Transform parent = null)
         {
             if (!ClipsAreValid()) return;
-            player.PlaySpatial(settings, position, parent);
+            player.PlaySpatial(this, position, parent);
         }
 
         bool ClipsAreValid()
         {
-            if (settings.Clips.Length != 0) return true;
-            Debug.LogWarning("SoundSO had no clips when attempting to play", this);
+            if (settings.Clips.Count != 0) return true;
+            
+            #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning($"SoundSO {name}: No audio clips in array", this);
+            #endif
+            
             return false;
         }
         
