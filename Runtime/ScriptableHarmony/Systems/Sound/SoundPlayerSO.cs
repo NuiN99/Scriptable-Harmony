@@ -61,17 +61,22 @@ namespace NuiN.ScriptableHarmony.Sound
             _sceneDisabledAudio = false;
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis 
         AudioSource InitializeNewSource(SoundSettings settings, bool spatial)
         {
             AudioSource source = _sourcePool.Get();
             
             AudioClip clip = settings.Clip;
-            if (clip == null) return source;
+            if (clip == null) 
+            {
+                Debug.LogWarning("Cannot play null clip");
+                return source;
+            }
             
             source.Stop();
             
             source.playOnAwake = false;
-            source.clip = settings.Clip;
+            source.clip = clip;
             source.outputAudioMixerGroup = mixerGroup;
             source.loop = settings.Loop;
             source.priority = settings.Priority;
