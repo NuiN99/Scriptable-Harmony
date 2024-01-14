@@ -29,7 +29,7 @@ namespace NuiN.ScriptableHarmony.Sound
         bool ClipsAreValid()
         {
             if (settings.Clips.Length != 0) return true;
-            Debug.LogError("SoundSO had no clips when attempting to play", this);
+            Debug.LogWarning("SoundSO had no clips when attempting to play", this);
             return false;
         }
         

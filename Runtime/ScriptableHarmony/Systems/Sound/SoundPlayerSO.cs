@@ -65,6 +65,9 @@ namespace NuiN.ScriptableHarmony.Sound
         {
             AudioSource source = _sourcePool.Get();
             
+            AudioClip clip = settings.Clip;
+            if (clip == null) return source;
+            
             source.Stop();
             
             source.playOnAwake = false;
