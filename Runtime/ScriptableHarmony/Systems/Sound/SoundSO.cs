@@ -15,17 +15,17 @@ namespace NuiN.ScriptableHarmony.Sound
         void Reset() => player = Resources.Load<SoundPlayerSO>("Default Sound Player");
 
         // ReSharper disable Unity.PerformanceAnalysis 
-        public void Play()
+        public void Play(float volumeMult = 1f, float pitchMult = 1f)
         {
             if (!ClipsAreValid()) return;
-            player.Play(this);
+            player.Play(this, volumeMult, pitchMult);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        public void PlaySpatial(Vector3 position, Transform parent = null)
+        public void PlaySpatial(Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
         {
             if (!ClipsAreValid()) return;
-            player.PlaySpatial(this, position, parent);
+            player.PlaySpatial(this, position, parent, volumeMult, pitchMult);
         }
 
         bool ClipsAreValid()

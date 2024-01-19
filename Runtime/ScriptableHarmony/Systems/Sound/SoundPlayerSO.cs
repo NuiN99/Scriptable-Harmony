@@ -62,7 +62,7 @@ namespace NuiN.ScriptableHarmony.Sound
         }
 
         // ReSharper disable Unity.PerformanceAnalysis 
-        AudioSource InitializeNewSource(SoundSO sound, bool spatial)
+        AudioSource InitializeNewSource(SoundSO sound, bool spatial, float volumeMult, float pitchMult)
         {
             SoundSettings settings = sound.Settings;
             
@@ -85,8 +85,8 @@ namespace NuiN.ScriptableHarmony.Sound
             source.outputAudioMixerGroup = mixerGroup;
             source.loop = settings.Loop;
             source.priority = settings.Priority;
-            source.volume = settings.Volume * masterVolume;
-            source.pitch = settings.Pitch;
+            source.volume = settings.Volume * masterVolume * volumeMult;
+            source.pitch = settings.Pitch * pitchMult;
             source.panStereo = settings.StereoPan;
             source.reverbZoneMix = settings.ReverbZoneMix;
             source.spatialBlend = spatial ? 1f : 0f;
@@ -99,17 +99,17 @@ namespace NuiN.ScriptableHarmony.Sound
             return source;
         }
 
-        internal void Play(SoundSO sound)
+        internal void Play(SoundSO sound, float volumeMult = 1f, float pitchMult = 1f)
         {
             if (AudioDisabled) return;
-            InitializeNewSource(sound, false);
+            InitializeNewSource(sound, false, volumeMult, pitchMult);
         }
 
-        internal void PlaySpatial(SoundSO sound, Vector3 position, Transform parent = null)
+        internal void PlaySpatial(SoundSO sound, Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
         {
             if (AudioDisabled) return;
 
-            AudioSource source = InitializeNewSource(sound, true);
+            AudioSource source = InitializeNewSource(sound, true, volumeMult, pitchMult);
             source.transform.position = position;
             source.transform.SetParent(parent);
         }
