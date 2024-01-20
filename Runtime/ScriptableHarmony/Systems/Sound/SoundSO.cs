@@ -14,8 +14,14 @@ namespace NuiN.ScriptableHarmony.Sound
         
         void Reset() => player = Resources.Load<SoundPlayerSO>("Default Sound Player");
 
+        // for UnityEvents
+        public void Play()
+        {
+            Play(1f, 1f);
+        }
+        
         // ReSharper disable Unity.PerformanceAnalysis 
-        public void Play(float volumeMult = 1f, float pitchMult = 1f)
+        public void Play(float volumeMult, float pitchMult = 1f)
         {
             if (!ClipsAreValid()) return;
             player.Play(this, volumeMult, pitchMult);
