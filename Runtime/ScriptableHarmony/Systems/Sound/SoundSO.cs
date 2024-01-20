@@ -21,17 +21,15 @@ namespace NuiN.ScriptableHarmony.Sound
         }
         
         // ReSharper disable Unity.PerformanceAnalysis 
-        public void Play(float volumeMult, float pitchMult = 1f)
+        public AudioSource Play(float volumeMult, float pitchMult = 1f)
         {
-            if (!ClipsAreValid()) return;
-            player.Play(this, volumeMult, pitchMult);
+            return !ClipsAreValid() ? new AudioSource() : player.Play(this, volumeMult, pitchMult);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        public void PlaySpatial(Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
+        public AudioSource PlaySpatial(Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
         {
-            if (!ClipsAreValid()) return;
-            player.PlaySpatial(this, position, parent, volumeMult, pitchMult);
+            return !ClipsAreValid() ? new AudioSource() : player.PlaySpatial(this, position, parent, volumeMult, pitchMult);
         }
 
         bool ClipsAreValid()

@@ -99,19 +99,20 @@ namespace NuiN.ScriptableHarmony.Sound
             return source;
         }
 
-        internal void Play(SoundSO sound, float volumeMult = 1f, float pitchMult = 1f)
+        internal AudioSource Play(SoundSO sound, float volumeMult = 1f, float pitchMult = 1f)
         {
-            if (AudioDisabled) return;
-            InitializeNewSource(sound, false, volumeMult, pitchMult);
+            return AudioDisabled ? new AudioSource() : InitializeNewSource(sound, false, volumeMult, pitchMult);
         }
 
-        internal void PlaySpatial(SoundSO sound, Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
+        internal AudioSource PlaySpatial(SoundSO sound, Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
         {
-            if (AudioDisabled) return;
+            if (AudioDisabled) return new AudioSource();
 
             AudioSource source = InitializeNewSource(sound, true, volumeMult, pitchMult);
             source.transform.position = position;
             source.transform.SetParent(parent);
+
+            return source;
         }
     }
 }
