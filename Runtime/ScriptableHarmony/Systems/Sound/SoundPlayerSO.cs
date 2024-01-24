@@ -12,8 +12,10 @@ namespace NuiN.ScriptableHarmony.Sound
     [CreateAssetMenu(menuName = "ScriptableHarmony/Sound/New Sound Player", fileName = "New Sound Player")]
     public class SoundPlayerSO : ScriptableObject
     {
-        UnityEngine.Pool.ObjectPool<AudioSource> _sourcePool;
-            
+        ObjectPool<AudioSource> _sourcePool;
+        Transform _sourceContainer;
+
+        AudioSource _sourcePrefab;
         AudioSource _activeSource;
         bool _sceneDisabledAudio;
     
@@ -38,11 +40,13 @@ namespace NuiN.ScriptableHarmony.Sound
                 return;
             }
 
-            AudioSource sourcePrefab = new GameObject("AudioSource_Prefab").AddComponent<AudioSource>();
+            _sourceContainer = new GameObject(name + " | ObjectPool").transform;
+            _sourcePrefab = Resources.Load<AudioSource>("SH_AudioSourcePrefab");
+            
             _sourcePool = new ObjectPool<AudioSource>(
                 createFunc: () =>
                 {
-                    AudioSource source = Instantiate(sourcePrefab);
+                    AudioSource source = Instantiate(_sourcePrefab, _sourceContainer);
                     source.name = "AudioSource_Pooled";
                     return source;
                 },
@@ -52,12 +56,10 @@ namespace NuiN.ScriptableHarmony.Sound
                 },
                 actionOnRelease: s =>
                 {
-                    s.transform.SetParent(null);
+                    s.transform.SetParent(_sourceContainer);
                     s.gameObject.SetActive(false);
                 });
             
-            DontDestroyOnLoad(sourcePrefab);
-
             _sceneDisabledAudio = false;
         }
 
@@ -109,8 +111,16 @@ namespace NuiN.ScriptableHarmony.Sound
             if (AudioDisabled) return new AudioSource();
 
             AudioSource source = InitializeNewSource(sound, true, volumeMult, pitchMult);
+
+            if (source.clip == null)
+            {
+                _sourcePool.Release(source);
+                return source;
+            }
+            
             source.transform.position = position;
-            source.transform.SetParent(parent);
+            
+            if(parent != null) source.transform.SetParent(parent);
 
             return source;
         }
