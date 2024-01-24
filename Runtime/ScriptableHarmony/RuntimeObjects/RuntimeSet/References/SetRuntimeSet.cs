@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using NuiN.ScriptableHarmony.Internal.Helpers;
 using NuiN.ScriptableHarmony.Internal.Logging;
@@ -8,9 +9,12 @@ using Object = UnityEngine.Object;
 namespace NuiN.ScriptableHarmony.References
 {
     [Serializable]
-    public class SetRuntimeSet<T> : ReferenceRuntimeSetBase<T>
+    public class SetRuntimeSet<T> : ReferenceRuntimeSetBase<T>, IEnumerable<T>
     {
         public List<T> Entities => runtimeSet.entities;
+        
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Entities.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => Entities.GetEnumerator();
     
         public void Add(T item)
         {

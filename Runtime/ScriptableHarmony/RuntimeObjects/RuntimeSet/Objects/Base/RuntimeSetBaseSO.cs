@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using NuiN.ScriptableHarmony.Base;
 using NuiN.ScriptableHarmony.Editor.Attributes;
