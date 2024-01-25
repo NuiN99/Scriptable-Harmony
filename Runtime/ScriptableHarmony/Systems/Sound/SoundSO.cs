@@ -63,7 +63,7 @@ namespace NuiN.ScriptableHarmony.Sound
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        bool ClipsAreValid()
+        public bool ClipsAreValid()
         {
             if (clips.Length != 0) return true;
             
@@ -83,12 +83,16 @@ namespace NuiN.ScriptableHarmony.Sound
     }
     
 #if UNITY_EDITOR
+    
+    /// <summary>
+    /// Creates a SoundSO that contains any selected AudioClips
+    /// </summary>
     internal static class CreateSoundSOContextMenu
     {
         const string NEW_SOUND_NAME = "New Sound";
     
         [MenuItem("Assets/Create/ScriptableHarmony/Sound/New Sound", false, 0)]
-        public static void Test()
+        static void CreateSoundSO()
         {
             AudioClip[] selectedClips = Selection.objects?
                 .Where(obj => obj != null && obj is AudioClip)
@@ -113,5 +117,6 @@ namespace NuiN.ScriptableHarmony.Sound
             Selection.activeObject = newSoundObj;
         }
     }
+    
 #endif
 }
