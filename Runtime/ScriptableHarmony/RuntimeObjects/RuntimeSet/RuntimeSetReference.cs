@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using NuiN.ScriptableHarmony.RuntimeSet.Base;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.RuntimeSet.References.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     [Serializable]
     public abstract class RuntimeSetReference<T>

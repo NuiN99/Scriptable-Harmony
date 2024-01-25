@@ -1,8 +1,7 @@
 ﻿using System;
-using NuiN.ScriptableHarmony.ListVariable.Base;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.ListVariable.References.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     [Serializable]
     public abstract class ScriptableDictionaryReference<TKey,TValue>

@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace NuiN.ScriptableHarmony.Editor.Attributes
+namespace NuiN.ScriptableHarmony.Editor
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class MethodButtonAttribute : PropertyAttribute

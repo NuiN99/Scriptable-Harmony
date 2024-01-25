@@ -1,8 +1,7 @@
 using System;
-using NuiN.ScriptableHarmony.References;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Variable.References
+namespace NuiN.ScriptableHarmony
 {
     public static class SetVariableExtensions
     {

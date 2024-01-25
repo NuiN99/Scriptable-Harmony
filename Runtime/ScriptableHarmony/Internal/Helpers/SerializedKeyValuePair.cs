@@ -1,14 +1,17 @@
 using System;
 
-[Serializable]
-internal class SerializedKeyValuePair<TKey,TValue>
+namespace NuiN.ScriptableHarmony.Core
 {
-    public TKey key;
-    public TValue value;
-
-    public SerializedKeyValuePair(TKey key, TValue value)
+    [Serializable]
+    internal class SerializedKeyValuePair<TKey,TValue>
     {
-        this.key = key;
-        this.value = value;
+        public TKey key;
+        public TValue value;
+
+        public SerializedKeyValuePair(TKey key, TValue value)
+        {
+            this.key = key;
+            this.value = value;
+        }
     }
 }

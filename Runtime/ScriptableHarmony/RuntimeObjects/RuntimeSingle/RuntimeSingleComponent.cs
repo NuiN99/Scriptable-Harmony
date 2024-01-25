@@ -1,8 +1,6 @@
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.References;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.RuntimeSingle.Components.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     public class RuntimeSingleComponent<T> : MonoBehaviour
     {

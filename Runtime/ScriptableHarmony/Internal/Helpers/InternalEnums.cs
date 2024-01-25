@@ -1,4 +1,4 @@
-namespace NuiN.ScriptableHarmony.Internal.Helpers
+namespace NuiN.ScriptableHarmony.Core
 {
     internal enum Access { Getter, Setter }
     internal enum SOType { Variable, List, Dictionary, RuntimeSet, RuntimeSingle }

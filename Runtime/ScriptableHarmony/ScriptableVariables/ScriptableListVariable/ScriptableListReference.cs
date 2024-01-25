@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NuiN.ScriptableHarmony.ListVariable.Base;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.ListVariable.References.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     [Serializable]
     public abstract class ScriptableListReference<T>

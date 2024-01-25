@@ -1,12 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.Internal.Logging;
-using NuiN.ScriptableHarmony.RuntimeSet.References.Base;
+using NuiN.ScriptableHarmony.Core;
 using Object = UnityEngine.Object;
 
-namespace NuiN.ScriptableHarmony.References
+namespace NuiN.ScriptableHarmony
 {
     [Serializable]
     public class SetRuntimeSet<T> : RuntimeSetReference<T>, IEnumerable<T>

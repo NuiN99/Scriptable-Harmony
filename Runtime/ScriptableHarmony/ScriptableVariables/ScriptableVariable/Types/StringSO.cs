@@ -1,7 +1,7 @@
-using NuiN.ScriptableHarmony.Variable.Base;
+using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Variable.Common
+namespace NuiN.ScriptableHarmony
 {   
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/string", 

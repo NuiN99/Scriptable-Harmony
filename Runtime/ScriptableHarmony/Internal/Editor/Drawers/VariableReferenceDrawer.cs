@@ -1,10 +1,8 @@
-using NuiN.ScriptableHarmony.Core.Editor.Helpers;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.References;
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Internal.Editor
+namespace NuiN.ScriptableHarmony.Editor
 {
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(GetVariable<>))]

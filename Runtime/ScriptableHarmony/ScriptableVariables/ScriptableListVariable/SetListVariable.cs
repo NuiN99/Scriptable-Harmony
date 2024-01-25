@@ -2,12 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.Internal.Logging;
-using NuiN.ScriptableHarmony.ListVariable.References.Base;
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 
-namespace NuiN.ScriptableHarmony.References
+namespace NuiN.ScriptableHarmony
 {
     [Serializable]
     public class SetListVariable<T> : ScriptableListReference<T>, IEnumerable<T>

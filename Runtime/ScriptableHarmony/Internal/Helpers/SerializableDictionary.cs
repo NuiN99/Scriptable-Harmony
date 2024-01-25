@@ -2,63 +2,68 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[Serializable]
-public class SerializableDictionary<TKey,TValue>
+namespace NuiN.ScriptableHarmony.Core
 {
-   [NonSerialized] public Dictionary<TKey, TValue> dictionary;
-   [SerializeField] List<SerializedKeyValuePair<TKey, TValue>> serializedPairs = new();
-
-   public SerializableDictionary(ref Dictionary<TKey, TValue> dictionary)
+   [Serializable]
+   public class SerializableDictionary<TKey,TValue>
    {
-      this.dictionary = dictionary;
-   }
+      [NonSerialized] public Dictionary<TKey, TValue> dictionary;
+      [SerializeField] List<SerializedKeyValuePair<TKey, TValue>> serializedPairs = new();
    
-   public void Add(TKey key, TValue value)
-   {
-      serializedPairs.Add(new SerializedKeyValuePair<TKey, TValue>(key, value));
-   }
-   public void Serialize(ref Dictionary<TKey, TValue> newDict)
-   {
-      dictionary = newDict;
-      serializedPairs?.Clear();
-      foreach (KeyValuePair<TKey, TValue> item in dictionary)
+      public SerializableDictionary(ref Dictionary<TKey, TValue> dictionary)
       {
-         Add(item.Key, item.Value);
+         this.dictionary = dictionary;
       }
-   }
-   
-   public void ValidateAndApply(ref Dictionary<TKey, TValue> newDict)
-   {
-      dictionary = newDict;
       
-      dictionary.Clear();
-      List<SerializedKeyValuePair<TKey, TValue>> duplicates = new();
-      foreach (SerializedKeyValuePair<TKey, TValue> pair in serializedPairs)
+      public void Add(TKey key, TValue value)
       {
-         bool success = dictionary.TryAdd(pair.key, pair.value);
-         if(!success) duplicates.Add(pair);
+         serializedPairs.Add(new SerializedKeyValuePair<TKey, TValue>(key, value));
       }
-
-      foreach (SerializedKeyValuePair<TKey, TValue> duplicate in duplicates)
+      public void Serialize(ref Dictionary<TKey, TValue> newDict)
       {
-         LogDuplicateWarning(duplicate);
-         serializedPairs.Remove(duplicate);
+         dictionary = newDict;
+         serializedPairs?.Clear();
+         foreach (KeyValuePair<TKey, TValue> item in dictionary)
+         {
+            Add(item.Key, item.Value);
+         }
       }
-      Serialize(ref dictionary);
-   }
-
-   public Dictionary<TKey, TValue> GetDictionary()
-   {
-      var dict = new Dictionary<TKey, TValue>();
-      foreach (SerializedKeyValuePair<TKey, TValue> pair in serializedPairs)
+      
+      public void ValidateAndApply(ref Dictionary<TKey, TValue> newDict)
       {
-         if (!dict.TryAdd(pair.key, pair.value) && Application.isPlaying) LogDuplicateWarning(pair);
+         dictionary = newDict;
+         
+         dictionary.Clear();
+         List<SerializedKeyValuePair<TKey, TValue>> duplicates = new();
+         foreach (SerializedKeyValuePair<TKey, TValue> pair in serializedPairs)
+         {
+            bool success = dictionary.TryAdd(pair.key, pair.value);
+            if(!success) duplicates.Add(pair);
+         }
+   
+         foreach (SerializedKeyValuePair<TKey, TValue> duplicate in duplicates)
+         {
+            LogDuplicateWarning(duplicate);
+            serializedPairs.Remove(duplicate);
+         }
+         Serialize(ref dictionary);
       }
-      return dict;
-   }
-
-   void LogDuplicateWarning(SerializedKeyValuePair<TKey, TValue> pair)
-   {
-      Debug.LogWarning($"Dictionary Validation: Removed duplicate | Key: {pair.key} | Value: {pair.value}");
+   
+      public Dictionary<TKey, TValue> GetDictionary()
+      {
+         var dict = new Dictionary<TKey, TValue>();
+         foreach (SerializedKeyValuePair<TKey, TValue> pair in serializedPairs)
+         {
+            if (!dict.TryAdd(pair.key, pair.value) && Application.isPlaying) LogDuplicateWarning(pair);
+         }
+         return dict;
+      }
+   
+      void LogDuplicateWarning(SerializedKeyValuePair<TKey, TValue> pair)
+      {
+         Debug.LogWarning($"Dictionary Validation: Removed duplicate | Key: {pair.key} | Value: {pair.value}");
+      }
    }
 }
+
+

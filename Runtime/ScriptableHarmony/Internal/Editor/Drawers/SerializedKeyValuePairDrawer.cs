@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 using UnityEngine;
 

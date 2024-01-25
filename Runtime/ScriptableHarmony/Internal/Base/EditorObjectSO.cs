@@ -1,8 +1,7 @@
-using NuiN.ScriptableHarmony.Internal.Helpers;
 using UnityEditor;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     public abstract class EditorObjectSO<T> : ScriptableObject
     {

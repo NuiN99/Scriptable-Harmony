@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using NuiN.ScriptableHarmony.Internal.Helpers;
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 using UnityEngine;
 

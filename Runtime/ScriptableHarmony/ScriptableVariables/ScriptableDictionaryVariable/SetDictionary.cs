@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using NuiN.ScriptableHarmony.ListVariable.References.Base;
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 
-namespace NuiN.ScriptableHarmony.References
+namespace NuiN.ScriptableHarmony
 {
     [Serializable]
     public class SetDictionary<TKey,TValue> : ScriptableDictionaryReference<TKey,TValue>

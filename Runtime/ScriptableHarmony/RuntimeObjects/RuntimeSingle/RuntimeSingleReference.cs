@@ -1,8 +1,7 @@
 using System;
-using NuiN.ScriptableHarmony.RuntimeSingle.Base;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.RuntimeSingle.References.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     [Serializable]
     public abstract class RuntimeSingleReference<T>

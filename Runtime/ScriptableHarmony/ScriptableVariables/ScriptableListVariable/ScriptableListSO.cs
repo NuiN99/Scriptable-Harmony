@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using NuiN.ScriptableHarmony.Base;
-using NuiN.ScriptableHarmony.Editor.Attributes;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.ListVariable.References.Base;
-using NuiN.ScriptableHarmony.References;
+using NuiN.ScriptableHarmony.Editor;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.ListVariable.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     public class ScriptableListSO<T> : ScriptableVariableLifetimeSO<T>
     {

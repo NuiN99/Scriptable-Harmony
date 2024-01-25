@@ -1,4 +1,4 @@
-using NuiN.ScriptableHarmony.RuntimeSet.Components.Base;
+using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
 
 namespace NuiN.ScriptableHarmony.RuntimeSet.Components.Common

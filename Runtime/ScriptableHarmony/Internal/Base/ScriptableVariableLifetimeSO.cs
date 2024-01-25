@@ -1,11 +1,9 @@
-using NuiN.NExtensions;
-using NuiN.ScriptableHarmony.Editor.Attributes;
-using NuiN.ScriptableHarmony.Events;
+using NuiN.ScriptableHarmony.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace NuiN.ScriptableHarmony.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     public abstract class ScriptableVariableLifetimeSO<T> : EditorObjectSO<T>
     {
@@ -14,9 +12,9 @@ namespace NuiN.ScriptableHarmony.Base
         protected new virtual void OnEnable()
         {
             base.OnEnable();;
-            RuntimeHelper.SubOnLoad(SaveDefaultValue);
+            SORuntimeHelper.SubOnLoad(SaveDefaultValue);
             SceneManager.activeSceneChanged += ResetValueOnSceneLoad;
-            VariableEvents.OnResetAllVariableObjects += ResetValueToDefault;
+            ScriptableHarmonyManager.OnResetAllVariableObjects += ResetValueToDefault;
 #if UNITY_EDITOR
             EditorApplication.quitting += ResetValueToDefault;
             EditorApplication.playModeStateChanged += ResetValueOnStoppedPlaying;
@@ -25,9 +23,9 @@ namespace NuiN.ScriptableHarmony.Base
         new void OnDisable()
         {
             base.OnDisable();
-            RuntimeHelper.UnSubOnLoad(SaveDefaultValue);
+            SORuntimeHelper.UnSubOnLoad(SaveDefaultValue);
             SceneManager.activeSceneChanged -= ResetValueOnSceneLoad;
-            VariableEvents.OnResetAllVariableObjects -= ResetValueToDefault;
+            ScriptableHarmonyManager.OnResetAllVariableObjects -= ResetValueToDefault;
 #if  UNITY_EDITOR
             EditorApplication.quitting -= ResetValueToDefault;
             EditorApplication.playModeStateChanged -= ResetValueOnStoppedPlaying;

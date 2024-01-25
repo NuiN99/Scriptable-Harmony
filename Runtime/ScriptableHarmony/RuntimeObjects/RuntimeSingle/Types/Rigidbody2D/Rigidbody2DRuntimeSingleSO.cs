@@ -1,7 +1,7 @@
+using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
-using NuiN.ScriptableHarmony.RuntimeSingle.Base;
 
-namespace NuiN.ScriptableHarmony.RuntimeSingle.Common
+namespace NuiN.ScriptableHarmony
 {   
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/RuntimeSingles/Rigidbody2D", 

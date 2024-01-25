@@ -1,10 +1,8 @@
-using NuiN.ScriptableHarmony.Events;
-using NuiN.ScriptableHarmony.Internal.Helpers;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace NuiN.ScriptableHarmony.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     public abstract class RuntimeObjectBaseSO<T> : EditorObjectSO<T>
     {
@@ -13,7 +11,7 @@ namespace NuiN.ScriptableHarmony.Base
         new void OnEnable()
         {
             SceneManager.sceneUnloaded += ResetOnSceneUnloaded;
-            VariableEvents.OnResetAllVariableObjects += ResetValue;
+            ScriptableHarmonyManager.OnResetAllVariableObjects += ResetValue;
 #if UNITY_EDITOR
             base.OnEnable();
             EditorApplication.playModeStateChanged += ResetValueOnStoppedPlaying;
@@ -23,7 +21,7 @@ namespace NuiN.ScriptableHarmony.Base
         new void OnDisable()
         {
             SceneManager.sceneUnloaded -= ResetOnSceneUnloaded;
-            VariableEvents.OnResetAllVariableObjects -= ResetValue;
+            ScriptableHarmonyManager.OnResetAllVariableObjects -= ResetValue;
 #if UNITY_EDITOR
             base.OnDisable();
             EditorApplication.playModeStateChanged -= ResetValueOnStoppedPlaying;

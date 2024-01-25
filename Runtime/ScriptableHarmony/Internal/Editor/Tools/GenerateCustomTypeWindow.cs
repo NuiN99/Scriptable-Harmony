@@ -1,16 +1,10 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.ListVariable.Base;
-using NuiN.ScriptableHarmony.RuntimeSet.Base;
-using NuiN.ScriptableHarmony.RuntimeSet.Components.Base;
-using NuiN.ScriptableHarmony.RuntimeSingle.Base;
-using NuiN.ScriptableHarmony.RuntimeSingle.Components.Base;
-using NuiN.ScriptableHarmony.Variable.Base;
+using NuiN.ScriptableHarmony.Core;
 using Object = UnityEngine.Object;
 
-namespace NuiN.ScriptableHarmony.Core.Editor.Tools
+namespace NuiN.ScriptableHarmony.Editor
 {
 #if UNITY_EDITOR
     internal class GenerateCustomTypeWindow : EditorWindow

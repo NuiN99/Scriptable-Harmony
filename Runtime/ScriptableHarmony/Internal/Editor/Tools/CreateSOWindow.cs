@@ -2,13 +2,9 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.Linq;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.ListVariable.Base;
-using NuiN.ScriptableHarmony.RuntimeSet.Base;
-using NuiN.ScriptableHarmony.RuntimeSingle.Base;
-using NuiN.ScriptableHarmony.Variable.Base;
+using NuiN.ScriptableHarmony.Core;
 
-namespace NuiN.ScriptableHarmony.Core.Editor.Tools
+namespace NuiN.ScriptableHarmony.Editor
 {
 #if UNITY_EDITOR
     internal class CreateSOWindow : EditorWindow

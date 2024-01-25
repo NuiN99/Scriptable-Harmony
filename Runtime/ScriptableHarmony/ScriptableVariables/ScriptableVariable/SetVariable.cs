@@ -1,11 +1,9 @@
 using System;
 using System.Diagnostics;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.Internal.Logging;
-using NuiN.ScriptableHarmony.Variable.References.Base;
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 
-namespace NuiN.ScriptableHarmony.References
+namespace NuiN.ScriptableHarmony
 {
     [Serializable]
     public class SetVariable<T> : ScriptableVariableReference<T>

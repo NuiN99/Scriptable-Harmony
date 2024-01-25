@@ -1,7 +1,7 @@
+using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
-using NuiN.ScriptableHarmony.RuntimeSingle.Components.Base;
 
-namespace NuiN.ScriptableHarmony.RuntimeSingle.Components.Common
+namespace NuiN.ScriptableHarmony
 {
     public class GameObjectRuntimeSingleComponent : RuntimeSingleComponent<GameObject> { }
 }

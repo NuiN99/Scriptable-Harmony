@@ -1,7 +1,7 @@
+using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
-using NuiN.ScriptableHarmony.ListVariable.Base;
 
-namespace NuiN.ScriptableHarmony.ListVariable.Common
+namespace NuiN.ScriptableHarmony
 {   
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/ListVariables/AudioClip",

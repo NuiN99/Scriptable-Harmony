@@ -1,13 +1,8 @@
 using System;
-using NuiN.ScriptableHarmony.Base;
-using NuiN.ScriptableHarmony.Editor.Attributes;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.References;
-using NuiN.ScriptableHarmony.RuntimeSingle.Components.Base;
-using NuiN.ScriptableHarmony.RuntimeSingle.References.Base;
+using NuiN.ScriptableHarmony.Editor;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.RuntimeSingle.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     public class RuntimeSingleSO<T> : RuntimeObjectBaseSO<T>
     {

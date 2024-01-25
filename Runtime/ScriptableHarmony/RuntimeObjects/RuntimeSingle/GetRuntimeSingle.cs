@@ -1,7 +1,7 @@
 using System;
-using NuiN.ScriptableHarmony.RuntimeSingle.References.Base;
+using NuiN.ScriptableHarmony.Core;
 
-namespace NuiN.ScriptableHarmony.References
+namespace NuiN.ScriptableHarmony
 {
     [Serializable]
     public class GetRuntimeSingle<T> : RuntimeSingleReference<T>

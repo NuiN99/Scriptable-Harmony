@@ -1,11 +1,10 @@
 using System;
 using System.Reflection;
-using NuiN.ScriptableHarmony.Core.Editor.Tools;
-using NuiN.ScriptableHarmony.Internal.Helpers;
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Core.Editor.Helpers
+namespace NuiN.ScriptableHarmony.Editor
 {
 #if UNITY_EDITOR
     internal static class SOReferenceGUIHelper

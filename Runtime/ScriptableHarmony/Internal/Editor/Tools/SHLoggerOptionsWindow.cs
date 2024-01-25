@@ -1,4 +1,4 @@
-using NuiN.ScriptableHarmony.Internal.Logging;
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 using UnityEngine;
 

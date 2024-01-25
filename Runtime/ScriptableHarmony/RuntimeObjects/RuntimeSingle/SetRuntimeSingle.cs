@@ -1,10 +1,8 @@
 using System;
-using NuiN.ScriptableHarmony.Internal.Helpers;
-using NuiN.ScriptableHarmony.Internal.Logging;
-using NuiN.ScriptableHarmony.RuntimeSingle.References.Base;
+using NuiN.ScriptableHarmony.Core;
 using Object = UnityEngine.Object;
 
-namespace NuiN.ScriptableHarmony.References
+namespace NuiN.ScriptableHarmony
 {
     [Serializable]
     public class SetRuntimeSingle<T> : RuntimeSingleReference<T>

@@ -5,10 +5,10 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
-using NuiN.ScriptableHarmony.Variable.Base;
+using NuiN.ScriptableHarmony.Core;
 using Object = UnityEngine.Object;
 
-namespace NuiN.ScriptableHarmony.Core.Editor.Tools
+namespace NuiN.ScriptableHarmony.Editor
 {
     internal class FindScriptableObjectWindow : EditorWindow
     {

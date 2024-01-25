@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using NuiN.ScriptableHarmony.RuntimeSet.References.Base;
+using NuiN.ScriptableHarmony.Core;
 
-namespace NuiN.ScriptableHarmony.References
+namespace NuiN.ScriptableHarmony
 {
     [Serializable]
     public class GetRuntimeSet<T> : RuntimeSetReference<T>, IEnumerable<T>

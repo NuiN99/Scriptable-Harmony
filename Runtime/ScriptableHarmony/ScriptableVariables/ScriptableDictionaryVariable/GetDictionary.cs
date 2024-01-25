@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using NuiN.ScriptableHarmony.ListVariable.References.Base;
+using NuiN.ScriptableHarmony.Core;
 
-namespace NuiN.ScriptableHarmony.References
+namespace NuiN.ScriptableHarmony
 {
     [Serializable]
     public class GetDictionary<T,TU> : ScriptableDictionaryReference<T,TU>

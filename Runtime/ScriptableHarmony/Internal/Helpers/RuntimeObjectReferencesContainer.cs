@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using NuiN.ScriptableHarmony.Editor.Attributes;
+using NuiN.ScriptableHarmony.Editor;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Internal.Helpers
+namespace NuiN.ScriptableHarmony.Core
 {
     [Serializable]
     public class RuntimeObjectReferencesContainer : ReferencesContainerBase

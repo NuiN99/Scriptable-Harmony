@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
     
-namespace NuiN.ScriptableHarmony.Editor.Attributes
+namespace NuiN.ScriptableHarmony.Editor
 {
     public class TypeMismatchFixAttribute : PropertyAttribute { }
 

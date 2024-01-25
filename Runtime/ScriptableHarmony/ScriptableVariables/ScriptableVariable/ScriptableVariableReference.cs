@@ -1,8 +1,7 @@
 ﻿using System;
-using NuiN.ScriptableHarmony.Variable.Base;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Variable.References.Base
+namespace NuiN.ScriptableHarmony.Core
 {
     [Serializable]
     public abstract class ScriptableVariableReference<T>

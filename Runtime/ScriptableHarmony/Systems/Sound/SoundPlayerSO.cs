@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NuiN.NExtensions;
+using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Pool;
@@ -94,7 +94,7 @@ namespace NuiN.ScriptableHarmony.Sound
             source.Play();
 
             float lifetime = source.clip.length / Mathf.Max(Math.Abs(source.pitch), Mathf.Epsilon);
-            RuntimeHelper.DoAfter(lifetime, () => _sourcePool.Release(source));
+            SORuntimeHelper.DoAfter(lifetime, () => _sourcePool.Release(source));
             
             return source;
         }
