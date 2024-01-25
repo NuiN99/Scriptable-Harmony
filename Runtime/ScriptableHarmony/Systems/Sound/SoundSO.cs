@@ -15,19 +15,16 @@ namespace NuiN.ScriptableHarmony.Sound
         
         [SerializeField] AudioClip[] clips;
         
-        [Header("Volume")]
         [SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] float minVolume = 0.5f;
         [SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] float maxVolume = 0.5f;
-        [SerializeField] bool useSetVolumes;
-        [SerializeField, Range(0f, 1f)] float[] possibleVolumes;
+        [SerializeField] bool useFixedVolumes;
+        [SerializeField, HideInInspector, Range(0f, 1f)] float[] possibleVolumes;
 
-        [Header("Pitch")]
         [SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] float minPitch = 1f;
         [SerializeField, Range(0.05f, 3f), Tooltip("Default - 1")] float maxPitch = 1f;
-        [SerializeField] bool useSetPitches;
-        [SerializeField, Range(0.05f, 3f)] float[] possiblePitches;
+        [SerializeField] bool useFixedPitches;
+        [SerializeField, HideInInspector, Range(0.05f, 3f)] float[] possiblePitches;
 
-        [Header("Other")]
         [SerializeField, Range(-1f, 1f), Tooltip("Default - 0")] float stereoPan;
         [SerializeField, Range(0, 256), Tooltip("Default - 128")] int priority = 128;
         [SerializeField, Range(0f, 1.1f), Tooltip("Default - 1")] float reverbZoneMix = 1f;
@@ -42,10 +39,12 @@ namespace NuiN.ScriptableHarmony.Sound
         public int Priority => priority;
         public float ReverbZoneMix => reverbZoneMix;
         public bool Loop => loop;
-        public float Volume => useSetVolumes && possibleVolumes.Length > 0 
+        public bool UseFixedVolumes => useFixedVolumes;
+        public bool UseFixedPitches => useFixedPitches;
+        public float Volume => useFixedVolumes && possibleVolumes.Length > 0 
             ? possibleVolumes[Random.Range(0, possibleVolumes.Length)] 
             : Random.Range(MinVolume, MaxVolume);
-        public float Pitch => useSetPitches && possiblePitches.Length > 0 
+        public float Pitch => useFixedPitches && possiblePitches.Length > 0 
             ? possiblePitches[Random.Range(0, possiblePitches.Length)] 
             :Random.Range(MinPitch, MaxPitch);
         public AudioClip Clip => Clips[Random.Range(0, Clips.Count)];
@@ -80,9 +79,68 @@ namespace NuiN.ScriptableHarmony.Sound
             obj.clips = clips;
             return obj;
         }
+
+        void OnValidate()
+        {
+            if (!useFixedVolumes) possibleVolumes = new float[]{};
+            if (!useFixedPitches) possiblePitches = new float[]{};
+            
+            if (useFixedVolumes && possibleVolumes.Length == 0) possibleVolumes = new[] { 0.5f };
+            if (useFixedPitches && possiblePitches.Length == 0) possiblePitches = new[] { 1f };
+        }
     }
     
 #if UNITY_EDITOR
+    
+    [CustomEditor(typeof(SoundSO))]
+    public class SoundSOEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
+
+            SoundSO soundSO = (SoundSO)target;
+            
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("soundPlayer"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("clips"));
+            
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+
+            EditorGUILayout.LabelField("Volume", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("useFixedVolumes"));
+            if (soundSO.UseFixedVolumes)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("possibleVolumes"));
+            }
+            else
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("minVolume"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("maxVolume"));
+            }
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+            
+            EditorGUILayout.LabelField("Pitch", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("useFixedPitches"));
+            if (soundSO.UseFixedPitches)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("possiblePitches"));
+            }
+            else
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("minPitch"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("maxPitch"));
+            }
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+
+            EditorGUILayout.LabelField("Other", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("stereoPan"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("priority"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("reverbZoneMix"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("loop"));
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
     
     /// <summary>
     /// Creates a SoundSO that contains any selected AudioClips
