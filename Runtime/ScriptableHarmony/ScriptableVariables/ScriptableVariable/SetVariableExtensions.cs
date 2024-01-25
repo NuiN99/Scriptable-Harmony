@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NuiN.ScriptableHarmony.Variable.References
 {
-    public static class VariableWriterExtensions
+    public static class SetVariableExtensions
     {
         #region Add
         
