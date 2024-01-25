@@ -13,16 +13,15 @@ namespace NuiN.ScriptableHarmony.Editor
         EditorWindow _window;
         public string SelectionPath { get; private set; }
         public bool EmptyPath => string.IsNullOrEmpty(SelectionPath);
-
+        
         public SelectionPathController(EditorWindow window)
         {
-            Selection.selectionChanged += UpdatePath;
             _window = window;
-            SelectionPath = GetSelectedFolderPath();
+            EditorApplication.update += Update;
         }
         public void Dispose()
         {
-            Selection.selectionChanged -= UpdatePath;
+            EditorApplication.update -= Update;
         }
 
         public void DisplayPathGUI()
@@ -36,13 +35,21 @@ namespace NuiN.ScriptableHarmony.Editor
             GUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
         }
-        
-        void UpdatePath()
+
+        public void Update()
         {
-            string selectedPath = GetSelectedFolderPath();
-            if (string.IsNullOrEmpty(selectedPath)) return;
+            string path = "Assets";
+            foreach (Object obj in Selection.GetFiltered(typeof(Object), SelectionMode.Assets))
+            {
+                path = AssetDatabase.GetAssetPath(obj);
+                if (string.IsNullOrEmpty(path) || !File.Exists(path)) continue;
+                
+                path = Path.GetDirectoryName(path);
+                break;
+            }
+
+            SelectionPath = path;
             
-            SelectionPath = selectedPath;
             if(_window != null) _window.Repaint();
         }
         

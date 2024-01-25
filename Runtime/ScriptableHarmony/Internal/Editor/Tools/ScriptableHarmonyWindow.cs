@@ -50,7 +50,7 @@ namespace NuiN.ScriptableHarmony.Editor
         void OnGUI()
         {
             DisplayTabs();
-
+            
             switch (_currentTab)
             {
                 case Tab.CreateSO:
@@ -89,6 +89,7 @@ namespace NuiN.ScriptableHarmony.Editor
 
         void CreateSOWindowGUI()
         {
+            
             _createGUI.DrawGUI();
         }
 
