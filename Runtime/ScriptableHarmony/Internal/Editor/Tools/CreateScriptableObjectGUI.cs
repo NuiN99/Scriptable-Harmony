@@ -7,46 +7,35 @@ using NuiN.ScriptableHarmony.Core;
 namespace NuiN.ScriptableHarmony.Editor
 {
 #if UNITY_EDITOR
-    internal class CreateSOWindow : EditorWindow
+    internal class CreateScriptableObjectGUI
     {
-        Type[] _scriptTypes;
+        Type[] _scriptTypes = Type.EmptyTypes;
         SOType _selectedSOType = SOType.Variable;
         string _scriptTypeSearch = "";
         string _assetName;
         Vector2 _scrollPosition;
 
+        bool _initalized;
+        
         SelectionPathController _pathController;
 
-        [MenuItem("ScriptableHarmony/Create a Scriptable Object")]
-        public static void ShowWindow()
+        public CreateScriptableObjectGUI(SelectionPathController pathController)
         {
-            GetWindow<CreateSOWindow>("Scriptable Object Creator");
+            _pathController = pathController;
         }
 
-        void OnEnable()
-        {
-            InitializeScriptTypes();
-            _pathController = new SelectionPathController(this);
-        }
-        void OnDisable()
-        {
-            _pathController?.Dispose();
-        }
-
-        void OnGUI()
+        public void DrawGUI()
         {
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
             
             DisplayOptions();
             
-            var commonScriptTypes = GetFilteredScriptTypesWithNamespace(_scriptTypeSearch, "Common");
-            var customScriptTypes = GetFilteredScriptTypes(_scriptTypeSearch);
+            var commonScriptTypes = GetFilteredScriptTypesWithNamespace(_scriptTypeSearch);
             
             GUILayout.Space(10);
-            DisplayCommonTypes();
             
-            GUILayout.Space(10);
-            DisplayCustomTypes();
+            DrawHeader();
+            DisplayTypes();
             
             EditorGUILayout.EndScrollView();
 
@@ -59,8 +48,9 @@ namespace NuiN.ScriptableHarmony.Editor
                 SOType newSOType = (SOType)EditorGUILayout.EnumPopup(_selectedSOType, GUILayout.ExpandWidth(true));
                 GUILayout.EndHorizontal();
         
-                if (newSOType != _selectedSOType)
+                if (newSOType != _selectedSOType || !_initalized)
                 {
+                    _initalized = true;
                     _selectedSOType = newSOType;
                     InitializeScriptTypes();
                 }
@@ -78,41 +68,22 @@ namespace NuiN.ScriptableHarmony.Editor
                 _pathController.DisplayPathGUI();
             }
 
-            void DisplayCommonTypes()
+            void DrawHeader()
             {
-                if (commonScriptTypes.Length <= 0) return;
-                
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
-                GUILayout.Label("Common", EditorStyles.boldLabel);
+                GUILayout.Label(_selectedSOType.ToString(), EditorStyles.boldLabel);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
 
                 DrawHorizontalLine(2);
-        
-                foreach (var scriptType in commonScriptTypes)
-                {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label(scriptType);
-                    DisplayCreateButton(scriptType);
-                    GUILayout.EndHorizontal();
-                    DrawHorizontalLine();
-                }
             }
 
-            void DisplayCustomTypes()
+            void DisplayTypes()
             {
-                if (customScriptTypes.Length <= 0) return;
-                
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("Custom", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-
-                DrawHorizontalLine(2);
+                if (commonScriptTypes.Length <= 0) return;
         
-                foreach (var scriptType in customScriptTypes)
+                foreach (var scriptType in commonScriptTypes)
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label(scriptType);
@@ -148,16 +119,7 @@ namespace NuiN.ScriptableHarmony.Editor
             }
         }
 
-        string[] GetFilteredScriptTypes(string search)
-        {
-            return _scriptTypes
-                .Where(type => type.Namespace == null || !type.Namespace.ToLower().Contains("common") &&
-                    type.Name.ToLower().Contains(search.ToLower()))
-                .Select(type => TrimScriptType(type.Name))
-                .ToArray();
-        }
-
-        string[] GetFilteredScriptTypesWithNamespace(string search, string namespaceFilter)
+        string[] GetFilteredScriptTypesWithNamespace(string search, string namespaceFilter = "")
         {
             return _scriptTypes
                 .Where(type => type.Namespace != null && type.Namespace.ToLower().Contains(namespaceFilter.ToLower()) &&
@@ -173,6 +135,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 SOType.List => typeName.EndsWith("ListSO") ? typeName[..^6] : typeName,
                 SOType.RuntimeSet => typeName.EndsWith("RuntimeSetSO") ? typeName[..^12] : typeName,
                 SOType.RuntimeSingle => typeName.EndsWith("RuntimeSingleSO") ? typeName[..^15] : typeName,
+                SOType.Dictionary => typeName.EndsWith("DictionarySO") ? typeName[..^10] : typeName,
                 SOType.Variable => typeName.EndsWith("SO") ? typeName[..^2] : typeName,
                 _ => typeName
             };
@@ -182,7 +145,7 @@ namespace NuiN.ScriptableHarmony.Editor
         {
             Type selectedType = _scriptTypes.First(type => TrimScriptType(type.Name) == typeName);
 
-            ScriptableObject instance = CreateInstance(selectedType);
+            ScriptableObject instance = ScriptableObject.CreateInstance(selectedType);
 
             string suffix = _selectedSOType switch
             {
@@ -190,6 +153,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 SOType.RuntimeSingle => "RuntimeSingle",
                 SOType.Variable => "",
                 SOType.List => "List",
+                SOType.Dictionary => "Dictionary",
                 _ => "Type Not Implemented"
             };
 
@@ -222,6 +186,9 @@ namespace NuiN.ScriptableHarmony.Editor
                     break;
                 case SOType.RuntimeSingle:
                     InitializeScriptTypes(typeof(RuntimeSingleSO<>));
+                    break;
+                case SOType.Dictionary:
+                    InitializeScriptTypes(typeof(ScriptableDictionarySO<,>));
                     break;
             }
         }
