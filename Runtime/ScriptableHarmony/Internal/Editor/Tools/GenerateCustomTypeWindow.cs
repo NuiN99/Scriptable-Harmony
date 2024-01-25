@@ -17,9 +17,8 @@ namespace NuiN.ScriptableHarmony.Core.Editor.Tools
     {
         const string SCRIPT_TEMPLATE =
 @"using UnityEngine;
-using NuiN.ScriptableHarmony.{SingularSuffix}.Base;
 
-namespace NuiN.ScriptableHarmony.{SingularSuffix}.{CustomOrCommon}
+namespace NuiN.ScriptableHarmony
 {   
     [CreateAssetMenu(
         menuName = ""ScriptableHarmony/{CustomOrCommon}/{Suffix}/{Type}"",
@@ -29,34 +28,33 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.{CustomOrCommon}
         
         const string COMPONENT_SCRIPT_TEMPLATE = 
 @"using UnityEngine;
-using NuiN.ScriptableHarmony.{SingularSuffix}.Components.Base;
 
-namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
+namespace NuiN.ScriptableHarmony
 {   
     public class {TypeWithSuffix}Item : {BaseClass}<{Type}> { }
 }";
         
-        static SOType _dataType;
-        static string _type;
-        static string _scriptPreview;
-        static bool _lockPreview = true;
-        static bool _overwriteExisting;
+        static SOType dataType;
+        static string type;
+        static string scriptPreview;
+        static bool lockPreview = true;
+        static bool overwriteExisting;
 
-        static bool _isComponent;
+        static bool isComponent;
 
         // remove this functionality when created all commons
         const bool IS_COMMON = true;
 
         SelectionPathController _pathController;
         
-        static GenerateCustomTypeWindow _windowInstance;
+        static GenerateCustomTypeWindow windowInstance;
         
         [MenuItem("ScriptableHarmony/Generate a Custom Type")]
         static void OpenWindow()
         {
-            _windowInstance = GetWindow<GenerateCustomTypeWindow>();
-            _windowInstance.titleContent = new GUIContent("Custom Type Generator");
-            _windowInstance.Show();
+            windowInstance = GetWindow<GenerateCustomTypeWindow>();
+            windowInstance.titleContent = new GUIContent("Custom Type Generator");
+            windowInstance.Show();
         }
 
         Vector2 _scrollPosition;
@@ -78,17 +76,17 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Type:", GUILayout.Width(50));
-                _dataType = (SOType)EditorGUILayout.EnumPopup(_dataType, GUILayout.ExpandWidth(true));
+                dataType = (SOType)EditorGUILayout.EnumPopup(dataType, GUILayout.ExpandWidth(true));
                 GUILayout.EndHorizontal();
                 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Name", GUILayout.Width(50));
-                _type = EditorGUILayout.TextField(_type, GUILayout.ExpandWidth(true));
+                type = EditorGUILayout.TextField(type, GUILayout.ExpandWidth(true));
                 GUILayout.EndHorizontal();
                 
                 _pathController.DisplayPathGUI();
                 
-                _overwriteExisting = EditorGUILayout.Toggle("Overwrite Existing", _overwriteExisting);
+                overwriteExisting = EditorGUILayout.Toggle("Overwrite Existing", overwriteExisting);
             }
 
             void DisplayScriptPreview()
@@ -97,12 +95,12 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
                 using (var scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition, GUILayout.Height(position.height - 200)))
                 {
                     _scrollPosition = scrollView.scrollPosition;
-                    if (_lockPreview) EditorGUI.BeginDisabledGroup(true);
-                    _scriptPreview = EditorGUILayout.TextArea(_scriptPreview, GUILayout.ExpandHeight(true));
-                    if (_lockPreview) EditorGUI.EndDisabledGroup();
+                    if (lockPreview) EditorGUI.BeginDisabledGroup(true);
+                    scriptPreview = EditorGUILayout.TextArea(scriptPreview, GUILayout.ExpandHeight(true));
+                    if (lockPreview) EditorGUI.EndDisabledGroup();
                 }
-                _lockPreview = EditorGUILayout.Toggle("Lock Preview", _lockPreview);
-                if (_lockPreview) _scriptPreview = ScriptPreview(SCRIPT_TEMPLATE);
+                lockPreview = EditorGUILayout.Toggle("Lock Preview", lockPreview);
+                if (lockPreview) scriptPreview = ScriptPreview(SCRIPT_TEMPLATE);
             }
 
             void DisplayGenerateButton()
@@ -125,7 +123,7 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
 
             void TryGenerateScript()
             {
-                bool emptyType = string.IsNullOrEmpty(_type);
+                bool emptyType = string.IsNullOrEmpty(type);
                 if (!_pathController.EmptyPath && !emptyType)
                 {
                     GenerateScript();
@@ -147,20 +145,20 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
 
         public void GenerateScript()
         {
-            _scriptPreview = ScriptPreview(SCRIPT_TEMPLATE);
-            GenerateScriptFile($"{GetTypeWithSuffix()}SO", _scriptPreview);
+            scriptPreview = ScriptPreview(SCRIPT_TEMPLATE);
+            GenerateScriptFile($"{GetTypeWithSuffix()}SO", scriptPreview);
 
-            if (_dataType is not (SOType.RuntimeSet or SOType.RuntimeSingle)) return;
+            if (dataType is not (SOType.RuntimeSet or SOType.RuntimeSingle)) return;
 
-            _isComponent = true;
-            _scriptPreview = ScriptPreview(COMPONENT_SCRIPT_TEMPLATE);
-            GenerateScriptFile($"{GetTypeWithSuffix()}Item", _scriptPreview);
-            _isComponent = false;
+            isComponent = true;
+            scriptPreview = ScriptPreview(COMPONENT_SCRIPT_TEMPLATE);
+            GenerateScriptFile($"{GetTypeWithSuffix()}Item", scriptPreview);
+            isComponent = false;
         }
 
         static string ScriptPreview(string template)
         {
-            template = template.Replace("{Type}", _type);
+            template = template.Replace("{Type}", type);
             template = template.Replace("{TypeWithSuffix}", GetTypeWithSuffix());
             template = template.Replace("{BaseClass}", GetBaseClass());
             template = template.Replace("{Suffix}", GetPluralSuffix());
@@ -173,11 +171,7 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
 
         static string GetTypeWithSuffix()
         {
-            return _dataType switch
-            {
-                SOType.Variable => $"{_type}{GetSingularSuffix()}",
-                _ => $"{_type}{GetSingularSuffix()}"
-            };
+            return $"{type}{GetSingularSuffix()}";
         }
         
         void OnEnable() => _pathController = new SelectionPathController(this);
@@ -185,14 +179,15 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
 
         static string GetPluralSuffix() => GetSingularSuffix() + "s";
 
-        static string GetFileName() => $"New {_type} {GetSingularSuffix()}";
+        static string GetFileName() => $"New {type} {GetSingularSuffix()}";
 
         static string GetSingularSuffix()
         {
-            return _dataType switch
+            return dataType switch
             {
                 SOType.Variable => "Variable",
-                SOType.ListVariable => "ListVariable",
+                SOType.List => "List",
+                SOType.Dictionary => "Dictionary",
                 SOType.RuntimeSet => "RuntimeSet",
                 SOType.RuntimeSingle => "RuntimeSingle",
                 _ => ""
@@ -201,31 +196,32 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
 
         static string GetBaseClass()
         {
-            if (_isComponent)
+            if (isComponent)
             {
-                return _dataType switch
+                return dataType switch
                 {
-                    SOType.RuntimeSet => nameof(RuntimeSetItemComponentBase<Object>),
-                    SOType.RuntimeSingle => nameof(RuntimeSingleItemComponentBase<Object>),
+                    SOType.RuntimeSet => nameof(RuntimeSetComponent<Object>),
+                    SOType.RuntimeSingle => nameof(RuntimeSingleComponent<Object>),
                     _ => null
                 };
             }
-            return _dataType switch
+            return dataType switch
             {
-                SOType.Variable => nameof(ScriptableVariableBaseSO<object>),
-                SOType.ListVariable => nameof(ScriptableListVariableBaseSO<object>),
-                SOType.RuntimeSet => nameof(RuntimeSetBaseSO<Object>),
-                SOType.RuntimeSingle => nameof(RuntimeSingleBaseSO<Object>),
+                SOType.Variable => nameof(ScriptableVariableSO<object>),
+                SOType.List => nameof(ScriptableListSO<object>),
+                SOType.RuntimeSet => nameof(RuntimeSetSO<Object>),
+                SOType.RuntimeSingle => nameof(RuntimeSingleSO<Object>),
+                SOType.Dictionary => nameof(ScriptableDictionarySO<object, object>),
                 _ => ""
             };
         }
 
         void GenerateScriptFile(string fileName, string fileContents)
         {
-            string folderName = _type;
+            string folderName = type;
             string folderPath = Path.Combine(_pathController.SelectionPath, folderName);
 
-            if (_dataType is SOType.RuntimeSet or SOType.RuntimeSingle)
+            if (dataType is SOType.RuntimeSet or SOType.RuntimeSingle)
             {
                 if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
             }
@@ -236,7 +232,7 @@ namespace NuiN.ScriptableHarmony.{SingularSuffix}.Components.{CustomOrCommon}
 
             string filePath = Path.Combine(folderPath, $"{fileName}.cs");
 
-            if (File.Exists(filePath) && !_overwriteExisting)
+            if (File.Exists(filePath) && !overwriteExisting)
             {
                 Debug.Log("Script already exists and 'Overwrite Existing' is disabled");
                 return;

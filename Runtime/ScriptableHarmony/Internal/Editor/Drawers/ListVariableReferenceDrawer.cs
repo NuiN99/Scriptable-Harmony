@@ -7,11 +7,11 @@ using UnityEngine;
 namespace NuiN.ScriptableHarmony.Internal.Editor
 {
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(GetListVariable<>))]
+    [CustomPropertyDrawer(typeof(GetList<>))]
     internal class GetListVariableDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
-            => SOReferenceGUIHelper.VarRefGUI(SOType.ListVariable, Access.Getter, "list", position, property, label, fieldInfo);
+            => SOReferenceGUIHelper.VarRefGUI(SOType.List, Access.Getter, "list", position, property, label, fieldInfo);
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) 
             => SOReferenceGUIHelper.GetPropertyHeight(property, label);
@@ -21,7 +21,7 @@ namespace NuiN.ScriptableHarmony.Internal.Editor
     internal class SetListVariableDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-            => SOReferenceGUIHelper.VarRefGUI(SOType.ListVariable, Access.Setter, "list", position, property, label, fieldInfo);
+            => SOReferenceGUIHelper.VarRefGUI(SOType.List, Access.Setter, "list", position, property, label, fieldInfo);
         
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) 
             => SOReferenceGUIHelper.GetPropertyHeight(property, label);

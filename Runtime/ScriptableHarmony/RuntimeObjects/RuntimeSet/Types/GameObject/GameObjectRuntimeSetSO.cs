@@ -6,6 +6,6 @@ namespace NuiN.ScriptableHarmony.RuntimeSet.Common
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/RuntimeSets/GameObject", 
         fileName = "New GameObject RuntimeSet")]
-    internal class GameObjectRuntimeSetSO : RuntimeSetBaseSO<GameObject> { }
+    internal class GameObjectRuntimeSetSO : RuntimeSetSO<GameObject> { }
 }
 

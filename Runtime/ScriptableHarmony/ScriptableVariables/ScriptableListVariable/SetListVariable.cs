@@ -10,7 +10,7 @@ using UnityEditor;
 namespace NuiN.ScriptableHarmony.References
 {
     [Serializable]
-    public class SetListVariable<T> : ReferenceScriptableListVariableBase<T>, IEnumerable<T>
+    public class SetListVariable<T> : ScriptableListReference<T>, IEnumerable<T>
     {
         public List<T> Items => list.values;
         
@@ -28,14 +28,14 @@ namespace NuiN.ScriptableHarmony.References
             list.onAddWithList?.Invoke(Items);
             list.onAdd?.Invoke(item);
             
-            SHLogger.LogAddRemove("Added Item", SOType.ListVariable, item?.ToString(), true, true, list);
+            SHLogger.LogAddRemove("Added Item", SOType.List, item?.ToString(), true, true, list);
         }
         public void AddNoInvoke(T item)
         {
             Items.Add(item);
             SetDirty();
             
-            SHLogger.LogAddRemove("Added Item", SOType.ListVariable, item?.ToString(), true, false, list);
+            SHLogger.LogAddRemove("Added Item", SOType.List, item?.ToString(), true, false, list);
         }
 
         public void Insert(T item, int index)
@@ -49,14 +49,14 @@ namespace NuiN.ScriptableHarmony.References
             list.onAddWithList?.Invoke(Items);
             list.onAdd?.Invoke(item);
             
-            SHLogger.LogAddRemove($"Inserted Item | Index: {index}", SOType.ListVariable, item?.ToString(), true, true, list);
+            SHLogger.LogAddRemove($"Inserted Item | Index: {index}", SOType.List, item?.ToString(), true, true, list);
         }
         public void InsertNoInvoke(T item, int index)
         {
             Items.Insert(index, item);
             SetDirty();
             
-            SHLogger.LogAddRemove($"Inserted Item | Index: {index}", SOType.ListVariable, item?.ToString(), true, false, list);
+            SHLogger.LogAddRemove($"Inserted Item | Index: {index}", SOType.List, item?.ToString(), true, false, list);
         }
 
         public void RemoveAt(int index)
@@ -72,11 +72,11 @@ namespace NuiN.ScriptableHarmony.References
             list.onRemoveWithList?.Invoke(Items);
             list.onRemove?.Invoke(removedItem);
             
-            SHLogger.LogAddRemove($"Removed Item | Index: {index}", SOType.ListVariable, removedItem?.ToString(), true, true, list);
+            SHLogger.LogAddRemove($"Removed Item | Index: {index}", SOType.List, removedItem?.ToString(), true, true, list);
         }
         public void RemoveAtNoInvoke(int index)
         {
-            SHLogger.LogAddRemove($"Removed Item | Index: {index}", SOType.ListVariable, Items[index]?.ToString(), true, false, list);
+            SHLogger.LogAddRemove($"Removed Item | Index: {index}", SOType.List, Items[index]?.ToString(), true, false, list);
             
             Items.RemoveAt(index);
             SetDirty();
@@ -93,14 +93,14 @@ namespace NuiN.ScriptableHarmony.References
             list.onRemoveWithList?.Invoke(Items);
             list.onRemove?.Invoke(item);
             
-            SHLogger.LogAddRemove("Removed Item", SOType.ListVariable, item?.ToString(), true, true, list);
+            SHLogger.LogAddRemove("Removed Item", SOType.List, item?.ToString(), true, true, list);
         }
         public void RemoveNoInvoke(T item)
         {
             Items.Remove(item);
             SetDirty();
             
-            SHLogger.LogAddRemove("Removed Item", SOType.ListVariable, item?.ToString(), true, false, list);
+            SHLogger.LogAddRemove("Removed Item", SOType.List, item?.ToString(), true, false, list);
         }
         
         public void Replace(IEnumerable<T> newList)
@@ -112,11 +112,11 @@ namespace NuiN.ScriptableHarmony.References
             list.onReplaceWithOld?.Invoke(oldValue, Items);
             list.onReplace?.Invoke(Items);
             
-            SHLogger.LogReplacedCleared("Replaced List", SOType.ListVariable, oldValue.Count, Items.Count, true, list);
+            SHLogger.LogReplacedCleared("Replaced List", SOType.List, oldValue.Count, Items.Count, true, list);
         }
         public void ReplaceNoInvoke(List<T> newList)
         {
-            SHLogger.LogReplacedCleared("Replaced List", SOType.ListVariable, Items.Count, newList.Count, false, list);
+            SHLogger.LogReplacedCleared("Replaced List", SOType.List, Items.Count, newList.Count, false, list);
 
             list.values = new List<T>(newList);
             SetDirty();
@@ -131,11 +131,11 @@ namespace NuiN.ScriptableHarmony.References
             list.onClearWithOld?.Invoke(oldValue);
             list.onClear?.Invoke();
             
-            SHLogger.LogReplacedCleared("Cleared List", SOType.ListVariable, oldValue.Count, 0, true, list);
+            SHLogger.LogReplacedCleared("Cleared List", SOType.List, oldValue.Count, 0, true, list);
         }
         public void ClearNoInvoke()
         {
-            SHLogger.LogReplacedCleared("Cleared List", SOType.ListVariable, Items.Count, 0, true, list);
+            SHLogger.LogReplacedCleared("Cleared List", SOType.List, Items.Count, 0, true, list);
 
             Items.Clear();
             SetDirty();

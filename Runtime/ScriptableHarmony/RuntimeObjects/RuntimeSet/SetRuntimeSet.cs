@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 namespace NuiN.ScriptableHarmony.References
 {
     [Serializable]
-    public class SetRuntimeSet<T> : ReferenceRuntimeSetBase<T>, IEnumerable<T>
+    public class SetRuntimeSet<T> : RuntimeSetReference<T>, IEnumerable<T>
     {
         public List<T> Entities => runtimeSet.entities;
         

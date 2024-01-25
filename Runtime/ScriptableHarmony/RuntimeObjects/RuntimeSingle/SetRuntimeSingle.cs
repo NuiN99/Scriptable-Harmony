@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 namespace NuiN.ScriptableHarmony.References
 {
     [Serializable]
-    public class SetRuntimeSingle<T> : ReferenceRuntimeSingleBase<T>
+    public class SetRuntimeSingle<T> : RuntimeSingleReference<T>
     {
         public T Entity
         {

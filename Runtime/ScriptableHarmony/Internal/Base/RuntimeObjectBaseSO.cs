@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace NuiN.ScriptableHarmony.Base
 {
-    public abstract class RuntimeObjectBaseSO<T> : ScriptableObjectBaseSO<T>
+    public abstract class RuntimeObjectBaseSO<T> : EditorObjectSO<T>
     {
         protected abstract RuntimeObjectReferencesContainer ComponentHolders { get; set; }
     

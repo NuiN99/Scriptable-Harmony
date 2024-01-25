@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony.RuntimeSet.Common
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/RuntimeSets/Transform", 
         fileName = "New Transform RuntimeSet")]
-    internal class TransformRuntimeSetSO : RuntimeSetBaseSO<Transform> { }
+    internal class TransformRuntimeSetSO : RuntimeSetSO<Transform> { }
 }

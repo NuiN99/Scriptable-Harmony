@@ -159,7 +159,7 @@ namespace NuiN.ScriptableHarmony.Core.Editor.Tools
                         Event.current.Use();
                     }
                 
-                    EditorGUI.ObjectField(objectFieldRect, GUIContent.none, obj, typeof(ScriptableVariableBaseSO<>), true);
+                    EditorGUI.ObjectField(objectFieldRect, GUIContent.none, obj, typeof(ScriptableVariableSO<>), true);
                     GUIStyle style = new GUIStyle(GUI.skin.button) { normal = { textColor = Color.black } };
 
                     if (_property != null)

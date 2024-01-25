@@ -37,12 +37,12 @@ namespace NuiN.ScriptableHarmony.Core.Editor.Helpers
                     typeName = $"{typeName}VariableSO";
                     break;
                 }
-                case SOType.ListVariable:
+                case SOType.List:
                 {
                     typeName = $"{typeName}ListVariableSO";
                     break;
                 }
-                case SOType.DictionaryVariable:
+                case SOType.Dictionary:
                 {
                     Type[] genericArguments = fieldInfo.FieldType.GetGenericArguments();
                     string type1 = GetReadableTypeName(genericArguments[0]);

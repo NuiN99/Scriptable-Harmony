@@ -36,13 +36,13 @@ namespace NuiN.ScriptableHarmony.Internal.Logging
         
         // ReSharper disable Unity.PerformanceAnalysis
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        static void Log<T>(string message, SOType type, ScriptableObjectBaseSO<T> obj)
+        static void Log<T>(string message, SOType type, EditorObjectSO<T> obj)
         {
             if (!logging || !obj.LogActions) return;
             switch (type)
             {
                 case SOType.Variable when !variableLogging:
-                case SOType.ListVariable when !listVariableLogging:
+                case SOType.List when !listVariableLogging:
                 case SOType.RuntimeSet when !runtimeSetLogging:
                 case SOType.RuntimeSingle when !runtimeSingleLogging:
                     return;
@@ -56,14 +56,14 @@ namespace NuiN.ScriptableHarmony.Internal.Logging
         }
 
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        static void LogAction<T>(string eventName, SOType type, string contents, bool invokedAction, ScriptableObjectBaseSO<T> obj)
+        static void LogAction<T>(string eventName, SOType type, string contents, bool invokedAction, EditorObjectSO<T> obj)
         {
             string suffix = invokedAction ? "" : " (No Invoke)";
             Log($"<b><color='orange'>{eventName}{suffix}</color></b> | {contents}", type, obj);
         }
 
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        public static void LogSet<T>(string eventName, SOType type,  string fromString, string toString, bool invokedAction, ScriptableObjectBaseSO<T> obj)
+        public static void LogSet<T>(string eventName, SOType type,  string fromString, string toString, bool invokedAction, EditorObjectSO<T> obj)
         {
             fromString = string.IsNullOrEmpty(fromString) ? "<color='#858585'>null</color>" : fromString;
             toString = string.IsNullOrEmpty(toString) ? "<color='#858585'>null</color>" : toString;
@@ -75,7 +75,7 @@ namespace NuiN.ScriptableHarmony.Internal.Logging
         }
         
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        public static void LogAddRemove<T>(string eventName, SOType type, string itemName, bool added, bool invokedAction, ScriptableObjectBaseSO<T> obj)
+        public static void LogAddRemove<T>(string eventName, SOType type, string itemName, bool added, bool invokedAction, EditorObjectSO<T> obj)
         {
             string color = added ? POSITIVE_COLOR : NEGATIVE_COLOR;
             string contents = $"<b><color='{color}'>{itemName}</color></b>";
@@ -83,7 +83,7 @@ namespace NuiN.ScriptableHarmony.Internal.Logging
         }
         
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        public static void LogReplacedCleared<T>(string eventName, SOType type, int oldCount, int newCount, bool invokedAction, ScriptableObjectBaseSO<T> obj)
+        public static void LogReplacedCleared<T>(string eventName, SOType type, int oldCount, int newCount, bool invokedAction, EditorObjectSO<T> obj)
         {
             string contents = $"Old Count:<b><color='red'>{oldCount}</color></b> | New Count:<b><color='white'>{newCount}</color></b>";
             LogAction(eventName, type, contents, invokedAction, obj);
@@ -94,7 +94,7 @@ namespace NuiN.ScriptableHarmony.Internal.Logging
             return type switch
             {
                 SOType.Variable => VARIABLE_COLOR,
-                SOType.ListVariable => LIST_VARIABLE_COLOR,
+                SOType.List => LIST_VARIABLE_COLOR,
                 SOType.RuntimeSet => RUNTIME_SET_COLOR,
                 SOType.RuntimeSingle => RUNTIME_SINGLE_COLOR,
                 _ => "white"

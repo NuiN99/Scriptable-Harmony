@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony.RuntimeSet.Common
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/RuntimeSets/SpriteRenderer", 
         fileName = "New SpriteRenderer RuntimeSet")]
-    internal class SpriteRendererRuntimeSetSO : RuntimeSetBaseSO<SpriteRenderer> { }
+    internal class SpriteRendererRuntimeSetSO : RuntimeSetSO<SpriteRenderer> { }
 }
