@@ -64,17 +64,15 @@ namespace NuiN.ScriptableHarmony.Sound
         }
 
         // ReSharper disable Unity.PerformanceAnalysis 
-        AudioSource InitializeNewSource(SoundSO sound, bool spatial, float volumeMult, float pitchMult)
+        AudioSource InitializeNewSource(SoundSO soundObj, bool spatial, float volumeMult, float pitchMult)
         {
-            SoundSettings settings = sound.Settings;
-            
             AudioSource source = _sourcePool.Get();
             
-            AudioClip clip = settings.Clip;
+            AudioClip clip = soundObj.Clip;
             if (clip == null) 
             {
                 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.LogWarning($"SoundSO {sound.name}: Attempted to play null clip", sound);
+                Debug.LogWarning($"SoundSO {soundObj.name}: Attempted to play null clip", soundObj);
                 #endif
                 
                 return source;
@@ -85,12 +83,12 @@ namespace NuiN.ScriptableHarmony.Sound
             source.playOnAwake = false;
             source.clip = clip;
             source.outputAudioMixerGroup = mixerGroup;
-            source.loop = settings.Loop;
-            source.priority = settings.Priority;
-            source.volume = settings.Volume * masterVolume * volumeMult;
-            source.pitch = settings.Pitch * pitchMult;
-            source.panStereo = settings.StereoPan;
-            source.reverbZoneMix = settings.ReverbZoneMix;
+            source.loop = soundObj.Loop;
+            source.priority = soundObj.Priority;
+            source.volume = soundObj.Volume * masterVolume * volumeMult;
+            source.pitch = soundObj.Pitch * pitchMult;
+            source.panStereo = soundObj.StereoPan;
+            source.reverbZoneMix = soundObj.ReverbZoneMix;
             source.spatialBlend = spatial ? 1f : 0f;
             
             source.Play();
