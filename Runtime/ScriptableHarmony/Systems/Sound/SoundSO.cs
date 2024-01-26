@@ -49,6 +49,16 @@ namespace NuiN.ScriptableHarmony.Sound
             :Random.Range(MinPitch, MaxPitch);
         public AudioClip Clip => Clips[Random.Range(0, Clips.Count)];
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        void OnEnable()
+        {
+            if (soundPlayer != null) return;
+            
+            soundPlayer = Resources.Load<SoundPlayerSO>("Default Sound Player");
+            Debug.LogWarning($"{name} SoundSO had an unassigned SoundPlayerSO - If 'Default Sound Player' exists in a Resources folder, it has been assigned to the unassigned field", this);
+        }
+#endif
+        
         void Reset() => soundPlayer = Resources.Load<SoundPlayerSO>("Default Sound Player");
         
         public AudioSource Play(float volumeMult = 1f, float pitchMult = 1f)
