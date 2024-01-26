@@ -378,21 +378,16 @@ namespace NuiN.ScriptableHarmony
         
         #endregion
 
-        #region General
+        #region ScriptableVariable
 
-        public static bool IsTrue(this GetScriptableVariable<bool> variable)
-            => variable.Val;
-        public static bool IsTrue(this SetScriptableVariable<bool> variable)
-            => variable.Val;
-        
-        public static bool IsFalse(this GetScriptableVariable<bool> variable)
-            => !variable.Val;
-        public static bool IsFalse(this SetScriptableVariable<bool> variable)
-            => !variable.Val;
+        public static bool Approximately(this GetScriptableVariable<float> variable, float compareTo)
+            => Mathf.Approximately(variable.Val, compareTo);
+        public static bool Approximately(this SetScriptableVariable<float> variable, float compareTo)
+            => Mathf.Approximately(variable.Val, compareTo);
 
-        public static bool Is<T>(GetScriptableVariable<T> variable, T compareTo)
+        public static bool Is<T>(this GetScriptableVariable<T> variable, T compareTo)
             => variable.Val.Equals(compareTo);
-        public static bool Is<T>(SetScriptableVariable<T> variable, T compareTo)
+        public static bool Is<T>(this SetScriptableVariable<T> variable, T compareTo)
             => variable.Val.Equals(compareTo);
 
         #endregion
