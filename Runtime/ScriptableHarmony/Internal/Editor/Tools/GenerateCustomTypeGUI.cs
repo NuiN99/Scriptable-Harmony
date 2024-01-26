@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEditor;
 using System.IO;
 using NuiN.ScriptableHarmony.Core;
@@ -29,6 +30,8 @@ namespace NuiN.ScriptableHarmony
 {   
     public class {TypeWithSuffix}Item : {BaseClass}<{Type}> { }
 }";
+
+        const string PREFS_PREFIX = "GenerateWindow_";
         
         static SOType dataType;
         static string type;
@@ -38,7 +41,7 @@ namespace NuiN.ScriptableHarmony
 
         static bool isComponent;
 
-        // remove this functionality when created all commons
+        // TODO remove this functionality when created all commons
         const bool IS_COMMON = true;
 
         SelectionPathController _pathController;
@@ -48,6 +51,18 @@ namespace NuiN.ScriptableHarmony
         public GenerateCustomTypeGUI(SelectionPathController pathController)
         {
             _pathController = pathController;
+
+            if (EditorPrefs.HasKey(GetPrefsKey(nameof(dataType)))) 
+                dataType = (SOType)EditorPrefs.GetInt(GetPrefsKey(nameof(dataType)));
+
+            if (EditorPrefs.HasKey(GetPrefsKey(nameof(type))))
+                type = EditorPrefs.GetString(GetPrefsKey(nameof(type)));
+            
+            if (EditorPrefs.HasKey(GetPrefsKey(nameof(lockPreview))))
+                lockPreview = EditorPrefs.GetBool(GetPrefsKey(nameof(lockPreview)));
+            
+            if (EditorPrefs.HasKey(GetPrefsKey(nameof(overwriteExisting))))
+                overwriteExisting = EditorPrefs.GetBool(GetPrefsKey(nameof(overwriteExisting)));
         }
         
         public void DrawGUI(EditorWindow window)
@@ -68,17 +83,24 @@ namespace NuiN.ScriptableHarmony
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Type:", GUILayout.Width(50));
+                
                 dataType = (SOType)EditorGUILayout.EnumPopup(dataType, GUILayout.ExpandWidth(true));
+                EditorPrefs.SetInt(GetPrefsKey(nameof(dataType)), (int)dataType);
+                
                 GUILayout.EndHorizontal();
                 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Name", GUILayout.Width(50));
+                
                 type = EditorGUILayout.TextField(type, GUILayout.ExpandWidth(true));
+                EditorPrefs.SetString(GetPrefsKey(nameof(type)), type);
+                
                 GUILayout.EndHorizontal();
                 
                 _pathController.DisplayPathGUI();
                 
                 overwriteExisting = EditorGUILayout.Toggle("Overwrite Existing", overwriteExisting);
+                EditorPrefs.SetBool(GetPrefsKey(nameof(overwriteExisting)), overwriteExisting);
             }
 
             void DisplayScriptPreview()
@@ -92,6 +114,8 @@ namespace NuiN.ScriptableHarmony
                     if (lockPreview) EditorGUI.EndDisabledGroup();
                 }
                 lockPreview = EditorGUILayout.Toggle("Lock Preview", lockPreview);
+                EditorPrefs.SetBool(GetPrefsKey(nameof(lockPreview)), lockPreview);
+                
                 if (lockPreview) scriptPreview = ScriptPreview(SCRIPT_TEMPLATE);
             }
 
@@ -234,6 +258,11 @@ namespace NuiN.ScriptableHarmony
 
             AssetDatabase.Refresh();
             EditorUtility.FocusProjectWindow();
+        }
+
+        static string GetPrefsKey(string name)
+        {
+            return PREFS_PREFIX + name;
         }
     }
 #endif

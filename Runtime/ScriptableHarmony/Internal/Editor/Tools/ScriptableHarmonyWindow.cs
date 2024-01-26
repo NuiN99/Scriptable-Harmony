@@ -16,19 +16,23 @@ namespace NuiN.ScriptableHarmony.Editor
 
         static ScriptableHarmonyWindow instance;
 
+        const string PREFS_LAST_TAB = "ScriptableHarmonyWindow_LastTab";
+
         SelectionPathController _pathController;
-        static Tab currentTab = Tab.CreateSO;
+        Tab _currentTab = Tab.CreateSO;
 
         CreateScriptableObjectGUI _createGUI;
         FindScriptableObjectGUI _findGUI;
         GenerateCustomTypeGUI _generateTypeGUI;
         SHLoggerSettingsGUI _loggerSettingsGUI;
 
-        [MenuItem("ScriptableHarmony/Open Editor")]
+        [MenuItem("ScriptableHarmony/Open Wizard")]
         static void Open()
         {
             ScriptableHarmonyWindow window = GetWindow<ScriptableHarmonyWindow>("ScriptableHarmony Editor");
             instance = window;
+
+            window._currentTab = EditorPrefs.HasKey(PREFS_LAST_TAB) ? (Tab)EditorPrefs.GetInt(PREFS_LAST_TAB) : default;
             window.Show();
         }
 
@@ -38,7 +42,7 @@ namespace NuiN.ScriptableHarmony.Editor
             
             instance = window;
 
-            currentTab = tab;
+            window._currentTab = tab;
             window.Show();
         }
 
@@ -74,7 +78,7 @@ namespace NuiN.ScriptableHarmony.Editor
         {
             DisplayTabs();
             
-            switch (currentTab)
+            switch (_currentTab)
             {
                 case Tab.CreateSO: _createGUI.DrawGUI(); break;
                 case Tab.FindSO: _findGUI.DrawGUI(this); break;
@@ -82,7 +86,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 case Tab.Logger: _loggerSettingsGUI.DrawGUI(); break;
             }
             
-            if (currentTab != Tab.FindSO) _findGUI.openedFromField = false;
+            if (_currentTab != Tab.FindSO) _findGUI.openedFromField = false;
             
             return;
 
@@ -90,19 +94,21 @@ namespace NuiN.ScriptableHarmony.Editor
             {
                 GUILayout.BeginHorizontal(EditorStyles.toolbar);
             
-                if (GUILayout.Toggle(currentTab == Tab.CreateSO, "Create", EditorStyles.toolbarButton))
-                    currentTab = Tab.CreateSO;
+                if (GUILayout.Toggle(_currentTab == Tab.CreateSO, "Create", EditorStyles.toolbarButton))
+                    _currentTab = Tab.CreateSO;
 
-                if (GUILayout.Toggle(currentTab == Tab.FindSO, "Find", EditorStyles.toolbarButton))
-                    currentTab = Tab.FindSO;
+                if (GUILayout.Toggle(_currentTab == Tab.FindSO, "Find", EditorStyles.toolbarButton))
+                    _currentTab = Tab.FindSO;
 
-                if (GUILayout.Toggle(currentTab == Tab.CreateType, "Generate Type", EditorStyles.toolbarButton))
-                    currentTab = Tab.CreateType;
+                if (GUILayout.Toggle(_currentTab == Tab.CreateType, "Generate Type", EditorStyles.toolbarButton))
+                    _currentTab = Tab.CreateType;
 
-                if (GUILayout.Toggle(currentTab == Tab.Logger, "Logger", EditorStyles.toolbarButton))
-                    currentTab = Tab.Logger;
+                if (GUILayout.Toggle(_currentTab == Tab.Logger, "Logger", EditorStyles.toolbarButton))
+                    _currentTab = Tab.Logger;
 
                 GUILayout.EndHorizontal();
+                
+                EditorPrefs.SetInt(PREFS_LAST_TAB, (int)_currentTab);
             }
         }
     }
