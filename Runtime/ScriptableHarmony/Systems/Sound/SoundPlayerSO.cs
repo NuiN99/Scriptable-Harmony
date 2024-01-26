@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
@@ -20,18 +19,17 @@ namespace NuiN.ScriptableHarmony.Sound
 
         [SerializeField, Range(0,1)] float volume = 0.5f;
 
-        [SerializeField] string playerPrefsVolumeKey;
-        
         [Header("Options")]
         public bool disableAudio;
-        [SerializeField] List<string> disableAudioOnScenes;
-
+        [SerializeField] AudioMixerGroup mixerGroup;
+        [SerializeField] string prefsVolumeKey;
+        
         public bool AudioDisabled => disableAudio || _sceneDisabledAudio;
         public float Volume => volume;
         
         void OnEnable()
         {
-            if (playerPrefsVolumeKey != string.Empty && PlayerPrefs.HasKey(GetPrefsKey()))
+            if (prefsVolumeKey != string.Empty && PlayerPrefs.HasKey(GetPrefsKey()))
                 volume = PlayerPrefs.GetFloat(GetPrefsKey());
 
             SceneManager.activeSceneChanged += SetupForNewScene;
@@ -52,7 +50,7 @@ namespace NuiN.ScriptableHarmony.Sound
 
         public float GetPrefsVolume() => PlayerPrefs.HasKey(GetPrefsKey()) ? PlayerPrefs.GetFloat(GetPrefsKey()) : volume;
 
-        string GetPrefsKey() => "SH_" + playerPrefsVolumeKey;
+        string GetPrefsKey() => "SH_" + prefsVolumeKey;
 
         void SetupForNewScene(Scene from, Scene to)
         {
@@ -62,12 +60,6 @@ namespace NuiN.ScriptableHarmony.Sound
                 return;
             }
             
-            if (disableAudioOnScenes.Any(sceneName => sceneName != null && sceneName == to.name))
-            {
-                _sceneDisabledAudio = true;
-                return;
-            }
-
             _sourceContainer = new GameObject(name + " | ObjectPool").transform;
             _sourcePrefab = Resources.Load<AudioSource>("SH_AudioSourcePrefab");
             
@@ -110,6 +102,7 @@ namespace NuiN.ScriptableHarmony.Sound
             
             source.playOnAwake = false;
             source.clip = clip;
+            source.outputAudioMixerGroup = mixerGroup;
             source.loop = soundObj.Loop;
             source.priority = soundObj.Priority;
             source.volume = soundObj.Volume * volume * volumeMult * MasterVolumeManager.GlobalVolume;
