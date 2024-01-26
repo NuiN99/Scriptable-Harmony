@@ -13,7 +13,11 @@ namespace NuiN.ScriptableHarmony
         
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => Entities.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => Entities.GetEnumerator();
-    
+
+        public bool Contains(T item) => Entities.Contains(item);
+        public int Count => Entities.Count;
+        public T this[int index] => Entities[index];
+
         public void Add(T item)
         {
             if (item == null) return;
@@ -29,6 +33,7 @@ namespace NuiN.ScriptableHarmony
             Object itemObj = item as Object;
             SHLogger.LogAddRemove("Added Entity", SOType.RuntimeSet, itemObj.name, true, true, runtimeSet);
         }
+        
         public void AddNoInvoke(T item)
         {
             if (item == null) return;
@@ -38,7 +43,7 @@ namespace NuiN.ScriptableHarmony
             SHLogger.LogAddRemove("Added Entity", SOType.RuntimeSet, itemObj.name, true, false, runtimeSet);
         }
         
-        public void Insert(T item, int index)
+        public void Insert(int index, T item)
         {
             if (item == null) return;
             
@@ -53,6 +58,7 @@ namespace NuiN.ScriptableHarmony
             Object itemObj = item as Object;
             SHLogger.LogAddRemove($"Inserted Entity | Index: {index}", SOType.RuntimeSet, itemObj.name, true, true, runtimeSet);
         }
+        
         public void InsertNoInvoke(T item, int index)
         {
             if (item == null) return;
@@ -61,10 +67,10 @@ namespace NuiN.ScriptableHarmony
             Object itemObj = item as Object;
             SHLogger.LogAddRemove($"Inserted Entity | Index: {index}", SOType.RuntimeSet, itemObj.name, true, false, runtimeSet);
         }
-    
-        public void Remove(T item)
+        
+        public bool Remove(T item)
         {
-            if(!Entities.Remove(item)) return;
+            if(!Entities.Remove(item)) return false;
             
             var oldItems = new List<T>(Entities);
             
@@ -75,7 +81,10 @@ namespace NuiN.ScriptableHarmony
             
             Object itemObj = item as Object;
             SHLogger.LogAddRemove("Removed Entity", SOType.RuntimeSet, itemObj.name, false, true, runtimeSet);
+
+            return true;
         }
+        
         public void RemoveNoInvoke(T item)
         {
             if(!Entities.Remove(item)) return;
@@ -100,6 +109,7 @@ namespace NuiN.ScriptableHarmony
             Object itemObj = removedItem as Object;
             SHLogger.LogAddRemove($"Removed Entity | Index: {index}", SOType.RuntimeSet, itemObj.name, false, true, runtimeSet);
         }
+
         public void RemoveAtNoInvoke(int index)
         {
             if (Entities[index] == null) return;
@@ -119,6 +129,7 @@ namespace NuiN.ScriptableHarmony
             
             SHLogger.LogReplacedCleared($"Replaced Set", SOType.RuntimeSet, oldList.Count, Entities.Count, true, runtimeSet);
         }
+        
         public void ReplaceNoInvoke(List<T> newList)
         {
             SHLogger.LogReplacedCleared($"Replaced Set", SOType.RuntimeSet, Entities.Count, newList.Count, false, runtimeSet);
@@ -136,6 +147,7 @@ namespace NuiN.ScriptableHarmony
             
             SHLogger.LogReplacedCleared($"Cleared Set", SOType.RuntimeSet, oldList.Count, 0, false, runtimeSet);
         }
+
         public void ClearNoInvoke()
         {
             SHLogger.LogReplacedCleared($"Cleared Set", SOType.RuntimeSet, Entities.Count, 0, false, runtimeSet);

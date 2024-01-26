@@ -13,5 +13,9 @@ namespace NuiN.ScriptableHarmony
         
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => Entities.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => Entities.GetEnumerator();
+        
+        public bool Contains(T item) => Entities.Contains(item);
+        public int Count => Entities.Count;
+        public T this[int index] => Entities[index];
     }
 }

@@ -8,12 +8,16 @@ using UnityEditor;
 namespace NuiN.ScriptableHarmony
 {
     [Serializable]
-    public class SetListVariable<T> : ScriptableListReference<T>, IEnumerable<T>
+    public class SetList<T> : ScriptableListReference<T>, IEnumerable<T>
     {
         public List<T> Items => list.values;
         
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => Items.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => Items.GetEnumerator();
+        
+        public bool Contains(T item) => Items.Contains(item);
+        public int Count => Items.Count;
+        public T this[int index] => Items[index];
         
         public void Add(T item)
         {

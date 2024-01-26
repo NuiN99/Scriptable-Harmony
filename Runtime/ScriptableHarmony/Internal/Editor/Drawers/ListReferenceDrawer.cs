@@ -15,7 +15,7 @@ namespace NuiN.ScriptableHarmony.Editor
             => SOReferenceGUIHelper.GetPropertyHeight(property, label);
     }
 
-    [CustomPropertyDrawer(typeof(SetListVariable<>))]
+    [CustomPropertyDrawer(typeof(SetList<>))]
     internal class SetListVariableDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

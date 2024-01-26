@@ -18,7 +18,7 @@ namespace NuiN.ScriptableHarmony.Core
         void OnEnable() => AddToSet(LifetimeType.OnEnableOnDisable);
         void OnDisable()
         {
-            if(lifetimeType == LifetimeType.OnlyRemoveOnDestroyAndDisable) RemoveFromSet();
+            if(lifetimeType == LifetimeType.RemoveOnDestroyAndDisable) RemoveFromSet();
             else RemoveFromSetCondition(LifetimeType.OnEnableOnDisable);
         }
 
