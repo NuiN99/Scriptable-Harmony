@@ -36,7 +36,7 @@ namespace NuiN.ScriptableHarmony.Core
         
         // ReSharper disable Unity.PerformanceAnalysis
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        static void Log<T>(string message, SOType type, SHBaseSO<T> obj)
+        static void Log(string message, SOType type, SHBaseSO obj)
         {
             if (!logging || !obj.LogActions) return;
             switch (type)
@@ -57,13 +57,13 @@ namespace NuiN.ScriptableHarmony.Core
         }
 
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        static void LogAction<T>(string eventName, SOType type, string contents, SHBaseSO<T> obj)
+        static void LogAction(string eventName, SOType type, string contents, SHBaseSO obj)
         {
             Log($"<b><color='orange'>{eventName}</color></b> | {contents}", type, obj);
         }
 
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        public static void LogSet<T>(string eventName, SOType type,  string fromString, string toString, SHBaseSO<T> obj)
+        public static void LogSet(string eventName, SOType type,  string fromString, string toString, SHBaseSO obj)
         {
             fromString = string.IsNullOrEmpty(fromString) ? "<color='#858585'>null</color>" : fromString;
             toString = string.IsNullOrEmpty(toString) ? "<color='#858585'>null</color>" : toString;
@@ -75,7 +75,7 @@ namespace NuiN.ScriptableHarmony.Core
         }
         
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        public static void LogAddRemove<T>(string eventName, SOType type, string itemName, bool added, SHBaseSO<T> obj)
+        public static void LogAddRemove(string eventName, SOType type, string itemName, bool added, SHBaseSO obj)
         {
             string color = added ? POSITIVE_COLOR : NEGATIVE_COLOR;
             string contents = $"<b><color='{color}'>{itemName}</color></b>";
@@ -83,7 +83,7 @@ namespace NuiN.ScriptableHarmony.Core
         }
         
         [Conditional("UNITY_EDITOR")] [Conditional("DEVELOPMENT_BUILD")]
-        public static void LogReplacedCleared<T>(string eventName, SOType type, int oldCount, int newCount, SHBaseSO<T> obj)
+        public static void LogReplacedCleared(string eventName, SOType type, int oldCount, int newCount, SHBaseSO obj)
         {
             string contents = $"Old Count:<b><color='red'>{oldCount}</color></b> | New Count:<b><color='white'>{newCount}</color></b>";
             LogAction(eventName, type, contents, obj);

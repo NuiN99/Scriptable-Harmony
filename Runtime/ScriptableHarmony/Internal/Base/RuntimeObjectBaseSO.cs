@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace NuiN.ScriptableHarmony.Core
 {
-    public abstract class RuntimeObjectBaseSO<T> : SHBaseSO<T>
+    public abstract class RuntimeObjectBaseSO<T> : SHBaseSO
     {
         protected abstract RuntimeObjectReferencesContainer ComponentHolders { get; set; }
     
