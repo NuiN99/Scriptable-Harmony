@@ -10,51 +10,42 @@ using Object = UnityEngine.Object;
 
 namespace NuiN.ScriptableHarmony.Editor
 {
-    internal class FindScriptableObjectWindow : EditorWindow
+    internal class FindScriptableObjectGUI
     {
         List<Object> _foundObjects = new();
         Vector2 _scrollPosition;
-        static string _typeName;
+        static string typeName;
 
         int _resultCount;
 
         string TypeName
         {
-            get => _typeName;
+            get => typeName;
             set
             {
-                string ogValue = _typeName;
-                _typeName = value;
+                string ogValue = typeName;
+                typeName = value;
                 
-                if(_typeName != ogValue) FindObjects();
+                if(typeName != ogValue) FindObjects();
             }
         }
         
-        static SerializedProperty _property;
+        static SerializedProperty property;
         string _searchFilter;
-        static FindScriptableObjectWindow _windowInstance;
 
-        [MenuItem("ScriptableHarmony/Find a Scriptable Object")]
-        static void OpenFindWindowMenuItem() => OpenFindWindow(string.Empty, null);
-        
-        public static void OpenFindWindow(string typeName, SerializedProperty property)
+        public bool openedFromField;
+
+        public FindScriptableObjectGUI(string typeName, SerializedProperty property, bool openedFromField)
         {
-            _property = property;
-            _typeName = typeName;
-            _windowInstance = GetWindow<FindScriptableObjectWindow>("Scriptable Object Finder");
+            this.openedFromField = openedFromField;
+            
+            FindScriptableObjectGUI.property = property;
+            FindScriptableObjectGUI.typeName = typeName;
 
-            _windowInstance.FindObjects();
-        }
-
-        void OnEnable()
-        {
             FindObjects();
-            EditorApplication.update += CloseIfNotFocused;
         }
 
-        void OnDestroy() => EditorApplication.update -= CloseIfNotFocused;
-
-        void OnGUI()
+        public void DrawGUI(EditorWindow window)
         {
             DrawTypeSearchBar();
             DrawSearchBar();
@@ -105,18 +96,18 @@ namespace NuiN.ScriptableHarmony.Editor
             
                 EditorGUILayout.LabelField($"Search Results: {_resultCount}");
 
-                if (_property != null && _property.objectReferenceValue != null)
+                if (property != null && property.objectReferenceValue != null)
                 {
                     GUIStyle emptyFieldButtonStyle = new GUIStyle(GUI.skin.button) { normal = { textColor = Color.white } };
                     Color ogColor = GUI.color;
                     GUI.color = Color.red;
             
                     GUILayout.FlexibleSpace();
-                    if (GUILayout.Button("Remove", emptyFieldButtonStyle, GUILayout.Width(60)) && _property != null)
+                    if (openedFromField && GUILayout.Button("Remove", emptyFieldButtonStyle, GUILayout.Width(60)) && property != null)
                     {
-                        _property.objectReferenceValue = null;
-                        _property.serializedObject.ApplyModifiedProperties();
-                        Close();
+                        property.objectReferenceValue = null;
+                        property.serializedObject.ApplyModifiedProperties();
+                        window.Close();
                     }
                     GUI.color = ogColor;
                 }
@@ -126,7 +117,7 @@ namespace NuiN.ScriptableHarmony.Editor
 
             void DrawNoResults()
             {
-                Rect messageRect = new Rect(0, position.height / 2 - 50, position.width, 60);
+                Rect messageRect = new Rect(0, window.position.height / 2 - 50, window.position.width, 60);
                 GUIStyle messageStyle = new GUIStyle(EditorStyles.label)
                 {
                     alignment = TextAnchor.UpperCenter,
@@ -134,8 +125,8 @@ namespace NuiN.ScriptableHarmony.Editor
                     fontStyle = FontStyle.Bold
                 };
                 string noResultsMessage =
-                    _typeName != string.Empty 
-                        ? $"No {_typeName} Objects Found" 
+                    typeName != string.Empty 
+                        ? $"No {typeName} Objects Found" 
                         : "No Type Specified";
                 
                 EditorGUI.LabelField(messageRect, noResultsMessage, messageStyle);
@@ -162,13 +153,13 @@ namespace NuiN.ScriptableHarmony.Editor
                     EditorGUI.ObjectField(objectFieldRect, GUIContent.none, obj, typeof(ScriptableVariableSO<>), true);
                     GUIStyle style = new GUIStyle(GUI.skin.button) { normal = { textColor = Color.black } };
 
-                    if (_property != null)
+                    if (property != null)
                     {
-                        if (GUILayout.Button("Assign", style, GUILayout.Width(60)) && _property != null)
+                        if (openedFromField && GUILayout.Button("Assign", style, GUILayout.Width(60)) && property != null)
                         {
-                            _property.objectReferenceValue = obj;
-                            _property.serializedObject.ApplyModifiedProperties();
-                            Close();
+                            property.objectReferenceValue = obj;
+                            property.serializedObject.ApplyModifiedProperties();
+                            window.Close();
                         }
                     }
 
@@ -181,20 +172,15 @@ namespace NuiN.ScriptableHarmony.Editor
         {
             _foundObjects.Clear();
 
-            string[] guids = AssetDatabase.FindAssets($"t:{_typeName}");
+            string[] guids = AssetDatabase.FindAssets($"t:{typeName}");
 
             foreach (var guid in guids)
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guid);
                 Object obj = AssetDatabase.LoadAssetAtPath<Object>(assetPath);
 
-                if (obj != null && obj.GetType().Name == _typeName) _foundObjects.Add(obj);
+                if (obj != null && obj.GetType().Name == typeName) _foundObjects.Add(obj);
             }
-        }
-
-        void CloseIfNotFocused()
-        {
-            if (focusedWindow != _windowInstance) Close();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace NuiN.ScriptableHarmony.Editor
     internal class GetRuntimeSetDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
-            => SOReferenceGUIHelper.VarRefGUI(SOType.RuntimeSet, Access.Getter, "runtimeSet", position, property, label, fieldInfo);
+            => SOReferenceGUIHelper.DrawGUI(SOType.RuntimeSet, Access.Getter, "runtimeSet", position, property, label, fieldInfo);
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) 
             => SOReferenceGUIHelper.GetPropertyHeight(property, label);
@@ -19,7 +19,7 @@ namespace NuiN.ScriptableHarmony.Editor
     internal class SetRuntimeSetDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-            => SOReferenceGUIHelper.VarRefGUI(SOType.RuntimeSet, Access.Setter, "runtimeSet", position, property, label, fieldInfo);
+            => SOReferenceGUIHelper.DrawGUI(SOType.RuntimeSet, Access.Setter, "runtimeSet", position, property, label, fieldInfo);
         
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) 
             => SOReferenceGUIHelper.GetPropertyHeight(property, label);

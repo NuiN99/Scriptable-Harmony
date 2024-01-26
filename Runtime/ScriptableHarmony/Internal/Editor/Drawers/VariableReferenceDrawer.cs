@@ -9,7 +9,7 @@ namespace NuiN.ScriptableHarmony.Editor
     internal class GetVariableDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
-            => SOReferenceGUIHelper.VarRefGUI(SOType.Variable, Access.Getter, "variable", position, property, label, fieldInfo);
+            => SOReferenceGUIHelper.DrawGUI(SOType.Variable, Access.Getter, "variable", position, property, label, fieldInfo);
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) 
             => SOReferenceGUIHelper.GetPropertyHeight(property, label);
@@ -19,7 +19,7 @@ namespace NuiN.ScriptableHarmony.Editor
     internal class SetVariableDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-            => SOReferenceGUIHelper.VarRefGUI(SOType.Variable, Access.Setter, "variable", position, property, label, fieldInfo);
+            => SOReferenceGUIHelper.DrawGUI(SOType.Variable, Access.Setter, "variable", position, property, label, fieldInfo);
         
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) 
             => SOReferenceGUIHelper.GetPropertyHeight(property, label);

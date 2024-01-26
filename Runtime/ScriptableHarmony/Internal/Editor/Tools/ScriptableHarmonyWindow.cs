@@ -19,19 +19,35 @@ namespace NuiN.ScriptableHarmony.Editor
         Tab _currentTab = Tab.CreateSO;
 
         CreateScriptableObjectGUI _createGUI;
+        FindScriptableObjectGUI _findGUI;
 
         [MenuItem("ScriptableHarmony/Open Editor")]
         static void Open()
         {
             ScriptableHarmonyWindow window = GetWindow<ScriptableHarmonyWindow>("ScriptableHarmony Editor");
+            instance = window;
             window.Show();
         }
 
         public static void Open(Tab tab)
         {
-            instance._currentTab = tab;
             ScriptableHarmonyWindow window = GetWindow<ScriptableHarmonyWindow>("ScriptableHarmony Editor");
+            
+            instance = window;
+
+            window._currentTab = tab;
             window.Show();
+        }
+
+        public static void OpenFindWindow(string typeName, SerializedProperty property)
+        {
+            Open(Tab.FindSO);
+            instance._findGUI = new FindScriptableObjectGUI(typeName, property, true);
+        }
+
+        void OnLostFocus()
+        {
+            if(_findGUI.openedFromField) Close();
         }
 
         void OnEnable()
@@ -41,6 +57,7 @@ namespace NuiN.ScriptableHarmony.Editor
             _pathController = new SelectionPathController(this);
             
             _createGUI = new CreateScriptableObjectGUI(_pathController);
+            _findGUI ??= new FindScriptableObjectGUI("", null, false);
         }
         void OnDisable()
         {
@@ -54,10 +71,10 @@ namespace NuiN.ScriptableHarmony.Editor
             switch (_currentTab)
             {
                 case Tab.CreateSO:
-                    CreateSOWindowGUI();
+                    CreateScriptableObjectGUI();
                     break;
                 case Tab.FindSO:
-                    FindScriptableObjectWindowGUI();
+                    FindScriptableObjectGUI();
                     break;
                 case Tab.CreateType:
                     GenerateCustomTypeWindowGUI();
@@ -66,6 +83,8 @@ namespace NuiN.ScriptableHarmony.Editor
                     SHLoggerOptionsWindowGUI();
                     break;
             }
+            
+            if (_currentTab != Tab.FindSO) _findGUI.openedFromField = false;
         }
 
         void DisplayTabs()
@@ -87,16 +106,14 @@ namespace NuiN.ScriptableHarmony.Editor
             GUILayout.EndHorizontal();
         }
 
-        void CreateSOWindowGUI()
+        void CreateScriptableObjectGUI()
         {
-            
             _createGUI.DrawGUI();
         }
 
-        void FindScriptableObjectWindowGUI()
+        void FindScriptableObjectGUI()
         {
-            // Include the contents of the FindScriptableObjectWindow class here
-            // ...
+            _findGUI.DrawGUI(this);
         }
 
         void GenerateCustomTypeWindowGUI()

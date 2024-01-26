@@ -16,7 +16,7 @@ namespace NuiN.ScriptableHarmony.Editor
         public static float GetPropertyHeight(SerializedProperty property, GUIContent label) 
             => EditorGUIUtility.singleLineHeight;
 
-        public static void VarRefGUI(SOType soType, Access accessType, string propertyName, Rect position, SerializedProperty property, GUIContent label, FieldInfo fieldInfo)
+        public static void DrawGUI(SOType soType, Access accessType, string propertyName, Rect position, SerializedProperty property, GUIContent label, FieldInfo fieldInfo)
         {
             Color color = accessType switch { Access.Getter => GetterColor, Access.Setter => SetterColor, _ => Color.white };
             
@@ -33,12 +33,12 @@ namespace NuiN.ScriptableHarmony.Editor
                 case SOType.RuntimeSingle: typeName += "RuntimeSingleSO"; break;
                 case SOType.Variable:
                 {
-                    typeName = $"{typeName}VariableSO";
+                    typeName = $"{typeName}SO";
                     break;
                 }
                 case SOType.List:
                 {
-                    typeName = $"{typeName}ListVariableSO";
+                    typeName = $"{typeName}ListSO";
                     break;
                 }
                 case SOType.Dictionary:
@@ -46,7 +46,7 @@ namespace NuiN.ScriptableHarmony.Editor
                     Type[] genericArguments = fieldInfo.FieldType.GetGenericArguments();
                     string type1 = GetReadableTypeName(genericArguments[0]);
                     string type2 = GetReadableTypeName(genericArguments[1]);
-                    typeName = $"{type1}{type2}DictionaryVariableSO";
+                    typeName = $"{type1}{type2}DictionarySO";
                     break;
                 }
             }
@@ -76,7 +76,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 GUI.backgroundColor = new Color(0.4f,0.4f,0.4f, 1);
                 if (GUI.Button(buttonPosition, buttonText, buttonStyle))
                 {
-                    FindScriptableObjectWindow.OpenFindWindow(typeName, variableProperty);
+                    ScriptableHarmonyWindow.OpenFindWindow(typeName, variableProperty);
                 }
                 GUI.backgroundColor = originalColor;
             }
