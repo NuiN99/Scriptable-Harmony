@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace NuiN.ScriptableHarmony.Core
 {
-    internal static class SORuntimeHelper
+    public static class SHRuntimeHelper
     {
-        public static void SubOnLoad(Action action) => SORuntimeHelperInstance.OnGameLoaded += action;
-        public static void UnSubOnLoad(Action action) => SORuntimeHelperInstance.OnGameLoaded -= action;
+        public static void SubOnLoad(Action action) => SHRuntimeHelperInstance.OnGameLoaded += action;
+        public static void UnSubOnLoad(Action action) => SHRuntimeHelperInstance.OnGameLoaded -= action;
 
-        public static Coroutine StartCoroutine(IEnumerator coroutine) => SORuntimeHelperInstance.MonoInstance.StartCoroutine(coroutine);
+        public static Coroutine StartCoroutine(IEnumerator coroutine) => SHRuntimeHelperInstance.MonoInstance.StartCoroutine(coroutine);
         
-        public static Coroutine DoAfter(float seconds, Action onComplete) => SORuntimeHelperInstance.MonoInstance.StartCoroutine(DoAfterRoutine(seconds, onComplete));
+        public static Coroutine DoAfter(float seconds, Action onComplete) => SHRuntimeHelperInstance.MonoInstance.StartCoroutine(DoAfterRoutine(seconds, onComplete));
 
         static IEnumerator DoAfterRoutine(float seconds, Action onComplete)
         {
@@ -21,17 +21,17 @@ namespace NuiN.ScriptableHarmony.Core
         }
     }
     
-    internal class SORuntimeHelperInstance : MonoBehaviour
+    internal class SHRuntimeHelperInstance : MonoBehaviour
     {
         internal static event Action OnGameLoaded = delegate { };
 
-        static SORuntimeHelperInstance instance;
+        static SHRuntimeHelperInstance instance;
         public static MonoBehaviour MonoInstance { get; private set; }
    
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void InvokeGameLoadedEvent()
         {
-            instance = new GameObject("Scriptable Harmony Runtime Helper").AddComponent<SORuntimeHelperInstance>();
+            instance = new GameObject("Scriptable Harmony Runtime Helper").AddComponent<SHRuntimeHelperInstance>();
             MonoInstance = instance;
             OnGameLoaded.Invoke();
         }
