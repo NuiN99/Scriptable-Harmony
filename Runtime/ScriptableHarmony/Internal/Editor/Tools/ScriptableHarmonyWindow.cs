@@ -21,7 +21,8 @@ namespace NuiN.ScriptableHarmony.Editor
 
         CreateScriptableObjectGUI _createGUI;
         FindScriptableObjectGUI _findGUI;
-        GenerateCustomTypeGUI _generateTypeUI;
+        GenerateCustomTypeGUI _generateTypeGUI;
+        SHLoggerSettingsGUI _loggerSettingsGUI;
 
         [MenuItem("ScriptableHarmony/Open Editor")]
         static void Open()
@@ -59,7 +60,8 @@ namespace NuiN.ScriptableHarmony.Editor
             _pathController = new SelectionPathController(this);
             
             _createGUI = new CreateScriptableObjectGUI(_pathController);
-            _generateTypeUI = new GenerateCustomTypeGUI(_pathController);
+            _generateTypeGUI = new GenerateCustomTypeGUI(_pathController);
+            _loggerSettingsGUI = new SHLoggerSettingsGUI();
             
             _findGUI ??= new FindScriptableObjectGUI("", null, false, SOType.Variable);
         }
@@ -74,18 +76,10 @@ namespace NuiN.ScriptableHarmony.Editor
             
             switch (currentTab)
             {
-                case Tab.CreateSO:
-                    _createGUI.DrawGUI();
-                    break;
-                case Tab.FindSO:
-                    _findGUI.DrawGUI(this);
-                    break;
-                case Tab.CreateType:
-                    _generateTypeUI.DrawGUI(this);
-                    break;
-                case Tab.Logger:
-                    
-                    break;
+                case Tab.CreateSO: _createGUI.DrawGUI(); break;
+                case Tab.FindSO: _findGUI.DrawGUI(this); break;
+                case Tab.CreateType: _generateTypeGUI.DrawGUI(this); break;
+                case Tab.Logger: _loggerSettingsGUI.DrawGUI(); break;
             }
             
             if (currentTab != Tab.FindSO) _findGUI.openedFromField = false;

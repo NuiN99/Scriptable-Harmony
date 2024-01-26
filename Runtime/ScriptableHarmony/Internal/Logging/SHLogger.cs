@@ -11,6 +11,7 @@ namespace NuiN.ScriptableHarmony.Core
         
         public static bool variableLogging = true;
         public static bool listVariableLogging = true;
+        public static bool dictionaryVariableLogging = true;
         public static bool runtimeSetLogging = true;
         public static bool runtimeSingleLogging = true;
 
@@ -28,6 +29,7 @@ namespace NuiN.ScriptableHarmony.Core
             logging = SHLoggerSettings.IsLoggingEnabled();
             variableLogging = SHLoggerSettings.IsVariableLoggingEnabled();
             listVariableLogging = SHLoggerSettings.IsListVariableLoggingEnabled();
+            dictionaryVariableLogging = SHLoggerSettings.IsDictionaryVariableLoggingEnabled();
             runtimeSetLogging = SHLoggerSettings.IsRuntimeSetLoggingEnabled();
             runtimeSingleLogging = SHLoggerSettings.IsRuntimeSingleLoggingEnabled();
         }
@@ -41,6 +43,7 @@ namespace NuiN.ScriptableHarmony.Core
             {
                 case SOType.Variable when !variableLogging:
                 case SOType.List when !listVariableLogging:
+                case SOType.Dictionary when !dictionaryVariableLogging:
                 case SOType.RuntimeSet when !runtimeSetLogging:
                 case SOType.RuntimeSingle when !runtimeSingleLogging:
                     return;
