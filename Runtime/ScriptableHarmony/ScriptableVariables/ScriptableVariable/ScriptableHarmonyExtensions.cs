@@ -1,10 +1,13 @@
 using System;
+using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
 
 namespace NuiN.ScriptableHarmony
 {
-    public static class SetVariableExtensions
+    public static class ScriptableHarmonyExtensions
     {
+        #region SetScriptableVariable
+        
         #region Add
         
         public static void Add(this SetScriptableVariable<float> reference, float value) 
@@ -371,6 +374,27 @@ namespace NuiN.ScriptableHarmony
         
         public static void Toggle(this SetScriptableVariable<bool> reference) => reference.Set(!reference.Val);
         
+        #endregion
+        
+        #endregion
+
+        #region General
+
+        public static bool IsTrue(this GetScriptableVariable<bool> variable)
+            => variable.Val;
+        public static bool IsTrue(this SetScriptableVariable<bool> variable)
+            => variable.Val;
+        
+        public static bool IsFalse(this GetScriptableVariable<bool> variable)
+            => !variable.Val;
+        public static bool IsFalse(this SetScriptableVariable<bool> variable)
+            => !variable.Val;
+
+        public static bool Is<T>(GetScriptableVariable<T> variable, T compareTo)
+            => variable.Val.Equals(compareTo);
+        public static bool Is<T>(SetScriptableVariable<T> variable, T compareTo)
+            => variable.Val.Equals(compareTo);
+
         #endregion
     }
 }
