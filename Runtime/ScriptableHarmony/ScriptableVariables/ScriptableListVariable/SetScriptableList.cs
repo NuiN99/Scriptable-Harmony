@@ -8,7 +8,7 @@ using UnityEditor;
 namespace NuiN.ScriptableHarmony
 {
     [Serializable]
-    public class SetList<T> : ScriptableListReference<T>, IEnumerable<T>
+    public class SetScriptableList<T> : ScriptableListReference<T>, IEnumerable<T>
     {
         public List<T> Items => list.values;
         

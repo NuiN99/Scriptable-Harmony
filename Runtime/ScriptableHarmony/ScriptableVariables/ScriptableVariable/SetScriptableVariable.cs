@@ -6,7 +6,7 @@ using UnityEditor;
 namespace NuiN.ScriptableHarmony
 {
     [Serializable]
-    public class SetVariable<T> : ScriptableVariableReference<T>
+    public class SetScriptableVariable<T> : ScriptableVariableReference<T>
     {
         public T Val => variable.value;
         public T DefaultVal => variable.DefaultValue;

@@ -7,7 +7,7 @@ using NuiN.ScriptableHarmony.Core;
 namespace NuiN.ScriptableHarmony
 {
     [Serializable]
-    public class GetList<T> : ScriptableListReference<T>, IEnumerable<T>
+    public class GetScriptableList<T> : ScriptableListReference<T>, IEnumerable<T>
     {
         public ReadOnlyCollection<T> Items => list.values.AsReadOnly();
         

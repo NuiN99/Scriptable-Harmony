@@ -20,7 +20,7 @@ namespace NuiN.ScriptableHarmony.Core
 
         [Header("Debugging")] 
         [SerializeField] bool logActions = true;
-        [SerializeField] GetSetReferencesContainer gettersAndSetters = new("variable", typeof(ScriptableVariableReference<T>), typeof(GetVariable<T>), typeof(SetVariable<T>));
+        [SerializeField] GetSetReferencesContainer gettersAndSetters = new("variable", typeof(ScriptableVariableReference<T>), typeof(GetScriptableVariable<T>), typeof(SetScriptableVariable<T>));
         
         protected override GetSetReferencesContainer GettersAndSetters { get => gettersAndSetters; set => gettersAndSetters = value; }
         public T DefaultValue => defaultValue;

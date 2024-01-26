@@ -33,7 +33,7 @@ namespace NuiN.ScriptableHarmony.Core
 
         [Header("Debugging")] 
         [SerializeField] bool logActions = true;
-        [SerializeField] GetSetReferencesContainer gettersAndSetters = new("list", typeof(ScriptableListReference<T>), typeof(GetList<T>), typeof(SetList<T>));
+        [SerializeField] GetSetReferencesContainer gettersAndSetters = new("list", typeof(ScriptableListReference<T>), typeof(GetScriptableList<T>), typeof(SetScriptableList<T>));
         protected override GetSetReferencesContainer GettersAndSetters { get => gettersAndSetters;set => gettersAndSetters = value; }
         
         public List<T> DefaultValues => defaultValues;

@@ -7,7 +7,7 @@ using UnityEditor;
 namespace NuiN.ScriptableHarmony
 {
     [Serializable]
-    public class SetDictionary<TKey,TValue> : ScriptableDictionaryReference<TKey,TValue>
+    public class SetScriptableDictionary<TKey,TValue> : ScriptableDictionaryReference<TKey,TValue>
     {
         public IReadOnlyDictionary<TKey,TValue> Dictionary => dictionary.dictionary;
         Dictionary<TKey, TValue> InternalDictionary => (Dictionary<TKey, TValue>)Dictionary;

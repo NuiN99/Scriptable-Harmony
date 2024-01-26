@@ -17,7 +17,7 @@ namespace NuiN.ScriptableHarmony.Core
 
         [Header("Debugging")] 
         [SerializeField] bool logActions = true;
-        [SerializeField] GetSetReferencesContainer gettersAndSetters = new("list", typeof(ScriptableDictionaryReference<TKey,TValue>), typeof(GetDictionary<TKey,TValue>), typeof(SetDictionary<TKey,TValue>));
+        [SerializeField] GetSetReferencesContainer gettersAndSetters = new("list", typeof(ScriptableDictionaryReference<TKey,TValue>), typeof(GetScriptableDictionary<TKey,TValue>), typeof(SetScriptableDictionary<TKey,TValue>));
         protected override GetSetReferencesContainer GettersAndSetters { get => gettersAndSetters;set => gettersAndSetters = value; }
         
         public Dictionary<TKey,TValue> DefaultValues => defaultDictionary;

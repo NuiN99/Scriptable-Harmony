@@ -5,7 +5,7 @@ using UnityEngine;
 namespace NuiN.ScriptableHarmony.Editor
 {
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(GetList<>))]
+    [CustomPropertyDrawer(typeof(GetScriptableList<>))]
     internal class GetListVariableDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
@@ -15,7 +15,7 @@ namespace NuiN.ScriptableHarmony.Editor
             => SOReferenceGUIHelper.GetPropertyHeight(property, label);
     }
 
-    [CustomPropertyDrawer(typeof(SetList<>))]
+    [CustomPropertyDrawer(typeof(SetScriptableList<>))]
     internal class SetListVariableDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
