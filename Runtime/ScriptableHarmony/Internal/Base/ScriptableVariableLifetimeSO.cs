@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace NuiN.ScriptableHarmony.Core
 {
-    public abstract class ScriptableVariableLifetimeSO<T> : EditorObjectSO<T>
+    public abstract class ScriptableVariableLifetimeSO<T> : SHBaseSO<T>
     {
         [SerializeField] [TextArea] string description;
     
