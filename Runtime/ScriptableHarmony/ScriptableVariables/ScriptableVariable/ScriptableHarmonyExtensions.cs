@@ -1,5 +1,4 @@
 using System;
-using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
 
 namespace NuiN.ScriptableHarmony

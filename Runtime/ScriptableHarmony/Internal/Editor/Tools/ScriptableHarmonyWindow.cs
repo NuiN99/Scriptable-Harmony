@@ -1,4 +1,7 @@
+#if UNITY_EDITOR
+
 using NuiN.ScriptableHarmony.Core;
+using NuiN.ScriptableHarmony.Sound;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,7 +14,8 @@ namespace NuiN.ScriptableHarmony.Editor
             CreateSO,
             FindSO,
             CreateType,
-            Logger
+            Logger,
+            Volume
         }
 
         static ScriptableHarmonyWindow instance;
@@ -84,6 +88,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 case Tab.FindSO: _findGUI.DrawGUI(this); break;
                 case Tab.CreateType: _generateTypeGUI.DrawGUI(this); break;
                 case Tab.Logger: _loggerSettingsGUI.DrawGUI(); break;
+                case Tab.Volume: MasterVolumeManager.DrawSliderGUI(); break;
             }
             
             if (_currentTab != Tab.FindSO) _findGUI.openedFromField = false;
@@ -106,6 +111,9 @@ namespace NuiN.ScriptableHarmony.Editor
                 if (GUILayout.Toggle(_currentTab == Tab.Logger, "Logger", EditorStyles.toolbarButton))
                     _currentTab = Tab.Logger;
 
+                if (GUILayout.Toggle(_currentTab == Tab.Volume, "Volume", EditorStyles.toolbarButton))
+                    _currentTab = Tab.Volume;
+
                 GUILayout.EndHorizontal();
                 
                 EditorPrefs.SetInt(PREFS_LAST_TAB, (int)_currentTab);
@@ -113,3 +121,5 @@ namespace NuiN.ScriptableHarmony.Editor
         }
     }
 }
+
+#endif

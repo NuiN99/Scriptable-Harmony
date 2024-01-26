@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
 using NuiN.ScriptableHarmony.Core;

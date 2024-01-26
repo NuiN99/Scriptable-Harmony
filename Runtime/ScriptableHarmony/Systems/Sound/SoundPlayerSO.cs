@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
@@ -18,22 +17,50 @@ namespace NuiN.ScriptableHarmony.Sound
         AudioSource _sourcePrefab;
         AudioSource _activeSource;
         bool _sceneDisabledAudio;
-    
-        [Range(0,1)] public float masterVolume = 0.5f;
-        
-        [SerializeField] AudioMixerGroup mixerGroup;
+
+        [SerializeField, Range(0,1)] float volume = 0.5f;
+
+        [SerializeField] string playerPrefsVolumeKey;
         
         [Header("Options")]
         public bool disableAudio;
         [SerializeField] List<string> disableAudioOnScenes;
 
         public bool AudioDisabled => disableAudio || _sceneDisabledAudio;
+        public float Volume => volume;
         
-        void OnEnable() => SceneManager.activeSceneChanged += SetupForNewScene;
-        void OnDisable() => SceneManager.activeSceneChanged -= SetupForNewScene;
+        void OnEnable()
+        {
+            string prefsKey = "SH_" + playerPrefsVolumeKey;
+            if (playerPrefsVolumeKey != string.Empty && PlayerPrefs.HasKey(prefsKey))
+                volume = PlayerPrefs.GetFloat(prefsKey);
+
+            SceneManager.activeSceneChanged += SetupForNewScene;
+        }
+        void OnDisable()
+        {
+            SceneManager.activeSceneChanged -= SetupForNewScene;
+        }
+        
+        void OnValidate() => SetVolume(volume);
+
+        public void SetVolume(float newVolume)
+        {
+            string prefsKey = "SH_" + playerPrefsVolumeKey;
+            volume = Mathf.Clamp01(newVolume);
+            PlayerPrefs.SetFloat(prefsKey, volume);
+        }
+
+        public float GetPrefsVolume() => PlayerPrefs.HasKey(playerPrefsVolumeKey) ? PlayerPrefs.GetFloat(playerPrefsVolumeKey) : volume;
 
         void SetupForNewScene(Scene from, Scene to)
         {
+            if (!this)
+            {
+                SceneManager.activeSceneChanged -= SetupForNewScene;
+                return;
+            }
+            
             if (disableAudioOnScenes.Any(sceneName => sceneName != null && sceneName == to.name))
             {
                 _sceneDisabledAudio = true;
@@ -82,10 +109,9 @@ namespace NuiN.ScriptableHarmony.Sound
             
             source.playOnAwake = false;
             source.clip = clip;
-            source.outputAudioMixerGroup = mixerGroup;
             source.loop = soundObj.Loop;
             source.priority = soundObj.Priority;
-            source.volume = soundObj.Volume * masterVolume * volumeMult;
+            source.volume = soundObj.Volume * volume * volumeMult * MasterVolumeManager.GlobalVolume;
             source.pitch = soundObj.Pitch * pitchMult;
             source.panStereo = soundObj.StereoPan;
             source.reverbZoneMix = soundObj.ReverbZoneMix;
