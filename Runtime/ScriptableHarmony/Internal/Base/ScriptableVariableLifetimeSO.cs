@@ -11,7 +11,7 @@ namespace NuiN.ScriptableHarmony.Core
     
         protected new virtual void OnEnable()
         {
-            base.OnEnable();;
+            base.OnEnable();
             SORuntimeHelper.SubOnLoad(SaveDefaultValue);
             SceneManager.activeSceneChanged += ResetValueOnSceneLoad;
             ScriptableHarmonyManager.OnResetAllVariableObjects += ResetValueToDefault;
