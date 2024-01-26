@@ -19,7 +19,7 @@ namespace NuiN.ScriptableHarmony.Core
         void OnDisable()
         {
             if(lifetimeType == LifetimeType.RemoveOnDestroyAndDisable) RemoveFromSet();
-            else RemoveFromSetCondition(LifetimeType.OnEnableOnDisable);
+            else RemoveFromSetConditionial(LifetimeType.OnEnableOnDisable);
         }
 
         void Awake()
@@ -38,17 +38,15 @@ namespace NuiN.ScriptableHarmony.Core
             if (SelfDestructIfNullObject(thisObject)) return;
             if (lifetimeType != type) return;
             
-            if(!dontInvokeOnAdd) runtimeSet.Add(thisObject);
-            else runtimeSet.AddNoInvoke(thisObject);
+            runtimeSet.Add(thisObject);
         }
-        void RemoveFromSetCondition(LifetimeType type)
+        void RemoveFromSetConditionial(LifetimeType type)
         {
             if (lifetimeType == type) RemoveFromSet();
         }
         void RemoveFromSet()
         {
-            if(!dontInvokeOnRemove) runtimeSet.Remove(thisObject);
-            else runtimeSet.RemoveNoInvoke(thisObject);
+            runtimeSet.Remove(thisObject);
         }
 
         bool SelfDestructIfNullObject(T obj)

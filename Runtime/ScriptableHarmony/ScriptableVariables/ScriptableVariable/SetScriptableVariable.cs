@@ -21,23 +21,12 @@ namespace NuiN.ScriptableHarmony
             variable.onChangeWithOld?.Invoke(oldValue, value);
             variable.onChange?.Invoke(value);
             
-            SHLogger.LogSet("Set Value", SOType.Variable, oldValue?.ToString(), Val?.ToString(), true, variable);
-        }
-        public void SetNoInvoke(T value)
-        {
-            SHLogger.LogSet("Set Value", SOType.Variable, Val?.ToString(), value?.ToString(), false, variable);
-
-            variable.value = value;
-            SetDirty();
+            SHLogger.LogSet("Set Value", SOType.Variable, oldValue?.ToString(), Val?.ToString(), variable);
         }
 
         public void ResetValue()
         {
             Set(variable.DefaultValue);
-        }
-        public void ResetValueNoInvoke()
-        {
-            SetNoInvoke(variable.DefaultValue);
         }
 
         [Conditional("UNITY_EDITOR")]

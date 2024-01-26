@@ -11,16 +11,12 @@ namespace NuiN.ScriptableHarmony.Core
 
         [SerializeField] bool overwriteExisting;
         
-        [Header("Actions")]
-        [SerializeField] bool dontInvokeOnSet;
-        [SerializeField] bool dontInvokeOnRemove;
-    
         void Reset() => thisObject ??= GetComponent<T>();
         
         void OnEnable() => SetItem(LifetimeType.OnEnableOnDisable);
         void OnDisable()
         {
-            if(lifetimeType == LifetimeType.RemoveOnDestroyAndDisable) RemoveFromSet();
+            if(lifetimeType == LifetimeType.RemoveOnDestroyAndDisable) runtimeSingle.Remove();
             else RemoveFromSetCondition(LifetimeType.OnEnableOnDisable);
         }
 
@@ -30,29 +26,19 @@ namespace NuiN.ScriptableHarmony.Core
             SetItem(LifetimeType.OnAwakeOnDestroy);
         }
 
-        void OnDestroy() => RemoveFromSet();
+        void OnDestroy() => runtimeSingle.Remove();
 
         void SetItem(LifetimeType type)
         {
             if (SelfDestructIfNullObject(thisObject)) return;
             if (lifetimeType != type) return;
             
-            switch (dontInvokeOnSet)
-            {
-                case false when overwriteExisting: runtimeSingle.Set(thisObject); break;
-                case false when !overwriteExisting: runtimeSingle.TrySet(thisObject); break;
-                case true when overwriteExisting: runtimeSingle.SetNoInvoke(thisObject); break;
-                case true when !overwriteExisting: runtimeSingle.TrySetNoInvoke(thisObject); break;
-            }
+            if(overwriteExisting) runtimeSingle.Set(thisObject);
+            else runtimeSingle.TrySet(thisObject);
         }
         void RemoveFromSetCondition(LifetimeType type)
         {
-            if (lifetimeType == type) RemoveFromSet();
-        }
-        void RemoveFromSet()
-        {
-            if (!dontInvokeOnRemove) runtimeSingle.Remove();
-            else runtimeSingle.RemoveNoInvoke();
+            if (lifetimeType == type) runtimeSingle.Remove();
         }
 
         bool SelfDestructIfNullObject(T obj)

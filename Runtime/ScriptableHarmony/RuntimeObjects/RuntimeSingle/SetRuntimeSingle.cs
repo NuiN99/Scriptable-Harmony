@@ -13,7 +13,7 @@ namespace NuiN.ScriptableHarmony
             private set => runtimeSingle.entity = value;
         }
 
-        void Set(T newItem, bool overrideExisting, bool invokeActions)
+        void Set(T newItem, bool overrideExisting)
         {
             if (newItem == null) return;
             if (Entity != null && !overrideExisting) return;
@@ -23,23 +23,17 @@ namespace NuiN.ScriptableHarmony
 
             Object newItemObj = newItem as Object;
             Object oldItemObj = oldItem as Object;
-            SHLogger.LogSet("Set Entity", SOType.RuntimeSingle, oldItemObj != null ? oldItemObj.name : "", newItemObj != null ? newItemObj.name : "", invokeActions, runtimeSingle);
+            SHLogger.LogSet("Set Entity", SOType.RuntimeSingle, oldItemObj != null ? oldItemObj.name : "", newItemObj != null ? newItemObj.name : "", runtimeSingle);
             
-            if (!invokeActions) return;
-
             runtimeSingle.onSetWithOld?.Invoke(oldItem, Entity);
             runtimeSingle.onSet?.Invoke(Entity);
         }
         public void TrySet(T newItem)
-            => Set(newItem, false, true);
-        public void TrySetNoInvoke(T newItem)
-            => Set(newItem, false, false);
+            => Set(newItem, false);
         public void Set(T newItem)
-            => Set(newItem, true, true);
-        public void SetNoInvoke(T newItem, bool invokeActions = true, bool overrideExisting = true)
-            => Set(newItem, true, false);
+            => Set(newItem, true);
         
-        void Remove(bool invokeActions)
+        public void Remove()
         {
             if (Entity == null) return;
 
@@ -47,14 +41,10 @@ namespace NuiN.ScriptableHarmony
             Entity = default;
             
             Object oldItemObj = oldItem as Object;
-            SHLogger.LogSet("Removed Entity", SOType.RuntimeSingle, oldItem != null ? oldItemObj.name : "null", null, invokeActions, runtimeSingle);
-            
-            if (!invokeActions) return;
-            
+            if (oldItemObj != null) SHLogger.LogSet("Removed Entity", SOType.RuntimeSingle, oldItem != null ? oldItemObj.name : "null", null, runtimeSingle);
+
             runtimeSingle.onRemoveWithOld?.Invoke(oldItem);
             runtimeSingle.onRemove?.Invoke();
         }
-        public void Remove() => Remove(true);
-        public void RemoveNoInvoke() => Remove(false);
     }
 }
