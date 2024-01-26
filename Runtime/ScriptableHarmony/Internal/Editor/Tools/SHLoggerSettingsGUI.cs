@@ -71,7 +71,7 @@ namespace  NuiN.ScriptableHarmony.Editor
         }
     }
 #endif
-
+    
     public static class SHLoggerSettings
     {
         public const string PREFS_LOGGING_KEY = "SHLoggerBool";
@@ -84,9 +84,11 @@ namespace  NuiN.ScriptableHarmony.Editor
         
         static bool LoggingCheck(string prefsKey)
         {
+#if UNITY_EDITOR
             if (EditorPrefs.HasKey(prefsKey)) return EditorPrefs.GetInt(prefsKey) == 1;
 
             EditorPrefs.SetInt(prefsKey, 1);
+#endif
             return true;
         }
         
