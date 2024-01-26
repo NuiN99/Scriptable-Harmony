@@ -1,14 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
 using NuiN.ScriptableHarmony.Core;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace NuiN.ScriptableHarmony.Particles
 {
-    public static class ParticleSpawner
+    internal static class ParticleSpawnerManager
     {
         static Dictionary<ParticleSystem, (ObjectPool<ParticleSystem> pool, Transform container)> prefabObjectPools = new();
 
@@ -98,7 +98,7 @@ namespace NuiN.ScriptableHarmony.Particles
             return particleSystem;
         }
 
-        public static List<ParticleSystem> SpawnAll(List<ParticleSystem> prefabs, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
+        public static List<ParticleSystem> SpawnAll(List<ParticleSystem> prefabs, Vector3 position, Quaternion? rotation = null, Transform parent = null, float scaleMultiplier = 1f, float? lifetime = null)
         {
             List<ParticleSystem> spawned = new();
             foreach (var prefab in prefabs)
@@ -109,7 +109,7 @@ namespace NuiN.ScriptableHarmony.Particles
             return spawned;
         }
         
-        public static ParticleSystem SpawnRandom(List<ParticleSystem> prefabs, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
+        public static ParticleSystem SpawnRandom(List<ParticleSystem> prefabs, Vector3 position, Quaternion? rotation = null, Transform parent = null, float scaleMultiplier = 1f, float? lifetime = null)
         {
             return Spawn(prefabs[Random.Range(0, prefabs.Count)], position, rotation, parent, scaleMultiplier, lifetime);
         }
