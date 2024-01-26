@@ -76,7 +76,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 GUI.backgroundColor = new Color(0.4f,0.4f,0.4f, 1);
                 if (GUI.Button(buttonPosition, buttonText, buttonStyle))
                 {
-                    ScriptableHarmonyWindow.OpenFindWindow(typeName, variableProperty);
+                    ScriptableHarmonyWindow.OpenFindWindow(typeName, variableProperty, soType);
                 }
                 GUI.backgroundColor = originalColor;
             }

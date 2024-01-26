@@ -7,10 +7,11 @@ using Object = UnityEngine.Object;
 namespace NuiN.ScriptableHarmony.Editor
 {
 #if UNITY_EDITOR
-    internal class GenerateCustomTypeWindow : EditorWindow
+    internal class GenerateCustomTypeGUI
     {
         const string SCRIPT_TEMPLATE =
 @"using UnityEngine;
+using NuiN.ScriptableHarmony.Core;
 
 namespace NuiN.ScriptableHarmony
 {   
@@ -22,6 +23,7 @@ namespace NuiN.ScriptableHarmony
         
         const string COMPONENT_SCRIPT_TEMPLATE = 
 @"using UnityEngine;
+using NuiN.ScriptableHarmony.Core;
 
 namespace NuiN.ScriptableHarmony
 {   
@@ -41,18 +43,14 @@ namespace NuiN.ScriptableHarmony
 
         SelectionPathController _pathController;
         
-        static GenerateCustomTypeWindow windowInstance;
-        
-        [MenuItem("ScriptableHarmony/Generate a Custom Type")]
-        static void OpenWindow()
-        {
-            windowInstance = GetWindow<GenerateCustomTypeWindow>();
-            windowInstance.titleContent = new GUIContent("Custom Type Generator");
-            windowInstance.Show();
-        }
-
         Vector2 _scrollPosition;
-        void OnGUI()
+
+        public GenerateCustomTypeGUI(SelectionPathController pathController)
+        {
+            _pathController = pathController;
+        }
+        
+        public void DrawGUI(EditorWindow window)
         {
             GUILayout.Space(10);
             
@@ -86,7 +84,7 @@ namespace NuiN.ScriptableHarmony
             void DisplayScriptPreview()
             {
                 EditorGUILayout.LabelField("Preview:");
-                using (var scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition, GUILayout.Height(position.height - 200)))
+                using (var scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition, GUILayout.Height(window.position.height - 225)))
                 {
                     _scrollPosition = scrollView.scrollPosition;
                     if (lockPreview) EditorGUI.BeginDisabledGroup(true);
@@ -168,9 +166,6 @@ namespace NuiN.ScriptableHarmony
             return $"{type}{GetSingularSuffix()}";
         }
         
-        void OnEnable() => _pathController = new SelectionPathController(this);
-        void OnDisable() => _pathController?.Dispose();
-
         static string GetPluralSuffix() => GetSingularSuffix() + "s";
 
         static string GetFileName() => $"New {type} {GetSingularSuffix()}";

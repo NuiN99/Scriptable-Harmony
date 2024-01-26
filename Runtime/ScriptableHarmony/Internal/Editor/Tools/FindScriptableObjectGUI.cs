@@ -15,6 +15,7 @@ namespace NuiN.ScriptableHarmony.Editor
         List<Object> _foundObjects = new();
         Vector2 _scrollPosition;
         static string typeName;
+        SOType _soType;
 
         int _resultCount;
 
@@ -35,7 +36,7 @@ namespace NuiN.ScriptableHarmony.Editor
 
         public bool openedFromField;
 
-        public FindScriptableObjectGUI(string typeName, SerializedProperty property, bool openedFromField)
+        public FindScriptableObjectGUI(string typeName, SerializedProperty property, bool openedFromField, SOType soType)
         {
             this.openedFromField = openedFromField;
             

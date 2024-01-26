@@ -1,3 +1,4 @@
+using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,10 +17,11 @@ namespace NuiN.ScriptableHarmony.Editor
         static ScriptableHarmonyWindow instance;
 
         SelectionPathController _pathController;
-        Tab _currentTab = Tab.CreateSO;
+        static Tab currentTab = Tab.CreateSO;
 
         CreateScriptableObjectGUI _createGUI;
         FindScriptableObjectGUI _findGUI;
+        GenerateCustomTypeGUI _generateTypeUI;
 
         [MenuItem("ScriptableHarmony/Open Editor")]
         static void Open()
@@ -35,14 +37,14 @@ namespace NuiN.ScriptableHarmony.Editor
             
             instance = window;
 
-            window._currentTab = tab;
+            currentTab = tab;
             window.Show();
         }
 
-        public static void OpenFindWindow(string typeName, SerializedProperty property)
+        public static void OpenFindWindow(string typeName, SerializedProperty property, SOType soType)
         {
             Open(Tab.FindSO);
-            instance._findGUI = new FindScriptableObjectGUI(typeName, property, true);
+            instance._findGUI = new FindScriptableObjectGUI(typeName, property, true, soType);
         }
 
         void OnLostFocus()
@@ -57,7 +59,9 @@ namespace NuiN.ScriptableHarmony.Editor
             _pathController = new SelectionPathController(this);
             
             _createGUI = new CreateScriptableObjectGUI(_pathController);
-            _findGUI ??= new FindScriptableObjectGUI("", null, false);
+            _generateTypeUI = new GenerateCustomTypeGUI(_pathController);
+            
+            _findGUI ??= new FindScriptableObjectGUI("", null, false, SOType.Variable);
         }
         void OnDisable()
         {
@@ -68,64 +72,44 @@ namespace NuiN.ScriptableHarmony.Editor
         {
             DisplayTabs();
             
-            switch (_currentTab)
+            switch (currentTab)
             {
                 case Tab.CreateSO:
-                    CreateScriptableObjectGUI();
+                    _createGUI.DrawGUI();
                     break;
                 case Tab.FindSO:
-                    FindScriptableObjectGUI();
+                    _findGUI.DrawGUI(this);
                     break;
                 case Tab.CreateType:
-                    GenerateCustomTypeWindowGUI();
+                    _generateTypeUI.DrawGUI(this);
                     break;
                 case Tab.Logger:
-                    SHLoggerOptionsWindowGUI();
+                    
                     break;
             }
             
-            if (_currentTab != Tab.FindSO) _findGUI.openedFromField = false;
-        }
-
-        void DisplayTabs()
-        {
-            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            if (currentTab != Tab.FindSO) _findGUI.openedFromField = false;
             
-            if (GUILayout.Toggle(_currentTab == Tab.CreateSO, "Create", EditorStyles.toolbarButton))
-                _currentTab = Tab.CreateSO;
+            return;
 
-            if (GUILayout.Toggle(_currentTab == Tab.FindSO, "Find", EditorStyles.toolbarButton))
-                _currentTab = Tab.FindSO;
+            void DisplayTabs()
+            {
+                GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            
+                if (GUILayout.Toggle(currentTab == Tab.CreateSO, "Create", EditorStyles.toolbarButton))
+                    currentTab = Tab.CreateSO;
 
-            if (GUILayout.Toggle(_currentTab == Tab.CreateType, "Generate Type", EditorStyles.toolbarButton))
-                _currentTab = Tab.CreateType;
+                if (GUILayout.Toggle(currentTab == Tab.FindSO, "Find", EditorStyles.toolbarButton))
+                    currentTab = Tab.FindSO;
 
-            if (GUILayout.Toggle(_currentTab == Tab.Logger, "Logger", EditorStyles.toolbarButton))
-                _currentTab = Tab.Logger;
+                if (GUILayout.Toggle(currentTab == Tab.CreateType, "Generate Type", EditorStyles.toolbarButton))
+                    currentTab = Tab.CreateType;
 
-            GUILayout.EndHorizontal();
-        }
+                if (GUILayout.Toggle(currentTab == Tab.Logger, "Logger", EditorStyles.toolbarButton))
+                    currentTab = Tab.Logger;
 
-        void CreateScriptableObjectGUI()
-        {
-            _createGUI.DrawGUI();
-        }
-
-        void FindScriptableObjectGUI()
-        {
-            _findGUI.DrawGUI(this);
-        }
-
-        void GenerateCustomTypeWindowGUI()
-        {
-            // Include the contents of the GenerateCustomTypeWindow class here
-            // ...
-        }
-
-        void SHLoggerOptionsWindowGUI()
-        {
-            // Include the contents of the SHLoggerOptionsWindow class here
-            // ...
+                GUILayout.EndHorizontal();
+            }
         }
     }
 }
