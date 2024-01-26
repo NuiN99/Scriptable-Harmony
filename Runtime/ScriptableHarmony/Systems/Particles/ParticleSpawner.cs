@@ -40,18 +40,20 @@ namespace NuiN.ScriptableHarmony.Particles
             return newSystem;
         }
 
-        public static void SpawnAll(List<ParticleSystem> prefabs, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
+        public static List<ParticleSystem> SpawnAll(List<ParticleSystem> prefabs, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
         {
+            List<ParticleSystem> spawned = new();
             foreach (var prefab in prefabs)
             {
-                Spawn(prefab, position, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
+                spawned.Add(Spawn(prefab, position, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime));
             }
+
+            return spawned;
         }
         
-        public static void SpawnRandom(List<ParticleSystem> prefabs, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
+        public static ParticleSystem SpawnRandom(List<ParticleSystem> prefabs, Vector3 position, Quaternion rotation = default, Transform parent = null, float emissionMultiplier = 1f, float scaleMultiplier = 1f, float? lifetime = null)
         {
-            ParticleSystem randSystem = prefabs[Random.Range(0, prefabs.Count)];
-            Spawn(randSystem, position, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
+            return Spawn(prefabs[Random.Range(0, prefabs.Count)], position, rotation, parent, emissionMultiplier, scaleMultiplier, lifetime);
         }
     }
 }
