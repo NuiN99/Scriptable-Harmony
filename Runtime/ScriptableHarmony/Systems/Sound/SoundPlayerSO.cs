@@ -131,8 +131,7 @@ namespace NuiN.ScriptableHarmony.Sound
             }
             
             source.transform.position = position;
-            
-            if(parent != null) source.transform.SetParent(parent);
+            source.transform.SetParent(parent);
 
             return source;
         }
