@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NuiN.ScriptableHarmony.Core
 {
-    public abstract class EditorObjectSO<T> : ScriptableObject
+    public abstract class SHBaseSO<T> : ScriptableObject
     {
         protected abstract GetSetReferencesContainer GettersAndSetters { get; set; }
         public abstract bool LogActions { get; }
