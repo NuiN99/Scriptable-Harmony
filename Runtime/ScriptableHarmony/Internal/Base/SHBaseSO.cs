@@ -11,12 +11,16 @@ namespace NuiN.ScriptableHarmony.Core
         protected virtual void OnEnable()
         {
 #if UNITY_EDITOR
+            OnSaveEvent.OnSave += OnSelectedInProjectWindow;
+            EditorApplication.quitting += ClearDebugReferences;
             Selection.selectionChanged += OnSelectedInProjectWindow;
 #endif
         }
         protected virtual void OnDisable()
         {
 #if UNITY_EDITOR
+            OnSaveEvent.OnSave -= OnSelectedInProjectWindow;
+            EditorApplication.quitting -= ClearDebugReferences;
             Selection.selectionChanged -= OnSelectedInProjectWindow;
 #endif
         }
@@ -26,10 +30,16 @@ namespace NuiN.ScriptableHarmony.Core
         
         void OnSelectedInProjectWindow()
         {
-            GettersAndSetters.Clear();
             if(this) EditorUtility.SetDirty(this);
+            GettersAndSetters.Clear();
             if (Selection.activeObject != this) return;
             AssignDebugReferences();
+        }
+
+        void ClearDebugReferences()
+        {
+            if(this) EditorUtility.SetDirty(this);
+            GettersAndSetters.Clear();
         }
     
         void AssignDebugReferences()
