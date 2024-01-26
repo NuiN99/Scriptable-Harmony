@@ -11,26 +11,25 @@ namespace NuiN.ScriptableHarmony.Sound
     public class SoundPlayerSO : ScriptableObject
     {
         ObjectPool<AudioSource> _sourcePool;
-        Transform _sourceContainer;
-
+        Transform _pooledSourcesContainer;
         AudioSource _sourcePrefab;
-        AudioSource _activeSource;
-        bool _sceneDisabledAudio;
 
         [SerializeField, Range(0,1)] float volume = 0.5f;
 
         [Header("Options")]
-        public bool disableAudio;
+        [SerializeField] bool disableAudio;
         [SerializeField] AudioMixerGroup mixerGroup;
         [SerializeField] string prefsVolumeKey;
-        
-        public bool AudioDisabled => disableAudio || _sceneDisabledAudio;
+
+        string PrefsVolumeKey => "SH_" + prefsVolumeKey;
+        public bool AudioDisabled => disableAudio;
         public float Volume => volume;
         
         void OnEnable()
         {
-            if (prefsVolumeKey != string.Empty && PlayerPrefs.HasKey(GetPrefsKey()))
-                volume = PlayerPrefs.GetFloat(GetPrefsKey());
+            if (prefsVolumeKey != string.Empty) volume = GetPrefsVolume();
+            
+            _sourcePrefab = Resources.Load<AudioSource>("SH_AudioSourcePrefab");
 
             SceneManager.activeSceneChanged += SetupForNewScene;
         }
@@ -40,18 +39,16 @@ namespace NuiN.ScriptableHarmony.Sound
         }
 
         void OnValidate() => SetVolume(volume);
+        
+        public float GetPrefsVolume() => PlayerPrefs.HasKey(PrefsVolumeKey) ? PlayerPrefs.GetFloat(PrefsVolumeKey) : volume;
 
         public void SetVolume(float newVolume)
         {
             volume = Mathf.Clamp01(newVolume);
-            PlayerPrefs.SetFloat(GetPrefsKey(), volume);
+            PlayerPrefs.SetFloat(PrefsVolumeKey, volume);
             PlayerPrefs.Save();
         }
-
-        public float GetPrefsVolume() => PlayerPrefs.HasKey(GetPrefsKey()) ? PlayerPrefs.GetFloat(GetPrefsKey()) : volume;
-
-        string GetPrefsKey() => "SH_" + prefsVolumeKey;
-
+        
         void SetupForNewScene(Scene from, Scene to)
         {
             if (!this)
@@ -60,13 +57,12 @@ namespace NuiN.ScriptableHarmony.Sound
                 return;
             }
             
-            _sourceContainer = new GameObject(name + " | ObjectPool").transform;
-            _sourcePrefab = Resources.Load<AudioSource>("SH_AudioSourcePrefab");
+            _pooledSourcesContainer = new GameObject(name + " | ObjectPool").transform;
             
             _sourcePool = new ObjectPool<AudioSource>(
                 createFunc: () =>
                 {
-                    AudioSource source = Instantiate(_sourcePrefab, _sourceContainer);
+                    AudioSource source = Instantiate(_sourcePrefab, _pooledSourcesContainer);
                     source.name = "AudioSource_Pooled";
                     return source;
                 },
@@ -76,11 +72,9 @@ namespace NuiN.ScriptableHarmony.Sound
                 },
                 actionOnRelease: s =>
                 {
-                    s.transform.SetParent(_sourceContainer);
+                    s.transform.SetParent(_pooledSourcesContainer);
                     s.gameObject.SetActive(false);
                 });
-            
-            _sceneDisabledAudio = false;
         }
 
         // ReSharper disable Unity.PerformanceAnalysis 
