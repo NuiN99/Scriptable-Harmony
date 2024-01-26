@@ -31,9 +31,8 @@ namespace NuiN.ScriptableHarmony.Sound
         
         void OnEnable()
         {
-            string prefsKey = "SH_" + playerPrefsVolumeKey;
-            if (playerPrefsVolumeKey != string.Empty && PlayerPrefs.HasKey(prefsKey))
-                volume = PlayerPrefs.GetFloat(prefsKey);
+            if (playerPrefsVolumeKey != string.Empty && PlayerPrefs.HasKey(GetPrefsKey()))
+                volume = PlayerPrefs.GetFloat(GetPrefsKey());
 
             SceneManager.activeSceneChanged += SetupForNewScene;
         }
@@ -41,17 +40,19 @@ namespace NuiN.ScriptableHarmony.Sound
         {
             SceneManager.activeSceneChanged -= SetupForNewScene;
         }
-        
+
         void OnValidate() => SetVolume(volume);
 
         public void SetVolume(float newVolume)
         {
-            string prefsKey = "SH_" + playerPrefsVolumeKey;
             volume = Mathf.Clamp01(newVolume);
-            PlayerPrefs.SetFloat(prefsKey, volume);
+            PlayerPrefs.SetFloat(GetPrefsKey(), volume);
+            PlayerPrefs.Save();
         }
 
-        public float GetPrefsVolume() => PlayerPrefs.HasKey(playerPrefsVolumeKey) ? PlayerPrefs.GetFloat(playerPrefsVolumeKey) : volume;
+        public float GetPrefsVolume() => PlayerPrefs.HasKey(GetPrefsKey()) ? PlayerPrefs.GetFloat(GetPrefsKey()) : volume;
+
+        string GetPrefsKey() => "SH_" + playerPrefsVolumeKey;
 
         void SetupForNewScene(Scene from, Scene to)
         {

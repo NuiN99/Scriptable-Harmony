@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace NuiN.ScriptableHarmony.Sound
 {
-    public class GlobalVolumeSlider : MonoBehaviour
+    public class MasterVolumeSlider : MonoBehaviour
     {
         [SerializeField] Slider slider;
 
@@ -17,6 +17,11 @@ namespace NuiN.ScriptableHarmony.Sound
         void OnDisable()
         {
             slider.onValueChanged.RemoveListener(MasterVolumeManager.SetVolume);
+        }
+
+        void LateUpdate()
+        {
+            slider.value = MasterVolumeManager.GlobalVolume;
         }
     }
 }

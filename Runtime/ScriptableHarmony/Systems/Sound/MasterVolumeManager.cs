@@ -18,6 +18,7 @@ namespace NuiN.ScriptableHarmony.Sound
         {
             GlobalVolume = Mathf.Clamp01(newVolume);
             PlayerPrefs.SetFloat(GLOBAL_VOLUME_KEY, GlobalVolume);
+            PlayerPrefs.Save();
         }
         
         public static float GetPrefsVolume()

@@ -19,5 +19,10 @@ namespace NuiN.ScriptableHarmony.Sound
         {
             slider.onValueChanged.RemoveListener(soundPlayer.SetVolume);
         }
+
+        void LateUpdate()
+        {
+            slider.value = soundPlayer.Volume;
+        }
     }
 }
