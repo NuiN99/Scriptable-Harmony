@@ -82,9 +82,6 @@ namespace NuiN.ScriptableHarmony.Sound
 
         void OnValidate()
         {
-            if (!useFixedVolumes) possibleVolumes = new float[]{};
-            if (!useFixedPitches) possiblePitches = new float[]{};
-            
             if (useFixedVolumes && possibleVolumes.Length == 0) possibleVolumes = new[] { 0.5f };
             if (useFixedPitches && possiblePitches.Length == 0) possiblePitches = new[] { 1f };
         }
