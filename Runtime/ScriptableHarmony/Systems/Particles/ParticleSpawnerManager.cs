@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using NuiN.ScriptableHarmony.Core;
+using NuiN.NExtensions;
 using UnityEngine;
-using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
@@ -10,12 +9,12 @@ namespace NuiN.ScriptableHarmony.Particles
 {
     internal static class ParticleSpawnerManager
     {
-        static Dictionary<ParticleSystem, (ObjectPool<ParticleSystem> pool, Transform container)> prefabObjectPools = new();
+        static Dictionary<ParticleSystem, (UnityEngine.Pool.ObjectPool<ParticleSystem> pool, Transform container)> prefabObjectPools = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void ResetObjectPoolDictionary()
         {
-            prefabObjectPools = new Dictionary<ParticleSystem, (ObjectPool<ParticleSystem> pool, Transform container)>();
+            prefabObjectPools = new Dictionary<ParticleSystem, (UnityEngine.Pool.ObjectPool<ParticleSystem> pool, Transform container)>();
 
             SceneManager.sceneLoaded -= ResetObjectPoolDictionaryOnSceneLoad;
             SceneManager.sceneLoaded += ResetObjectPoolDictionaryOnSceneLoad;
@@ -26,11 +25,11 @@ namespace NuiN.ScriptableHarmony.Particles
             ResetObjectPoolDictionary();
         }
 
-        static (ObjectPool<ParticleSystem> pool, Transform container) CreatePool(ParticleSystem prefab)
+        static (UnityEngine.Pool.ObjectPool<ParticleSystem> pool, Transform container) CreatePool(ParticleSystem prefab)
         {
             Transform container = new GameObject($"{prefab.name} | ObjectPool").transform;
             
-            var pool = new ObjectPool<ParticleSystem>(
+            var pool = new UnityEngine.Pool.ObjectPool<ParticleSystem>(
                 createFunc: () => Object.Instantiate(prefab, container),
                 actionOnGet: system =>
                 {
@@ -51,7 +50,7 @@ namespace NuiN.ScriptableHarmony.Particles
         {
             Quaternion rot = rotation ?? prefab.transform.rotation;
 
-            if (!prefabObjectPools.TryGetValue(prefab, out (ObjectPool<ParticleSystem> pool, Transform container) poolTuple))
+            if (!prefabObjectPools.TryGetValue(prefab, out (UnityEngine.Pool.ObjectPool<ParticleSystem> pool, Transform container) poolTuple))
             {
                 poolTuple = CreatePool(prefab);
                 prefabObjectPools.Add(prefab, poolTuple);
@@ -90,7 +89,7 @@ namespace NuiN.ScriptableHarmony.Particles
             }
             
             
-            SHRuntimeHelper.DoAfter(lifetime.Value, () =>
+            RuntimeHelper.DoAfter(lifetime.Value, () =>
             {
                 if(particleSystem != null) poolTuple.pool?.Release(particleSystem);
             });

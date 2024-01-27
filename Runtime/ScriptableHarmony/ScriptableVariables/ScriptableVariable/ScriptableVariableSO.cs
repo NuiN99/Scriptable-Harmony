@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using NuiN.ScriptableHarmony.Editor;
+using NuiN.NExtensions;
 using UnityEngine;
 
 namespace NuiN.ScriptableHarmony.Core

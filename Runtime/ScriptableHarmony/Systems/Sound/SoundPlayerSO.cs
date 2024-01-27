@@ -1,8 +1,7 @@
 using System;
-using NuiN.ScriptableHarmony.Core;
+using NuiN.NExtensions;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
 namespace NuiN.ScriptableHarmony.Sound
@@ -10,7 +9,7 @@ namespace NuiN.ScriptableHarmony.Sound
     [CreateAssetMenu(menuName = "ScriptableHarmony/Sound/New Sound Player", fileName = "New Sound Player")]
     public class SoundPlayerSO : ScriptableObject
     {
-        ObjectPool<AudioSource> _sourcePool;
+        UnityEngine.Pool.ObjectPool<AudioSource> _sourcePool;
         Transform _pooledSourcesContainer;
         AudioSource _sourcePrefab;
 
@@ -59,7 +58,7 @@ namespace NuiN.ScriptableHarmony.Sound
             
             _pooledSourcesContainer = new GameObject(name + " | ObjectPool").transform;
             
-            _sourcePool = new ObjectPool<AudioSource>(
+            _sourcePool = new UnityEngine.Pool.ObjectPool<AudioSource>(
                 createFunc: () =>
                 {
                     AudioSource source = Instantiate(_sourcePrefab, _pooledSourcesContainer);
@@ -108,7 +107,7 @@ namespace NuiN.ScriptableHarmony.Sound
             source.Play();
 
             float lifetime = source.clip.length / Mathf.Max(Math.Abs(source.pitch), Mathf.Epsilon);
-            SHRuntimeHelper.DoAfter(lifetime, () => { if(source != null) _sourcePool.Release(source); });
+            RuntimeHelper.DoAfter(lifetime, () => { if(source != null) _sourcePool.Release(source); });
             
             return source;
         }
