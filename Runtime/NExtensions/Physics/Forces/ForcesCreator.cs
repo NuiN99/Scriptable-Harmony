@@ -18,10 +18,7 @@ namespace NuiN.NExtensions
 
             foreach (Collider col in allHits)
             {
-                Rigidbody rb = col.GetComponent<Rigidbody>();
-                rb ??= col.GetComponentInParent<Rigidbody>();
-                rb ??= col.GetComponentInChildren<Rigidbody>();
-                if (rb == null) continue;
+                if (!col.transform.TryGetComponent(out Rigidbody rb)) continue;
 
                 float distFromExplosion = Vector3.Distance(explosionPos, col.transform.position);
                 Vector3 forceDir = (col.transform.position - explosionPos).normalized;
