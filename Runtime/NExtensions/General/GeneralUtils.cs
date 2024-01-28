@@ -55,4 +55,56 @@ public static class GeneralUtils
 
         return closestObj;
     }
+
+    public static GameObject GetClosest(Vector3 point, List<GameObject> objects, Func<bool, GameObject> condition = null)
+    {
+        GameObject closestObj = null;
+        float closestDist = float.MaxValue;
+        foreach (var obj in objects)
+        {
+            if (!obj) continue;
+            
+            if (condition != null)
+            {
+                bool result = condition.Invoke(obj);
+                if(!result) continue;
+            }
+            
+            Vector3 offset = obj.transform.position - point;
+            float sqrLength = offset.sqrMagnitude;
+            
+            if (sqrLength >= closestDist) continue;
+
+            closestDist = sqrLength;
+            closestObj = obj;
+        }
+
+        return closestObj;
+    }
+
+    public static Collider GetClosest(Vector3 point, List<Collider> objects, Func<bool, Collider> condition = null)
+    {
+        Collider closestObj = null;
+        float closestDist = float.MaxValue;
+        foreach (var obj in objects)
+        {
+            if (!obj) continue;
+            
+            if (condition != null)
+            {
+                bool result = condition.Invoke(obj);
+                if(!result) continue;
+            }
+            
+            Vector3 offset = obj.transform.position - point;
+            float sqrLength = offset.sqrMagnitude;
+            
+            if (sqrLength >= closestDist) continue;
+
+            closestDist = sqrLength;
+            closestObj = obj;
+        }
+
+        return closestObj;
+    }
 }
