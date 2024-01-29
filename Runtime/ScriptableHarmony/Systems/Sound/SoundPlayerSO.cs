@@ -136,5 +136,10 @@ namespace NuiN.ScriptableHarmony.Sound
 
             return source;
         }
+
+        internal void ReleaseToPool(SHSource source)
+        {
+            _sourcePool.Release(source);
+        }
     }
 }
