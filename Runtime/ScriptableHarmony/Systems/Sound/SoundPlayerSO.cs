@@ -9,26 +9,24 @@ namespace NuiN.ScriptableHarmony.Sound
     [CreateAssetMenu(menuName = "ScriptableHarmony/Sound/New Sound Player", fileName = "New Sound Player")]
     public class SoundPlayerSO : ScriptableObject
     {
-        UnityEngine.Pool.ObjectPool<AudioSource> _sourcePool;
+        UnityEngine.Pool.ObjectPool<SHSource> _sourcePool;
         Transform _pooledSourcesContainer;
-        AudioSource _sourcePrefab;
+        SHSource _sourcePrefab;
 
         [SerializeField, Range(0,1)] float volume = 0.5f;
 
         [Header("Options")]
-        [SerializeField] bool disableAudio;
         [SerializeField] AudioMixerGroup mixerGroup;
         [SerializeField] string prefsVolumeKey;
 
         string PrefsVolumeKey => "SH_" + prefsVolumeKey;
-        public bool AudioDisabled => disableAudio;
         public float Volume => volume;
         
         void OnEnable()
         {
             if (prefsVolumeKey != string.Empty) volume = GetPrefsVolume();
             
-            _sourcePrefab = Resources.Load<AudioSource>("SH_AudioSourcePrefab");
+            _sourcePrefab = Resources.Load<SHSource>("SH_AudioSourcePrefab");
 
             SceneManager.activeSceneChanged += SetupForNewScene;
         }
@@ -58,11 +56,11 @@ namespace NuiN.ScriptableHarmony.Sound
             
             _pooledSourcesContainer = new GameObject(name + " | ObjectPool").transform;
             
-            _sourcePool = new UnityEngine.Pool.ObjectPool<AudioSource>(
+            _sourcePool = new UnityEngine.Pool.ObjectPool<SHSource>(
                 createFunc: () =>
                 {
-                    AudioSource source = Instantiate(_sourcePrefab, _pooledSourcesContainer);
-                    source.name = "AudioSource_Pooled";
+                    SHSource source = Instantiate(_sourcePrefab, _pooledSourcesContainer);
+                    source.name = "SHSource_Pooled";
                     return source;
                 },
                 actionOnGet: s =>
@@ -77,9 +75,9 @@ namespace NuiN.ScriptableHarmony.Sound
         }
 
         // ReSharper disable Unity.PerformanceAnalysis 
-        AudioSource InitializeNewSource(SoundSO soundObj, bool spatial, float volumeMult, float pitchMult)
+        SHSource InitializeNewSource(SoundSO soundObj, bool spatial, float volumeMult, float pitchMult)
         {
-            AudioSource source = _sourcePool.Get();
+            SHSource shSource = _sourcePool.Get();
             
             AudioClip clip = soundObj.Clip;
             if (clip == null) 
@@ -88,8 +86,11 @@ namespace NuiN.ScriptableHarmony.Sound
                 Debug.LogWarning($"SoundSO {soundObj.name}: Attempted to play null clip", soundObj);
                 #endif
                 
-                return source;
+                return shSource;
             }
+
+            shSource.AssignSound(soundObj);
+            AudioSource source = shSource.AudioSource;
             
             source.Stop();
             
@@ -98,34 +99,33 @@ namespace NuiN.ScriptableHarmony.Sound
             source.outputAudioMixerGroup = mixerGroup;
             source.loop = soundObj.Loop;
             source.priority = soundObj.Priority;
-            source.volume = soundObj.Volume * volume * volumeMult * MasterVolumeManager.GlobalVolume;
             source.pitch = soundObj.Pitch * pitchMult;
             source.panStereo = soundObj.StereoPan;
             source.reverbZoneMix = soundObj.ReverbZoneMix;
             source.spatialBlend = spatial ? 1f : 0f;
+
+            shSource.VolumeScale = soundObj.Volume;
             
             source.Play();
 
-            if (source.loop) return source;
+            if (source.loop) return shSource;
             
             float lifetime = source.clip.length / Mathf.Max(Math.Abs(source.pitch), Mathf.Epsilon);
-            RuntimeHelper.DoAfter(lifetime, () => { if(source != null) _sourcePool.Release(source); });
+            RuntimeHelper.DoAfter(lifetime, () => { if(source != null) _sourcePool.Release(shSource); });
 
-            return source;
+            return shSource;
         }
 
-        internal AudioSource Play(SoundSO sound, float volumeMult = 1f, float pitchMult = 1f)
+        internal SHSource Play(SoundSO sound, float volumeMult = 1f, float pitchMult = 1f)
         {
-            return AudioDisabled ? new AudioSource() : InitializeNewSource(sound, false, volumeMult, pitchMult);
+            return InitializeNewSource(sound, false, volumeMult, pitchMult);
         }
 
-        internal AudioSource PlaySpatial(SoundSO sound, Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
+        internal SHSource PlaySpatial(SoundSO sound, Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
         {
-            if (AudioDisabled) return new AudioSource();
+            SHSource source = InitializeNewSource(sound, true, volumeMult, pitchMult);
 
-            AudioSource source = InitializeNewSource(sound, true, volumeMult, pitchMult);
-
-            if (source.clip == null)
+            if (source.AudioSource.clip == null)
             {
                 _sourcePool.Release(source);
                 return source;

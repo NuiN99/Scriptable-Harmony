@@ -1,7 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
+using NuiN.ScriptableHarmony.Editor;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -48,17 +48,19 @@ namespace NuiN.ScriptableHarmony.Sound
             ? possiblePitches[Random.Range(0, possiblePitches.Length)] 
             :Random.Range(MinPitch, MaxPitch);
         public AudioClip Clip => Clips[Random.Range(0, Clips.Count)];
+
+        public SoundPlayerSO SoundPlayer => soundPlayer;
         
         void Reset() => soundPlayer = Resources.Load<SoundPlayerSO>("Default Sound Player");
         
-        public AudioSource Play(float volumeMult = 1f, float pitchMult = 1f)
+        public SHSource Play(float volumeMult = 1f, float pitchMult = 1f)
         {
-            return !ClipsAreValid() ? new AudioSource() : soundPlayer.Play(this, volumeMult, pitchMult);
+            return !ClipsAreValid() ? null : soundPlayer.Play(this, volumeMult, pitchMult);
         }
 
-        public AudioSource PlaySpatial(Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
+        public SHSource PlaySpatial(Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
         {
-            return !ClipsAreValid() ? new AudioSource() : soundPlayer.PlaySpatial(this, position, parent, volumeMult, pitchMult);
+            return !ClipsAreValid() ? null : soundPlayer.PlaySpatial(this, position, parent, volumeMult, pitchMult);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -152,16 +154,15 @@ namespace NuiN.ScriptableHarmony.Sound
             AudioClip[] selectedClips = Selection.objects?
                 .Where(obj => obj != null && obj is AudioClip)
                 .Select(obj => (AudioClip)obj).ToArray();
-        
-            if (selectedClips is { Length: <= 0 } or null)
-            {
-                Debug.LogWarning("No AudioClips Selected!");
-                return;
-            }
+
+            selectedClips ??= new AudioClip[] { };
+
+            SelectionPathController pathController = new(null);
+            pathController.Update();
             
             Object newSoundObj = SoundSO.CreateInstance(selectedClips.ToArray());
-        
-            string directory = Path.GetDirectoryName(AssetDatabase.GetAssetPath(selectedClips[0]));
+
+            string directory = pathController.SelectionPath;
             string assetPath = $"{directory}/{NEW_SOUND_NAME}.asset";
             string uniqueAssetPath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
         
