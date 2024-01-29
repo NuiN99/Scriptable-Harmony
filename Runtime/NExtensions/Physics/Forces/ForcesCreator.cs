@@ -8,13 +8,15 @@ namespace NuiN.NExtensions
         /// <summary>
         /// Adds force from a point outwards, with more force the closer the Rigidbody is to the point
         /// </summary>
-        public static void CreateExplosion(Vector3 explosionPos, float radius, float force, LayerMask? affectedLayers = null)
+        public static List<Rigidbody> CreateExplosion(Vector3 explosionPos, float radius, float force, LayerMask? affectedLayers = null)
         {
             bool useMask = affectedLayers != null;
 
             Collider[] allHits = useMask
                 ? Physics.OverlapSphere(explosionPos, radius, affectedLayers.Value)
                 : Physics.OverlapSphere(explosionPos, radius);
+
+            List<Rigidbody> bodies = new();
 
             foreach (Collider col in allHits)
             {
@@ -25,7 +27,11 @@ namespace NuiN.NExtensions
                 float forceByDistance = (radius - distFromExplosion) * force;
                 
                 rb.AddForceAtPosition(forceDir * forceByDistance, col.transform.position, ForceMode.Impulse);
+
+                bodies.Add(rb);
             }
+
+            return bodies;
         }
         
         /// <summary>
