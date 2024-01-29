@@ -106,9 +106,11 @@ namespace NuiN.ScriptableHarmony.Sound
             
             source.Play();
 
+            if (source.loop) return source;
+            
             float lifetime = source.clip.length / Mathf.Max(Math.Abs(source.pitch), Mathf.Epsilon);
             RuntimeHelper.DoAfter(lifetime, () => { if(source != null) _sourcePool.Release(source); });
-            
+
             return source;
         }
 
