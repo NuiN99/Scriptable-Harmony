@@ -9,10 +9,6 @@ namespace NuiN.ScriptableHarmony.Core
         [SerializeField] SetRuntimeSet<T> runtimeSet;
         [SerializeField] LifetimeType lifetimeType;
         
-        [Header("Actions")]
-        [SerializeField] bool dontInvokeOnAdd;
-        [SerializeField] bool dontInvokeOnRemove;
-
         void Reset() => thisObject ??= GetComponent<T>();
 
         void OnEnable() => AddToSet(LifetimeType.OnEnableOnDisable);
