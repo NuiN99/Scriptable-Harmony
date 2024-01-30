@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class GeneralUtils
+namespace NuiN.NExtensions
+{
+    public static class GeneralUtils
 {
     public static T GetClosest<T>(Vector3 point, List<T> objects, Func<bool, T> condition = null) where T : MonoBehaviour
     {
@@ -107,4 +109,6 @@ public static class GeneralUtils
 
         return closestObj;
     }
+
+}
 }
