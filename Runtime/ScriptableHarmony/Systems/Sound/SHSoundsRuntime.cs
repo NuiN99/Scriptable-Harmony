@@ -11,15 +11,19 @@ namespace NuiN.ScriptableHarmony.Sound
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Initialize()
         {
-            if(instance != null) Destroy(instance.gameObject); 
-            instance = new GameObject("Scriptable Harmony Sounds Runtime").AddComponent<SHSoundsRuntime>();
-            
-            instance._audioSources.SetToResource("SH_Sources");
+            SHSoundsRuntime shSounds = new GameObject("Scriptable Harmony Sounds Runtime").AddComponent<SHSoundsRuntime>();
+            shSounds._audioSources.SetToResource("SH_Sources");
         }
 
         void Awake()
         {
-            if (instance != null && instance != this) Destroy(gameObject);
+            if (instance != null && instance != this) 
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            instance = this;
         }
 
         void Update()
