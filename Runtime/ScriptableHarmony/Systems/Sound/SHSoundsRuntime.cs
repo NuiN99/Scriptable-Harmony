@@ -24,6 +24,7 @@ namespace NuiN.ScriptableHarmony.Sound
             }
 
             instance = this;
+            DontDestroyOnLoad(instance);
         }
 
         void Update()
