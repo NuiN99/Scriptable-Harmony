@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace NuiN.NExtensions
 {
-    internal abstract class Timer
+    public abstract class Timer
     {
         float _timeStart;
         bool _firstIteration;
