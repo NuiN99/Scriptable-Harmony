@@ -30,6 +30,7 @@ namespace NuiN.ScriptableHarmony.Editor
         FindScriptableObjectGUI _findGUI;
         GenerateCustomTypeGUI _generateTypeGUI;
         SHLoggerSettingsGUI _loggerSettingsGUI;
+        StringBakingGUI _stringBakingGUI;
 
         [MenuItem("ScriptableHarmony/Open Wizard")]
         static void Open()
@@ -71,6 +72,8 @@ namespace NuiN.ScriptableHarmony.Editor
             _createGUI = new CreateScriptableObjectGUI(_pathController);
             _generateTypeGUI = new GenerateCustomTypeGUI(_pathController);
             _loggerSettingsGUI = new SHLoggerSettingsGUI();
+            _stringBakingGUI = new StringBakingGUI(_pathController);
+            
             
             _findGUI ??= new FindScriptableObjectGUI("", null, false, SOType.Variable);
         }
@@ -90,7 +93,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 case Tab.CreateType: _generateTypeGUI.DrawGUI(this); break;
                 case Tab.Logger: _loggerSettingsGUI.DrawGUI(); break;
                 case Tab.Volume: MasterVolumeManager.DrawSliderGUI(); break;
-                case Tab.StringBaking: break;
+                case Tab.StringBaking: _stringBakingGUI.DrawGUI(); break;
             }
             
             if (_currentTab != Tab.FindSO) _findGUI.openedFromField = false;
@@ -116,7 +119,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 if (GUILayout.Toggle(_currentTab == Tab.Volume, "Volume", EditorStyles.toolbarButton))
                     _currentTab = Tab.Volume;
                 
-                if (GUILayout.Toggle(_currentTab == Tab.StringBaking, "Volume", EditorStyles.toolbarButton))
+                if (GUILayout.Toggle(_currentTab == Tab.StringBaking, "Bake Strings", EditorStyles.toolbarButton))
                     _currentTab = Tab.StringBaking;
 
                 GUILayout.EndHorizontal();
