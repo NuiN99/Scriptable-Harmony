@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace NuiN.ScriptableHarmony.Editor
 {
-    internal class ScriptableHarmonyWindow : EditorWindow
+    internal class ScriptableHarmonyWizard : EditorWindow
     {
         public enum Tab
         {
@@ -15,10 +15,11 @@ namespace NuiN.ScriptableHarmony.Editor
             FindSO,
             CreateType,
             Logger,
-            Volume
+            Volume,
+            StringBaking
         }
 
-        static ScriptableHarmonyWindow instance;
+        static ScriptableHarmonyWizard instance;
 
         const string PREFS_LAST_TAB = "ScriptableHarmonyWindow_LastTab";
 
@@ -33,7 +34,7 @@ namespace NuiN.ScriptableHarmony.Editor
         [MenuItem("ScriptableHarmony/Open Wizard")]
         static void Open()
         {
-            ScriptableHarmonyWindow window = GetWindow<ScriptableHarmonyWindow>("ScriptableHarmony Editor");
+            ScriptableHarmonyWizard window = GetWindow<ScriptableHarmonyWizard>("ScriptableHarmony Editor");
             instance = window;
 
             window._currentTab = EditorPrefs.HasKey(PREFS_LAST_TAB) ? (Tab)EditorPrefs.GetInt(PREFS_LAST_TAB) : default;
@@ -42,7 +43,7 @@ namespace NuiN.ScriptableHarmony.Editor
 
         public static void Open(Tab tab)
         {
-            ScriptableHarmonyWindow window = GetWindow<ScriptableHarmonyWindow>("ScriptableHarmony Editor");
+            ScriptableHarmonyWizard window = GetWindow<ScriptableHarmonyWizard>("ScriptableHarmony Editor");
             
             instance = window;
 
@@ -89,6 +90,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 case Tab.CreateType: _generateTypeGUI.DrawGUI(this); break;
                 case Tab.Logger: _loggerSettingsGUI.DrawGUI(); break;
                 case Tab.Volume: MasterVolumeManager.DrawSliderGUI(); break;
+                case Tab.StringBaking: break;
             }
             
             if (_currentTab != Tab.FindSO) _findGUI.openedFromField = false;
@@ -113,6 +115,9 @@ namespace NuiN.ScriptableHarmony.Editor
 
                 if (GUILayout.Toggle(_currentTab == Tab.Volume, "Volume", EditorStyles.toolbarButton))
                     _currentTab = Tab.Volume;
+                
+                if (GUILayout.Toggle(_currentTab == Tab.StringBaking, "Volume", EditorStyles.toolbarButton))
+                    _currentTab = Tab.StringBaking;
 
                 GUILayout.EndHorizontal();
                 
