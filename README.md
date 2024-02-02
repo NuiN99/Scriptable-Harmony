@@ -39,11 +39,13 @@ Scriptable Dictionary - A dictionary with OnChange events (WIP)
 A complete system for playing sounds, automatically object pooled
 
 It has 2 main objects:
+
 SoundSO - Contains a list of AudioClips, and has AudioSource options, as well as randomization like Volume and Pitch
 
 SoundPlayer - Basically acts as an AudioMixer, and all SoundSO's need to reference one. It controls the volume and pitch of all sounds currently playing (No AudioMixer required)
 
 SoundSO Automatically chooses from a random clip in the list if there are multiple
+
 Syntax:
 
 [SerializeField] SoundSO sound;
