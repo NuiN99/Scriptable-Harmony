@@ -1,6 +1,6 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -16,34 +16,63 @@ namespace NuiN.NExtensions
             GetWindow<SceneLoaderWindow>("Scene Loader");
         }
 
+        Vector2 _scrollPosition;
         void OnGUI()
         {
-            IEnumerable<string> sceneNames = GetSceneNames();
+            Color buttonTextColor = Application.isPlaying ? Color.red : Color.green;
 
-            foreach (string sceneName in sceneNames)
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition, GUILayout.Width(position.width), GUILayout.Height(position.height));
+
+            foreach ((string name, string path) scene in GetSceneNames())
             {
                 GUILayout.BeginHorizontal();
 
                 GUIStyle labelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft };
-                GUILayout.Label(sceneName, labelStyle, GUILayout.ExpandWidth(true));
+                GUILayout.Label(scene.name, labelStyle, GUILayout.ExpandWidth(true));
 
-                GUIStyle buttonStyle = new GUIStyle(GUI.skin.button) { fixedWidth = 50, normal = { textColor = Color.green } };
-                if (GUILayout.Button("Load", buttonStyle)) LoadScene(sceneName);
+                GUILayout.FlexibleSpace();
+
+                GUIStyle buttonStyle = new GUIStyle(GUI.skin.button) { fixedWidth = 50, normal = { textColor = buttonTextColor } };
+                if (GUILayout.Button("Load", buttonStyle)) LoadScene(scene.name, scene.path);
 
                 GUILayout.EndHorizontal();
 
-                GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
+                GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(2));
             }
+
+            GUILayout.EndScrollView();
         }
 
-        static IEnumerable<string> GetSceneNames()
+
+        static IEnumerable<(string name, string path)> GetSceneNames()
         {
-            const string scenesDirectory = "Assets/Scenes/";
-            string[] sceneFiles = System.IO.Directory.GetFiles(scenesDirectory, "*.unity");
-            return sceneFiles.Select(System.IO.Path.GetFileNameWithoutExtension).ToList();
+            if (Application.isPlaying)
+            {
+                var scenes = new List<(string name, string path)>();
+                for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+                {
+                    string path = SceneUtility.GetScenePathByBuildIndex(i);
+                    string name = Path.GetFileNameWithoutExtension(path);
+                    scenes.Add((name, path));
+                }
+
+                return scenes;
+            }
+            
+            string[] sceneGuids = AssetDatabase.FindAssets("t:Scene", new[] { "Assets" });
+
+            List<(string name, string path)> sceneNames = new();
+            foreach (string sceneGuid in sceneGuids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(sceneGuid);
+                string name = Path.GetFileNameWithoutExtension(path);
+                sceneNames.Add((name, path));
+            }
+
+            return sceneNames;
         }
 
-        static void LoadScene(string sceneName)
+        static void LoadScene(string sceneName, string scenePath)
         {
             if (Application.isPlaying)
             {
@@ -52,7 +81,6 @@ namespace NuiN.NExtensions
             }
             
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
-            string scenePath = "Assets/Scenes/" + sceneName + ".unity";
             EditorSceneManager.OpenScene(scenePath);
         }
     }
