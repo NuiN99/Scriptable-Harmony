@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace NuiN.NExtensions
+namespace NuiN.NExtensions.Editor
 {
     internal class SceneLoaderWindow : EditorWindow
     {

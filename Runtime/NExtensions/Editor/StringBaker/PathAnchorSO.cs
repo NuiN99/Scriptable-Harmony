@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-namespace NuiN.NExtensions
+namespace NuiN.NExtensions.Editor
 {
     internal class PathAnchorSO : ScriptableObject
     {

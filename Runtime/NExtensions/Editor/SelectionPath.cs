@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace NuiN.NExtensions
+namespace NuiN.NExtensions.Editor
 {
 #if UNITY_EDITOR
     public static class SelectionPath

@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace NuiN.NExtensions
+namespace NuiN.NExtensions.Editor
 {
     internal static class StringBaker
     {

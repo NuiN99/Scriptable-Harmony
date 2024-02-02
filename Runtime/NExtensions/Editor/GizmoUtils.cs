@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace NuiN.NExtensions
+namespace NuiN.NExtensions.Editor
 {
     public static class GizmoUtils
     {
