@@ -36,13 +36,13 @@ Scriptable List - A list of variables, with OnChange events
 Scriptable Dictionary - A dictionary with OnChange events (WIP)
 
 # Sound System
-A complete system for playing sounds, automatically object pooled
+A complete system for playing sounds, automatically object pooled, which uses ScriptableObjects to be scene independant
 
 It has 2 main objects:
 
 SoundSO - Contains a list of AudioClips, and has AudioSource options, as well as randomization like Volume and Pitch
 
-SoundPlayer - Basically acts as an AudioMixer, and all SoundSO's need to reference one. It controls the volume and pitch of all sounds currently playing (No AudioMixer required)
+SoundPlayerSO - Basically acts as an AudioMixer, and all SoundSO's need to reference one. It controls the volume and pitch of all sounds currently playing (No AudioMixer required)
 
 SoundSO Automatically chooses from a random clip in the list if there are multiple
 
