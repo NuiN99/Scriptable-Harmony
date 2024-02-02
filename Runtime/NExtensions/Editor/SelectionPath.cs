@@ -22,21 +22,6 @@ namespace NuiN.NExtensions.Editor
 
             return path;
         }
-        
-        public static void DrawGUI(EditorWindow window)
-        {
-            EditorGUI.BeginDisabledGroup(true);
-            GUILayout.BeginHorizontal();
-            
-            GUILayout.Label("Path:", GUILayout.Width(50));
-            string path = GetPath();
-            EditorGUILayout.TextField(path, GUILayout.ExpandWidth(true));
-            
-            GUILayout.EndHorizontal();
-            EditorGUI.EndDisabledGroup();
-            
-            window.Repaint();
-        }
     }
 #endif
 }

@@ -94,7 +94,7 @@ namespace NuiN.ScriptableHarmony
                 
                 GUILayout.EndHorizontal();
                 
-                SelectionPath.DrawGUI(window);
+                ScriptableHarmonyWizard.DrawSelectionPathGUI(window);
                 
                 overwriteExisting = EditorGUILayout.Toggle("Overwrite Existing", overwriteExisting);
                 EditorPrefs.SetBool(GetPrefsKey(nameof(overwriteExisting)), overwriteExisting);

@@ -60,7 +60,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 _assetName = EditorGUILayout.TextField(_assetName, GUILayout.ExpandWidth(true));
                 GUILayout.EndHorizontal();
             
-                SelectionPath.DrawGUI(window);
+                ScriptableHarmonyWizard.DrawSelectionPathGUI(window);
             }
 
             void DrawHeader()

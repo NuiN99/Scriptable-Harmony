@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using NuiN.NExtensions.Editor;
 using NuiN.ScriptableHarmony.Core;
 using NuiN.ScriptableHarmony.Sound;
 using UnityEditor;
@@ -112,6 +113,21 @@ namespace NuiN.ScriptableHarmony.Editor
                 
                 EditorPrefs.SetInt(PREFS_LAST_TAB, (int)_currentTab);
             }
+        }
+
+        public static void DrawSelectionPathGUI(EditorWindow window)
+        {
+            EditorGUI.BeginDisabledGroup(true);
+            GUILayout.BeginHorizontal();
+            
+            GUILayout.Label("Path:", GUILayout.Width(50));
+            string path = SelectionPath.GetPath();
+            EditorGUILayout.TextField(path, GUILayout.ExpandWidth(true));
+            
+            GUILayout.EndHorizontal();
+            EditorGUI.EndDisabledGroup();
+            
+            window.Repaint();
         }
     }
 }
