@@ -12,7 +12,7 @@ public static class MonoBehaviourExtensions
     public static void ReplaceCoroutine(this MonoBehaviour behaviour, Coroutine coroutine, IEnumerator enumerator)
     {
         behaviour.TryStopCoroutine(coroutine);
-        coroutine = StartCoroutine(enumerator);
+        coroutine = behaviour.StartCoroutine(enumerator);
     }
 
     // ReSharper disable Unity.PerformanceAnalysis
