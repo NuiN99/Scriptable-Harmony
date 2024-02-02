@@ -60,10 +60,20 @@ It just keeps a dictionary of already used prefabs, and keeps and Object Pool fo
 # NExtensions
 A bunch of extension methods, utility, editor tools
 
-### Notable ones
+### Key Features
 String Baker - Generates a script that contains all Layers and Tags, no more string references!
 
 Scene Loader Window - Editor window that automatically finds all scenes in your project, and lets you load them either in edit mode, or play mode
+
+Object Pool - A custom Object Pool implementation that lets objects define when they will be released, without having a reference to their pool
+
+General Extensions - All sorts of extension methods and utility scripts
+
+Attributes
+- MethodButton: Lets you call a method using a button in the inspector
+- ShowIf: Lets you show/hide a variable based on the state of a bool variable
+- ReadOnly: Self explanatory
+- ReadOnlyPlayMode: Only shows the variable during Play Mode, while being ReadOnly (Great for debugging)
 
 
 
