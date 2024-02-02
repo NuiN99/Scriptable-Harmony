@@ -25,11 +25,14 @@ Based on Ryan Hipples talk, which includes:
 
 ### THE IMPORTANT ONES
 Scriptable Variable - A ScriptableObject that contain a variable, with OnChange events. Because it's an asset, its value is scene independant
+
 Runtime Set - A ScriptableObject that contains objects during runtime, like a list of enemies, which automatically add and remove themselves OnEnable and OnDisable
 
 ### STILL GOOD ONES
 Runtime Single - The same as above, but only one object
+
 Scriptable List - A list of variables, with OnChange events
+
 Scriptable Dictionary - A dictionary with OnChange events (WIP)
 
 # Sound System
@@ -37,12 +40,16 @@ A complete system for playing sounds, automatically object pooled
 
 It has 2 main objects:
 SoundSO - Contains a list of AudioClips, and has AudioSource options, as well as randomization like Volume and Pitch
+
 SoundPlayer - Basically acts as an AudioMixer, and all SoundSO's need to reference one. It controls the volume and pitch of all sounds currently playing (No AudioMixer required)
 
 SoundSO Automatically chooses from a random clip in the list if there are multiple
 Syntax:
+
 [SerializeField] SoundSO sound;
+
 sound.Play();
+
 sound.PlaySpatial(Vector3 position, Transform parent = null)
 
 # Particle Spawner
