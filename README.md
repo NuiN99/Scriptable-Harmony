@@ -29,7 +29,7 @@ Scriptable Variable - A ScriptableObject that contain a variable, with OnChange 
 Runtime Set - A ScriptableObject that contains objects during runtime, like a list of enemies, which automatically add and remove themselves OnEnable and OnDisable, so it will never have null items
 
 ### STILL GOOD ONES
-Runtime Single - The same as above, but only one object
+Runtime Single - The same as a Runtime Set, but only one object (can be null)
 
 Scriptable List - A list of variables, with OnChange events
 
