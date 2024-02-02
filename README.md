@@ -62,6 +62,7 @@ A bunch of extension methods, utility, editor tools
 
 ### Notable ones
 String Baker - Generates a script that contains all Layers and Tags, no more string references!
+
 Scene Loader Window - Editor window that automatically finds all scenes in your project, and lets you load them either in edit mode, or play mode
 
 
