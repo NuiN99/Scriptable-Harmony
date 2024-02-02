@@ -24,9 +24,9 @@ It has a lot of customization, and many useful editor windows and tools included
 Based on Ryan Hipples talk, which includes:
 
 ### THE IMPORTANT ONES
-Scriptable Variable - A ScriptableObject that contain a variable, with OnChange events. Because it's an asset, its value is scene independant
+Scriptable Variable - A ScriptableObject that contain a variable, with OnChange events. Because it's an asset, its value is scene independant, and it can never be null
 
-Runtime Set - A ScriptableObject that contains objects during runtime, like a list of enemies, which automatically add and remove themselves OnEnable and OnDisable
+Runtime Set - A ScriptableObject that contains objects during runtime, like a list of enemies, which automatically add and remove themselves OnEnable and OnDisable, so it will never have null items
 
 ### STILL GOOD ONES
 Runtime Single - The same as above, but only one object
