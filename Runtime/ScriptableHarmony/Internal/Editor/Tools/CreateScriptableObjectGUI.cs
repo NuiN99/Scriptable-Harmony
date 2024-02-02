@@ -17,15 +17,8 @@ namespace NuiN.ScriptableHarmony.Editor
         Vector2 _scrollPosition;
 
         bool _initalized;
-        
-        SelectionPathController _pathController;
 
-        public CreateScriptableObjectGUI(SelectionPathController pathController)
-        {
-            _pathController = pathController;
-        }
-
-        public void DrawGUI()
+        public void DrawGUI(EditorWindow window)
         {
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
             
@@ -66,7 +59,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 _assetName = EditorGUILayout.TextField(_assetName, GUILayout.ExpandWidth(true));
                 GUILayout.EndHorizontal();
             
-                _pathController.DisplayPathGUI();
+                SelectionPath.DrawGUI(window);
             }
 
             void DrawHeader()
@@ -107,8 +100,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 GUI.backgroundColor = new Color(0.6f, 0.9f, 1f, 1f);
                 if (GUILayout.Button("Create", buttonStyle))
                 {
-                    if (!_pathController.EmptyPath) CreateScriptableObjectInstance(scriptType);
-                    else Debug.LogWarning("Invalid path: Please select a folder in the project panel");
+                    CreateScriptableObjectInstance(scriptType);
                 }
                 GUI.backgroundColor = ogColor;
             }
@@ -137,7 +129,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 SOType.RuntimeSet => typeName.EndsWith("RuntimeSetSO") ? typeName[..^12] : typeName,
                 SOType.RuntimeSingle => typeName.EndsWith("RuntimeSingleSO") ? typeName[..^15] : typeName,
                 SOType.Dictionary => typeName.EndsWith("DictionarySO") ? typeName[..^10] : typeName,
-                SOType.Variable => typeName.EndsWith("SO") ? typeName[..^2] : typeName,
+                SOType.Variable => typeName.EndsWith("VariableSO") ? typeName[..^10] : typeName,
                 _ => typeName
             };
         }
@@ -152,7 +144,7 @@ namespace NuiN.ScriptableHarmony.Editor
             {
                 SOType.RuntimeSet => "RuntimeSet",
                 SOType.RuntimeSingle => "RuntimeSingle",
-                SOType.Variable => "",
+                SOType.Variable => "Variable",
                 SOType.List => "List",
                 SOType.Dictionary => "Dictionary",
                 _ => "Type Not Implemented"
@@ -162,7 +154,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 ? $"New {TrimScriptType(selectedType.Name)} {suffix}"
                 : _assetName;
 
-            string assetPath = $"{_pathController.SelectionPath}/{baseAssetName}.asset";
+            string assetPath = $"{SelectionPath.GetPath()}/{baseAssetName}.asset";
             string uniqueAssetPath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
 
             AssetDatabase.CreateAsset(instance, uniqueAssetPath);

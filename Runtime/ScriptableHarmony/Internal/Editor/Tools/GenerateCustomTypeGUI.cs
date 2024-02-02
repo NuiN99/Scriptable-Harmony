@@ -43,15 +43,11 @@ namespace NuiN.ScriptableHarmony
 
         // TODO remove this functionality when created all commons
         const bool IS_COMMON = true;
-
-        SelectionPathController _pathController;
         
         Vector2 _scrollPosition;
 
-        public GenerateCustomTypeGUI(SelectionPathController pathController)
+        public GenerateCustomTypeGUI()
         {
-            _pathController = pathController;
-
             if (EditorPrefs.HasKey(GetPrefsKey(nameof(dataType)))) 
                 dataType = (SOType)EditorPrefs.GetInt(GetPrefsKey(nameof(dataType)));
 
@@ -97,7 +93,7 @@ namespace NuiN.ScriptableHarmony
                 
                 GUILayout.EndHorizontal();
                 
-                _pathController.DisplayPathGUI();
+                SelectionPath.DrawGUI(window);
                 
                 overwriteExisting = EditorGUILayout.Toggle("Overwrite Existing", overwriteExisting);
                 EditorPrefs.SetBool(GetPrefsKey(nameof(overwriteExisting)), overwriteExisting);
@@ -140,21 +136,9 @@ namespace NuiN.ScriptableHarmony
             void TryGenerateScript()
             {
                 bool emptyType = string.IsNullOrEmpty(type);
-                if (!_pathController.EmptyPath && !emptyType)
+                if (!emptyType)
                 {
                     GenerateScript();
-                }
-                else
-                {
-                    string warningMessage = "Empty {string} when attempting to create a new Custom Type Script";
-                    warningMessage = _pathController.EmptyPath switch
-                    {
-                        true when emptyType => warningMessage.Replace("{string}", "Path and Type Name"),
-                        true => warningMessage.Replace("{string}", "Path"),
-                        _ => warningMessage.Replace("{string}", "Type Name")
-                    };
-
-                    Debug.LogWarning(warningMessage);
                 }
             }
         }
@@ -231,8 +215,9 @@ namespace NuiN.ScriptableHarmony
 
         void GenerateScriptFile(string fileName, string fileContents)
         {
+            string path = SelectionPath.GetPath();
             string folderName = type;
-            string folderPath = Path.Combine(_pathController.SelectionPath, folderName);
+            string folderPath = Path.Combine(path, folderName);
 
             if (dataType is SOType.RuntimeSet or SOType.RuntimeSingle)
             {
@@ -240,7 +225,7 @@ namespace NuiN.ScriptableHarmony
             }
             else
             {
-                folderPath = _pathController.SelectionPath;
+                folderPath = path;
             }
 
             string filePath = Path.Combine(folderPath, $"{fileName}.cs");

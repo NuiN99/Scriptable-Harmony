@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 
-using NuiN.NExtensions;
 using NuiN.ScriptableHarmony.Core;
 using NuiN.ScriptableHarmony.Sound;
 using UnityEditor;
@@ -23,7 +22,6 @@ namespace NuiN.ScriptableHarmony.Editor
 
         const string PREFS_LAST_TAB = "ScriptableHarmonyWindow_LastTab";
 
-        SelectionPathController _pathController;
         Tab _currentTab = Tab.CreateSO;
 
         CreateScriptableObjectGUI _createGUI;
@@ -66,18 +64,12 @@ namespace NuiN.ScriptableHarmony.Editor
         {
             instance = this;
             
-            _pathController = new SelectionPathController(this);
-            
-            _createGUI = new CreateScriptableObjectGUI(_pathController);
-            _generateTypeGUI = new GenerateCustomTypeGUI(_pathController);
+            _createGUI = new CreateScriptableObjectGUI();
+            _generateTypeGUI = new GenerateCustomTypeGUI();
             _loggerSettingsGUI = new SHLoggerSettingsGUI();
             
             
             _findGUI ??= new FindScriptableObjectGUI("", null, false, SOType.Variable);
-        }
-        void OnDisable()
-        {
-            _pathController?.Dispose();
         }
 
         void OnGUI()
@@ -86,7 +78,7 @@ namespace NuiN.ScriptableHarmony.Editor
             
             switch (_currentTab)
             {
-                case Tab.CreateSO: _createGUI.DrawGUI(); break;
+                case Tab.CreateSO: _createGUI.DrawGUI(this); break;
                 case Tab.FindSO: _findGUI.DrawGUI(this); break;
                 case Tab.CreateType: _generateTypeGUI.DrawGUI(this); break;
                 case Tab.Logger: _loggerSettingsGUI.DrawGUI(); break;

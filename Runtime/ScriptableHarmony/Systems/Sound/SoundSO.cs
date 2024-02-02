@@ -156,13 +156,10 @@ namespace NuiN.ScriptableHarmony.Sound
                 .Select(obj => (AudioClip)obj).ToArray();
 
             selectedClips ??= new AudioClip[] { };
-
-            SelectionPathController pathController = new(null);
-            pathController.Update();
             
             Object newSoundObj = SoundSO.CreateInstance(selectedClips.ToArray());
 
-            string directory = pathController.SelectionPath;
+            string directory = SelectionPath.GetPath();
             string assetPath = $"{directory}/{NEW_SOUND_NAME}.asset";
             string uniqueAssetPath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
         
