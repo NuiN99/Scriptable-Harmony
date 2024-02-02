@@ -59,7 +59,7 @@ namespace NuiN.NExtensions
             return obj;
         }
 
-        /// <summary> Return and object back into the pool </summary>
+        /// <summary> Return an object back into the pool </summary>
         public void Release(T obj)
         {
             _stack.Push(obj);
