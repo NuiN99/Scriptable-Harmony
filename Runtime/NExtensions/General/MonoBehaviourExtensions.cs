@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class MonoBehaviourExtensions
 {
-    public static void TryStopCoroutine(this MonoBehaviour behaviour Coroutine coroutine)
+    public static void TryStopCoroutine(this MonoBehaviour behaviour, Coroutine coroutine)
     {
         if(coroutine != null) behaviour.StopCoroutine(coroutine);
     }
