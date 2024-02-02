@@ -51,5 +51,8 @@ It just keeps a dictionary of already used prefabs, and keeps and Object Pool fo
 # NExtensions
 A bunch of extension methods, utility, editor tools
 
+### Notable ones
+String Baker - Generates a script that contains all Layers and Tags, no more string references!
+
 
 
