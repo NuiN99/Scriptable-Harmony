@@ -40,9 +40,9 @@ A complete system for playing sounds, automatically object pooled, which uses Sc
 
 It has 2 main objects:
 
-SoundSO - Contains a list of AudioClips, and has AudioSource options, as well as randomization like Volume and Pitch
+SoundSO - Contains a list of AudioClips, has tweakable options identical to an AudioSource, as well as randomization options like Volume and Pitch for more variation
 
-SoundPlayerSO - Basically acts as an AudioMixer, and all SoundSO's need to reference one. It controls the volume and pitch of all sounds currently playing (No AudioMixer required)
+SoundPlayerSO - Basically acts as an AudioMixer, and all SoundSO's need to reference one. It controls the volume and pitch of all SoundSO's currently playing through it (No AudioMixer required)
 
 SoundSO Automatically chooses from a random clip in the list if there are multiple
 
