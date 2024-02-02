@@ -1,6 +1,6 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-
 namespace NuiN.NExtensions
 {
     internal class PathAnchorSO : ScriptableObject
@@ -18,4 +18,4 @@ This ScriptableObject is used to find Baked.cs when baking strings
         string WarningRemoval() => info;
     }
 }
-
+#endif
