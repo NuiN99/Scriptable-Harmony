@@ -32,7 +32,6 @@ namespace NuiN.NExtensions
 
                 GUILayout.EndHorizontal();
 
-                // Add a divider between scenes
                 GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
             }
         }

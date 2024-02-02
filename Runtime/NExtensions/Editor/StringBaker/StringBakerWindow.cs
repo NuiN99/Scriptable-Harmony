@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace NuiN.NExtensions
 {
@@ -25,6 +27,11 @@ namespace NuiN.NExtensions
         {
             {LAYERS}
         }
+
+        public static class Scenes
+        {
+            {SCENES}
+        }
     }
 }";
 
@@ -34,11 +41,13 @@ namespace NuiN.NExtensions
         const string NEW_LINE = "\n            ";
         const string LAYER_TEMPLATE = "public static readonly int {VARIABLENAME} = LayerMask.NameToLayer(\"{NAME}\");";
         const string TAG_TEMPLATE = "public static readonly string {VARIABLENAME} = \"{NAME}\";";
-        const string SCENE_TEMPLATE = default;
+        const string SCENE_TEMPLATE = "public static readonly string {VARIABLENAME} = \"{NAME}\";";
 
         [MenuItem("Window/Bake Strings", priority = -100)]
         static void BakeStrings()
         {
+            GetAllScenes();
+            
             const string filePathSOName = "DO NOT MODIFY";
 
             PathAnchorSO pathAnchorSO = Resources.Load<PathAnchorSO>(filePathSOName);
@@ -80,13 +89,17 @@ namespace NuiN.NExtensions
         {
             string layersContent = string.Empty;
             string tagsContent = string.Empty;
+            string scenesContent = string.Empty;
+
             foreach (string layer in GetAllLayers()) layersContent += ReplacedStringTemplate(LAYER_TEMPLATE, layer);
             foreach (string tag in GetAllTags()) tagsContent += ReplacedStringTemplate(TAG_TEMPLATE, tag);
+            foreach (string scene in GetAllScenes()) scenesContent += ReplacedStringTemplate(SCENE_TEMPLATE, scene);
             
             string contents = SCRIPT_TEMPLATE
                 .Replace("{SCRIPTNAME}", SCRIPT_NAME)
                 .Replace("{TAGS}", tagsContent)
-                .Replace("{LAYERS}", layersContent);
+                .Replace("{LAYERS}", layersContent)
+                .Replace("{SCENES}", scenesContent);
 
             return contents;
         }
@@ -104,6 +117,18 @@ namespace NuiN.NExtensions
 
         static IEnumerable<string> GetAllLayers() => Enumerable.Range(0, 32).Select(LayerMask.LayerToName).Where(layer => !string.IsNullOrEmpty(layer)).ToArray();
         static IEnumerable<string> GetAllTags() => UnityEditorInternal.InternalEditorUtility.tags;
+
+        static IEnumerable<string> GetAllScenes()
+        {
+            var scenes = new List<string>();
+            for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+            {
+                string sceneName = Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(i));
+                scenes.Add(sceneName);
+            }
+
+            return scenes;
+        }
     }
 }
 #endif
