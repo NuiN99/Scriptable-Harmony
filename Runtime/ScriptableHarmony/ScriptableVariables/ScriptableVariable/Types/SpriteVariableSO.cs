@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/Sprite", 
         fileName = "New Sprite Variable")]
-    internal class SpriteSO : ScriptableVariableSO<Sprite> { }
+    internal class SpriteVariableSO : ScriptableVariableSO<Sprite> { }
 }

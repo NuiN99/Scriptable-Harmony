@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/AudioClip", 
         fileName = "New AudioClip Variable")]
-    internal class AudioClipSO : ScriptableVariableSO<AudioClip> { }
+    internal class AudioClipVariableSO : ScriptableVariableSO<AudioClip> { }
 }

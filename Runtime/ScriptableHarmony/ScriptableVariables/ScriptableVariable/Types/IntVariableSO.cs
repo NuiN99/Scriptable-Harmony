@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/int", 
         fileName = "New Int Variable")]
-    internal class IntSO : ScriptableVariableSO<int> { }
+    internal class IntVariableSO : ScriptableVariableSO<int> { }
 }

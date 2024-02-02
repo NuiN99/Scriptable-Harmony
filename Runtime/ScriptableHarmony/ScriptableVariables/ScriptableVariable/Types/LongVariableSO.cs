@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/long", 
         fileName = "New Long Variable")]
-    internal class LongSO : ScriptableVariableSO<long> { }
+    internal class LongVariableSO : ScriptableVariableSO<long> { }
 }

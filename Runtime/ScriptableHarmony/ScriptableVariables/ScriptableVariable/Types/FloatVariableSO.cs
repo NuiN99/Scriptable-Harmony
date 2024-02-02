@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/float", 
         fileName = "New Float Variable")]
-    internal class FloatSO : ScriptableVariableSO<float> { }
+    internal class FloatVariableSO : ScriptableVariableSO<float> { }
 }

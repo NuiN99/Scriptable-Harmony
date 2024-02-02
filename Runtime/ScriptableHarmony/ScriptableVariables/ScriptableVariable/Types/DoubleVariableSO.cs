@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/double", 
         fileName = "New Double Variable")]
-    internal class DoubleSO : ScriptableVariableSO<double> { }
+    internal class DoubleVariableSO : ScriptableVariableSO<double> { }
 }

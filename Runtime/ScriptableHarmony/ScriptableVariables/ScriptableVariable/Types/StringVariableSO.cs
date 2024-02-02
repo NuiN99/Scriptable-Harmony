@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/string", 
         fileName = "New String Variable")]
-    internal class StringSO : ScriptableVariableSO<string> { }
+    internal class StringVariableSO : ScriptableVariableSO<string> { }
 }

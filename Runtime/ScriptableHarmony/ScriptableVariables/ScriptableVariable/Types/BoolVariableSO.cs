@@ -6,5 +6,5 @@ namespace NuiN.ScriptableHarmony
     [CreateAssetMenu(
         menuName = "ScriptableHarmony/Common/Variables/bool", 
         fileName = "New Bool Variable")]
-    internal class BoolSO : ScriptableVariableSO<bool> { }
+    internal class BoolVariableSO : ScriptableVariableSO<bool> { }
 }
