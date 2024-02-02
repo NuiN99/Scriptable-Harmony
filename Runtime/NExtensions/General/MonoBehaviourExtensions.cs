@@ -4,6 +4,11 @@ using UnityEngine;
 
 public static class MonoBehaviourExtensions
 {
+    public static void TryStopCoroutine(this MonoBehaviour behaviour Coroutine coroutine)
+    {
+        if(coroutine != null) behaviour.StopCoroutine(coroutine);
+    }
+
     // ReSharper disable Unity.PerformanceAnalysis
     public static Coroutine DoAfter(this MonoBehaviour behaviour, float seconds, Action onComplete)
     {
