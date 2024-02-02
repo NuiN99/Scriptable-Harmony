@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace NuiN.NExtensions
 {
-    internal static class StringBakerWindow
+    internal static class StringBaker
     {
         const string SCRIPT_TEMPLATE = 
 @"using UnityEngine;
