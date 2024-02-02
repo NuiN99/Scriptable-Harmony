@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using NuiN.NExtensions;
 using NuiN.ScriptableHarmony.Core;
 using NuiN.ScriptableHarmony.Sound;
 using UnityEditor;

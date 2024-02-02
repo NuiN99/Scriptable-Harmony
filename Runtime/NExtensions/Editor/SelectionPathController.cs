@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace NuiN.ScriptableHarmony.Editor
+namespace NuiN.NExtensions
 {
 #if UNITY_EDITOR
-    internal class SelectionPathController
+    internal class SelectionPathController : IDisposable
     {
         const string EMPTY_PATH_MESSAGE = "Please select an asset in the Project panel";
 

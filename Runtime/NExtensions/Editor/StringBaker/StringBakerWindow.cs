@@ -1,20 +1,19 @@
 ﻿#if UNITY_EDITOR
-
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Editor
+namespace NuiN.NExtensions
 {
-    internal class StringBakingWindow : EditorWindow
+    internal class StringBakerWindow : EditorWindow
     {
-        static StringBakingWindow instance;
+        static StringBakerWindow instance;
         
         const string SCRIPT_TEMPLATE = 
 @"using UnityEngine;
-namespace NuiN.ScriptableHarmony
+namespace NuiN.NExtensions
 {
     public static class {SCRIPTNAME}
     {
@@ -43,14 +42,12 @@ namespace NuiN.ScriptableHarmony
         [MenuItem("Window/Bake Strings", priority = -100)]
         static void Open()
         {
-            instance = GetWindow<StringBakingWindow>("String Baker");
+            instance = GetWindow<StringBakerWindow>("String Baker");
             instance.Show();
         }
 
-        void OnEnable()
-        {
-            _pathController = new SelectionPathController(instance);
-        }
+        void OnEnable() => _pathController = new SelectionPathController(instance);
+        void OnDisable() => _pathController?.Dispose();
 
         public void OnGUI()
         {
@@ -102,12 +99,12 @@ namespace NuiN.ScriptableHarmony
         {
             const string filePathSOName = "DO NOT MODIFY";
 
-            BakedRootSO pathAnchorSO = Resources.Load<BakedRootSO>(filePathSOName);
+            PathAnchorSO pathAnchorSO = Resources.Load<PathAnchorSO>(filePathSOName);
             bool exists = pathAnchorSO != null;
 
             if (!exists)
             {
-                pathAnchorSO = ScriptableObject.CreateInstance<BakedRootSO>();
+                pathAnchorSO = ScriptableObject.CreateInstance<PathAnchorSO>();
 
                 string outerPath = _pathController.SelectionPath + $"/{FOLDER_NAME}";
                 Directory.CreateDirectory(outerPath);

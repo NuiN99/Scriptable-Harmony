@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
+using NuiN.NExtensions;
 using NuiN.ScriptableHarmony.Core;
 using Object = UnityEngine.Object;
 

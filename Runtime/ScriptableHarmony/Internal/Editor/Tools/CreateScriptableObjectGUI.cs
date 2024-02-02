@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.Linq;
+using NuiN.NExtensions;
 using NuiN.ScriptableHarmony.Core;
 
 namespace NuiN.ScriptableHarmony.Editor

@@ -1,16 +1,14 @@
-using NuiN.NExtensions;
 using UnityEditor;
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Editor
+namespace NuiN.NExtensions
 {
-    [CreateAssetMenu(menuName = "ScriptableHarmony/File Path Anchor")]
-    internal class BakedRootSO : ScriptableObject
+    internal class PathAnchorSO : ScriptableObject
     {
         const string INFO = 
 @"Do not alter the file structure of the folder
 
-This ScriptableObject is used to find the Baked class when baking strings
+This ScriptableObject is used to find Baked.cs when baking strings
 ";
 
         [SerializeField, ReadOnly, TextArea] string info = INFO;
