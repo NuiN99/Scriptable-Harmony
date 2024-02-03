@@ -34,7 +34,7 @@ namespace NuiN.NExtensions
     }
 }";
 
-        const string SCRIPT_NAME = "Baked";
+        const string SCRIPT_NAME = "Strings";
         const string FOLDER_NAME = "BakedStrings";
         
         const string NEW_LINE = "\n            ";
