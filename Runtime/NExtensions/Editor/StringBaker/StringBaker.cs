@@ -34,7 +34,7 @@ namespace NuiN.NExtensions
     }
 }";
 
-        const string SCRIPT_NAME = "Strings";
+        const string SCRIPT_NAME = "Baked";
         const string FOLDER_NAME = "BakedStrings";
         
         const string NEW_LINE = "\n            ";
@@ -105,9 +105,7 @@ namespace NuiN.NExtensions
 
         static string ReplacedStringTemplate(string template, string name)
         {
-            string variableName = Regex.Replace(name, @"[^a-zA-Z_0-9]", "_");
-            variableName = Regex.Replace(variableName, @"^\d", match => "_" + match.Value);
-
+            string variableName = Regex.Replace(name, @"\s+", "");
             string replaced = template
                 .Replace("{NAME}", name)
                 .Replace("{VARIABLENAME}", variableName)

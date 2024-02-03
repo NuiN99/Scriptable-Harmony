@@ -8,7 +8,7 @@ namespace NuiN.NExtensions.Editor
         const string INFO = 
 @"Do not alter the file structure of the folder
 
-This ScriptableObject is used to find Strings.cs when baking strings
+This ScriptableObject is used to find Baked.cs when baking strings
 ";
 
         [SerializeField, ReadOnly, TextArea] string info = INFO;
