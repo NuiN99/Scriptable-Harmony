@@ -104,8 +104,7 @@ namespace NuiN.ScriptableHarmony.Sound
             source.reverbZoneMix = soundObj.ReverbZoneMix;
             source.spatialBlend = spatial ? 1f : 0f;
 
-            shSource.VolumeScale = soundObj.Volume;
-            
+            shSource.VolumeScale = soundObj.Volume * volumeMult * MasterVolumeManager.GlobalVolume;
             source.Play();
 
             if (source.loop) return shSource;
