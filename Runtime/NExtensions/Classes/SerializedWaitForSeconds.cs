@@ -3,14 +3,12 @@ using UnityEngine;
 namespace NuiN.NExtensions
 {
     [System.Serializable]
-    public class SerializedWaitForSeconds : ISerializationCallbackReceiver
+    public class SerializedWaitForSeconds
     {
-        float _prevSeconds;
-        
         [SerializeField] float seconds;
         public float Seconds => seconds;
         public WaitForSeconds Wait { get; private set; }
-
+        
         public SerializedWaitForSeconds(float defaultSeconds)
         {
             seconds = defaultSeconds;
@@ -18,7 +16,6 @@ namespace NuiN.NExtensions
         
         public void Init()
         {
-            _prevSeconds = seconds;
             Wait = new WaitForSeconds(seconds);
         }
         
@@ -27,11 +24,5 @@ namespace NuiN.NExtensions
             this.seconds = seconds;
             Init();
         }
-        
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-        {
-            if (Application.isPlaying && !Mathf.Approximately(_prevSeconds, seconds)) Init();
-        }
-        void ISerializationCallbackReceiver.OnAfterDeserialize() { }
     }
 }
