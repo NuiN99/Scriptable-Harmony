@@ -20,6 +20,12 @@ namespace NuiN.NExtensions
         public override float Duration { get => _duration; protected set => _duration = value; }
         protected override bool StartCompleted { get => startCompleted; set => startCompleted = value; }
 
+        public SimpleTimer(float minDuration, float maxDuration)
+        {
+            this.minDuration = minDuration;
+            this.maxDuration = maxDuration;
+        }
+
         protected override void Setup()
         {
             _duration = Random.Range(minDuration, maxDuration);

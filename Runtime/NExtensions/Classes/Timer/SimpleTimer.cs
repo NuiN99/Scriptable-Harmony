@@ -14,6 +14,11 @@ namespace NuiN.NExtensions
 
         public override float Duration { get => duration; protected set => duration = value; }
         protected override bool StartCompleted { get => startCompleted; set => startCompleted = value; }
+
+        public SimpleTimer(float duration)
+        {
+            this.duration = duration;
+        }
         
         protected override void Setup() { }
     }
