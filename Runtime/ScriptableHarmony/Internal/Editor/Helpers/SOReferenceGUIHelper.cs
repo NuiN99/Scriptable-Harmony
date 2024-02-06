@@ -33,7 +33,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 case SOType.RuntimeSingle: typeName += "RuntimeSingleSO"; break;
                 case SOType.Variable:
                 {
-                    typeName = $"{typeName}SO";
+                    typeName = $"{typeName}VariableSO";
                     break;
                 }
                 case SOType.List:
