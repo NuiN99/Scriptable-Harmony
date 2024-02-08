@@ -12,16 +12,16 @@ namespace NuiN.ScriptableHarmony.Core
         
         public SerializableDictionary<TKey, TValue> serializedDictionary;
         
-        [Header("Value Persistence")]
-        [SerializeField] ResetOn resetOn;
+        [SerializeField] RuntimeOptions runtimeOptions;
 
         [Header("Debugging")] 
-        [SerializeField] bool logActions = true;
+        [SerializeField] bool logActions;
         [SerializeField] GetSetReferencesContainer gettersAndSetters = new("list", typeof(ScriptableDictionaryReference<TKey,TValue>), typeof(GetScriptableDictionary<TKey,TValue>), typeof(SetScriptableDictionary<TKey,TValue>));
         protected override GetSetReferencesContainer GettersAndSetters { get => gettersAndSetters;set => gettersAndSetters = value; }
         
         public Dictionary<TKey,TValue> DefaultValues => defaultDictionary;
         public override bool LogActions => logActions;
+        public override RuntimeOptions RuntimeOptions => runtimeOptions;
         
         void OnValidate()
         {
@@ -56,6 +56,9 @@ namespace NuiN.ScriptableHarmony.Core
             serializedDictionary.Serialize(ref dictionary);
         }
 
-        protected override bool ResetsOnSceneLoad() => resetOn == ResetOn.SceneLoad;
+        protected override void InvokeOnChangeEvent()
+        {
+            // todo - add events
+        }
     }
 }

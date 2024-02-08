@@ -7,28 +7,28 @@ namespace NuiN.ScriptableHarmony.Core
         [SerializeField] T thisObject;
     
         [SerializeField] SetRuntimeSingle<T> runtimeSingle;
-        [SerializeField] LifetimeType lifetimeType;
+        [SerializeField] RuntimeSetLifetime lifetimeType;
 
         [SerializeField] bool overwriteExisting;
         
         void Reset() => thisObject ??= GetComponent<T>();
         
-        void OnEnable() => SetItem(LifetimeType.OnEnableOnDisable);
+        void OnEnable() => SetItem(RuntimeSetLifetime.OnEnableOnDisable);
         void OnDisable()
         {
-            if(lifetimeType == LifetimeType.RemoveOnDestroyAndDisable) runtimeSingle.Remove();
-            else RemoveFromSetCondition(LifetimeType.OnEnableOnDisable);
+            if(lifetimeType == RuntimeSetLifetime.RemoveOnDestroyAndDisable) runtimeSingle.Remove();
+            else RemoveFromSetCondition(RuntimeSetLifetime.OnEnableOnDisable);
         }
 
         void Awake()
         {
             thisObject ??= GetComponent<T>();
-            SetItem(LifetimeType.OnAwakeOnDestroy);
+            SetItem(RuntimeSetLifetime.OnAwakeOnDestroy);
         }
 
         void OnDestroy() => runtimeSingle.Remove();
 
-        void SetItem(LifetimeType type)
+        void SetItem(RuntimeSetLifetime type)
         {
             if (SelfDestructIfNullObject(thisObject)) return;
             if (lifetimeType != type) return;
@@ -36,7 +36,7 @@ namespace NuiN.ScriptableHarmony.Core
             if(overwriteExisting) runtimeSingle.Set(thisObject);
             else runtimeSingle.TrySet(thisObject);
         }
-        void RemoveFromSetCondition(LifetimeType type)
+        void RemoveFromSetCondition(RuntimeSetLifetime type)
         {
             if (lifetimeType == type) runtimeSingle.Remove();
         }
