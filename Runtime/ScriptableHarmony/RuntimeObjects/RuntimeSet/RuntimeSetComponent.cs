@@ -7,21 +7,21 @@ namespace NuiN.ScriptableHarmony.Core
         [SerializeField] T thisObject;
     
         [SerializeField] SetRuntimeSet<T> runtimeSet;
-        [SerializeField] LifetimeType lifetimeType;
+        [SerializeField] RuntimeSetLifetime lifetimeType;
         
         void Reset() => thisObject ??= GetComponent<T>();
 
-        void OnEnable() => AddToSet(LifetimeType.OnEnableOnDisable);
+        void OnEnable() => AddToSet(RuntimeSetLifetime.OnEnableOnDisable);
         void OnDisable()
         {
-            if(lifetimeType == LifetimeType.RemoveOnDestroyAndDisable) RemoveFromSet();
-            else RemoveFromSetConditionial(LifetimeType.OnEnableOnDisable);
+            if(lifetimeType == RuntimeSetLifetime.RemoveOnDestroyAndDisable) RemoveFromSet();
+            else RemoveFromSetConditionial(RuntimeSetLifetime.OnEnableOnDisable);
         }
 
         void Awake()
         {
             thisObject ??= GetComponent<T>();
-            AddToSet(LifetimeType.OnAwakeOnDestroy);
+            AddToSet(RuntimeSetLifetime.OnAwakeOnDestroy);
         }
 
         void OnDestroy()
@@ -29,14 +29,14 @@ namespace NuiN.ScriptableHarmony.Core
             RemoveFromSet();
         }
 
-        void AddToSet(LifetimeType type)
+        void AddToSet(RuntimeSetLifetime type)
         {
             if (SelfDestructIfNullObject(thisObject)) return;
             if (lifetimeType != type) return;
             
             runtimeSet.Add(thisObject);
         }
-        void RemoveFromSetConditionial(LifetimeType type)
+        void RemoveFromSetConditionial(RuntimeSetLifetime type)
         {
             if (lifetimeType == type) RemoveFromSet();
         }

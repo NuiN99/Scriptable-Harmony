@@ -12,19 +12,19 @@ namespace NuiN.ScriptableHarmony.Core
         public T value;
         [SerializeField] [ReadOnlyPlayMode] T defaultValue;
         
-        [Header("Value Persistence")]
-        [SerializeField] ResetOn resetOn;
+        [SerializeField] RuntimeOptions runtimeOptions;
         
         public Action<T> onChange;
         public Action<T, T> onChangeWithOld;
 
         [Header("Debugging")] 
-        [SerializeField] bool logActions = true;
+        [SerializeField] bool logActions;
         [SerializeField] GetSetReferencesContainer gettersAndSetters = new("variable", typeof(ScriptableVariableReference<T>), typeof(GetScriptableVariable<T>), typeof(SetScriptableVariable<T>));
-        
+
         protected override GetSetReferencesContainer GettersAndSetters { get => gettersAndSetters; set => gettersAndSetters = value; }
         public T DefaultValue => defaultValue;
         public override bool LogActions => logActions;
+        public override RuntimeOptions RuntimeOptions => runtimeOptions;
         
         void OnValidate()
         {
@@ -53,7 +53,11 @@ namespace NuiN.ScriptableHarmony.Core
             onChange?.Invoke(value);
         }
 
-        protected override bool ResetsOnSceneLoad() => resetOn == ResetOn.SceneLoad;
+        protected override void InvokeOnChangeEvent()
+        {
+            onChangeWithOld?.Invoke(value, value);
+            onChange?.Invoke(value);
+        }
     }
 }
 

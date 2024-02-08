@@ -10,8 +10,7 @@ namespace NuiN.ScriptableHarmony.Core
         public List<T> values = new();
         [SerializeField] [ReadOnlyPlayMode] List<T> defaultValues = new();
         
-        [Header("Value Persistence")]
-        [SerializeField] ResetOn resetOn;
+        [SerializeField] RuntimeOptions runtimeOptions;
         
         public Action<T> onAdd;
         public Action<List<T>,T> onAddWithOld;
@@ -32,10 +31,11 @@ namespace NuiN.ScriptableHarmony.Core
         public Action<List<T>> onClearWithOld;
 
         [Header("Debugging")] 
-        [SerializeField] bool logActions = true;
+        [SerializeField] bool logActions;
         [SerializeField] GetSetReferencesContainer gettersAndSetters = new("list", typeof(ScriptableListReference<T>), typeof(GetScriptableList<T>), typeof(SetScriptableList<T>));
         protected override GetSetReferencesContainer GettersAndSetters { get => gettersAndSetters;set => gettersAndSetters = value; }
-        
+        public override RuntimeOptions RuntimeOptions => runtimeOptions;
+
         public List<T> DefaultValues => defaultValues;
         public override bool LogActions => logActions;
 
@@ -56,6 +56,10 @@ namespace NuiN.ScriptableHarmony.Core
             onReplace?.Invoke(values);
         }
 
-        protected override bool ResetsOnSceneLoad() => resetOn == ResetOn.SceneLoad;
+        protected override void InvokeOnChangeEvent()
+        {
+            onReplaceWithOld?.Invoke(values, values);
+            onReplace?.Invoke(values);
+        }
     }
 }
