@@ -10,34 +10,24 @@ namespace NuiN.ScriptableHarmony.Core
     
         new void OnEnable()
         {
-            SceneManager.sceneUnloaded += ResetOnSceneUnloaded;
             ScriptableHarmonyManager.OnResetAllVariableObjects += ResetValue;
 #if UNITY_EDITOR
             base.OnEnable();
-            EditorApplication.playModeStateChanged += ResetValueOnStoppedPlaying;
             Selection.selectionChanged += OnSelectedInProjectWindow;
 #endif
         }
         new void OnDisable()
         {
-            SceneManager.sceneUnloaded -= ResetOnSceneUnloaded;
             ScriptableHarmonyManager.OnResetAllVariableObjects -= ResetValue;
 #if UNITY_EDITOR
             base.OnDisable();
-            EditorApplication.playModeStateChanged -= ResetValueOnStoppedPlaying;
             Selection.selectionChanged -= OnSelectedInProjectWindow;
 #endif
         }
     
         protected abstract void ResetValue();
         
-        void ResetOnSceneUnloaded(Scene scene) => ResetValue();
-    
 #if UNITY_EDITOR
-        void ResetValueOnStoppedPlaying(PlayModeStateChange state)
-        {
-            if (state == PlayModeStateChange.EnteredEditMode) ResetValue();
-        }
         
         void OnSelectedInProjectWindow()
         {
