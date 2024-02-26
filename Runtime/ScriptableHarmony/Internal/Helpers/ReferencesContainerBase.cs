@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace NuiN.ScriptableHarmony.Core
 {
@@ -27,9 +28,11 @@ namespace NuiN.ScriptableHarmony.Core
 #endif
         }
 #if UNITY_EDITOR
-        public void FindObjectsAndAssignReferences(object variableCaller, IEnumerable<GameObject> sceneObjs)
-        {
+        public void FindObjectsAndAssignReferences(object variableCaller)
+        { 
             Clear();
+            
+            GameObject[] sceneObjs = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
                 
             string[] guids = AssetDatabase.FindAssets( "t:Prefab" );
             GameObject[] allPrefabs = guids.Select(guid =>

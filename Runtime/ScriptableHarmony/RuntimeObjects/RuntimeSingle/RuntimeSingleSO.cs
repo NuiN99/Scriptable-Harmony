@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NuiN.ScriptableHarmony.Core
 {
-    public class RuntimeSingleSO<T> : RuntimeObjectBaseSO<T>
+    public class RuntimeSingleSO<T> : RuntimeObjectSO
     {
         [SerializeField] [TextArea] string description;
 

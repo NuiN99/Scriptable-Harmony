@@ -1,3 +1,4 @@
+using NuiN.NExtensions;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,21 +32,20 @@ namespace NuiN.ScriptableHarmony.Core
         void OnSelectedInProjectWindow()
         {
             if(this) EditorUtility.SetDirty(this);
-            GettersAndSetters.Clear();
-            if (Selection.activeObject != this) return;
-            AssignDebugReferences();
+            GettersAndSetters?.Clear();
+            
+            if(Selection.activeObject == this) AssignDebugReferences();
         }
 
         void ClearDebugReferences()
         {
             if(this) EditorUtility.SetDirty(this);
-            GettersAndSetters.Clear();
+            GettersAndSetters?.Clear();
         }
     
         void AssignDebugReferences()
         {
-            GameObject[] sceneObjs = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
-            GettersAndSetters.FindObjectsAndAssignReferences(this, sceneObjs);
+            GettersAndSetters?.FindObjectsAndAssignReferences(this);
         }
 #endif
     }

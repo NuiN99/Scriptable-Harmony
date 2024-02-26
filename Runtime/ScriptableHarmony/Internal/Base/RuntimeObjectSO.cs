@@ -1,10 +1,10 @@
+using NuiN.NExtensions;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace NuiN.ScriptableHarmony.Core
 {
-    public abstract class RuntimeObjectBaseSO<T> : SHBaseSO
+    public abstract class RuntimeObjectSO : SHBaseSO
     {
         protected abstract RuntimeObjectReferencesContainer ComponentHolders { get; set; }
     
@@ -41,15 +41,14 @@ namespace NuiN.ScriptableHarmony.Core
         
         void OnSelectedInProjectWindow()
         {
+            if(this) EditorUtility.SetDirty(this);
             ComponentHolders?.Clear();
-            if (Selection.activeObject != this) return;
-            AssignComponentDebugReferences();
         }
-    
+        
+        [MethodButton("Refresh Debug References")]
         void AssignComponentDebugReferences()
         {
-            GameObject[] sceneObjs = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
-            ComponentHolders.FindObjectsAndAssignReferences(this, sceneObjs);
+            ComponentHolders?.FindObjectsAndAssignReferences(this);
         }
 #endif
     }
