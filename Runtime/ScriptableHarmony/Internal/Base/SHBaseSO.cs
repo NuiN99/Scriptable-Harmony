@@ -12,7 +12,6 @@ namespace NuiN.ScriptableHarmony.Core
         protected virtual void OnEnable()
         {
 #if UNITY_EDITOR
-            OnSaveEvent.OnSave += OnSelectedInProjectWindow;
             EditorApplication.quitting += ClearDebugReferences;
             Selection.selectionChanged += OnSelectedInProjectWindow;
 #endif
@@ -20,7 +19,6 @@ namespace NuiN.ScriptableHarmony.Core
         protected virtual void OnDisable()
         {
 #if UNITY_EDITOR
-            OnSaveEvent.OnSave -= OnSelectedInProjectWindow;
             EditorApplication.quitting -= ClearDebugReferences;
             Selection.selectionChanged -= OnSelectedInProjectWindow;
 #endif
