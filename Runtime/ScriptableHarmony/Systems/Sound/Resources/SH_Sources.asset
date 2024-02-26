@@ -16,9 +16,11 @@ MonoBehaviour:
   entities: []
   logActions: 1
   componentHolders:
+    fieldName: runtimeSet
     prefabs: []
     scene: []
   gettersAndSetters:
+    fieldName: runtimeSet
     Getters: []
     Setters: []
     getters: []

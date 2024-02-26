@@ -4,7 +4,7 @@ namespace NuiN.ScriptableHarmony.Sound
 {
     public class SpatialSound : MonoBehaviour
     {
-        SHSource _source;
+        AudioSource _source;
         
         [SerializeField] SoundSO sound;
         [SerializeField] Transform soundPosition;
@@ -25,7 +25,7 @@ namespace NuiN.ScriptableHarmony.Sound
 
         void OnDestroy()
         {
-            sound.SoundPlayer.ReleaseToPool(_source);
+            if(_source != null && _source.isPlaying) SoundPlayer.ReleaseToPool(_source);
         }
     }
 }
