@@ -5,6 +5,7 @@ using NuiN.NExtensions;
 using NuiN.NExtensions.Editor;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Audio;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
@@ -12,8 +13,7 @@ namespace NuiN.ScriptableHarmony.Sound
 {
     public class SoundSO : ScriptableObject
     {
-        [SerializeField] SoundPlayerSO soundPlayer;
-        
+        [SerializeField] AudioMixerGroup audioMixerGroup;
         [SerializeField] AudioClip[] clips;
         
         [SerializeField, Range(0f, 1f), Tooltip("Default - 0.5")] float minVolume = 0.5f;
@@ -31,6 +31,7 @@ namespace NuiN.ScriptableHarmony.Sound
         [SerializeField, Range(0f, 1.1f), Tooltip("Default - 1")] float reverbZoneMix = 1f;
         [SerializeField, Tooltip("Default - False")] bool loop;
 
+        public AudioMixerGroup AudioMixerGroup => audioMixerGroup;
         public ReadOnlyCollection<AudioClip> Clips => Array.AsReadOnly(clips);
         public float MinVolume => minVolume;
         public float MaxVolume => maxVolume;
@@ -50,18 +51,14 @@ namespace NuiN.ScriptableHarmony.Sound
             :Random.Range(MinPitch, MaxPitch);
         public AudioClip Clip => Clips[Random.Range(0, Clips.Count)];
 
-        public SoundPlayerSO SoundPlayer => soundPlayer;
-        
-        void Reset() => soundPlayer = Resources.Load<SoundPlayerSO>("Default Sound Player");
-        
-        public SHSource Play(float volumeMult = 1f, float pitchMult = 1f)
+        public AudioSource Play(float volumeMult = 1f, float pitchMult = 1f)
         {
-            return !ClipsAreValid() ? null : soundPlayer.Play(this, volumeMult, pitchMult);
+            return !ClipsAreValid() ? new AudioSource() : SoundPlayer.Play(this, volumeMult, pitchMult);
         }
 
-        public SHSource PlaySpatial(Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
+        public AudioSource PlaySpatial(Vector3 position, Transform parent = null, float volumeMult = 1f, float pitchMult = 1f)
         {
-            return !ClipsAreValid() ? null : soundPlayer.PlaySpatial(this, position, parent, volumeMult, pitchMult);
+            return !ClipsAreValid() ? new AudioSource() : SoundPlayer.PlaySpatial(this, position, parent, volumeMult, pitchMult);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -101,7 +98,7 @@ namespace NuiN.ScriptableHarmony.Sound
 
             SoundSO soundSO = (SoundSO)target;
             
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("soundPlayer"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("audioMixerGroup"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("clips"));
             
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
