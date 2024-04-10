@@ -110,5 +110,30 @@ namespace NuiN.NExtensions
         return closestObj;
     }
 
+    public static Rigidbody GetClosest(Vector3 point, List<Rigidbody> objects, Func<bool, Rigidbody> condition = null)
+    {
+        Rigidbody closestObj = null;
+        float closestDist = float.MaxValue;
+        foreach (var obj in objects)
+        {
+            if (!obj) continue;
+            
+            if (condition != null)
+            {
+                bool result = condition.Invoke(obj);
+                if(!result) continue;
+            }
+            
+            Vector3 offset = obj.transform.position - point;
+            float sqrLength = offset.sqrMagnitude;
+            
+            if (sqrLength >= closestDist) continue;
+
+            closestDist = sqrLength;
+            closestObj = obj;
+        }
+
+        return closestObj;
+    }
 }
 }
