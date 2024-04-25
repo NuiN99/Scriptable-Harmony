@@ -3,62 +3,87 @@ using UnityEngine;
 
 namespace NuiN.NExtensions
 {
+    //https://github.com/SebLague/Marching-Cubes/blob/master/Assets/Editor/ConditionalHidePropertyDrawer.cs
     public class ShowIfAttribute : PropertyAttribute
     {
-        public readonly string varName;
-        public readonly bool condition;
+        public readonly string conditionalSourceField;
+        public readonly bool showIfTrue;
+        public readonly int enumIndex;
 
-        public ShowIfAttribute(string varName, bool condition)
+        public ShowIfAttribute(string boolVariableName, bool showIfTrue)
         {
-            this.varName = varName;
-            this.condition = condition;
+            conditionalSourceField = boolVariableName;
+            this.showIfTrue = showIfTrue;
         }
+
+        public ShowIfAttribute(string enumVariableName, int enumIndex)
+        {
+            conditionalSourceField = enumVariableName;
+            this.enumIndex = enumIndex;
+        }
+    }
 
 #if UNITY_EDITOR
-        [CustomPropertyDrawer(typeof(ShowIfAttribute))]
-        internal class ShowIfDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(ShowIfAttribute))]
+    internal class ConditionalHidePropertyDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-            {
-                if (attribute is not ShowIfAttribute showIfAttribute) return EditorGUI.GetPropertyHeight(property, label, true);
+            ShowIfAttribute attr = (ShowIfAttribute)attribute;
+            
+            bool enabled = GetConditionalHideAttributeResult(attr, property) == attr.showIfTrue;        
 
-                SerializedProperty varProperty = property.serializedObject.FindProperty(showIfAttribute.varName);
-                bool conditionMet = IsConditionMet(varProperty, showIfAttribute.condition);
-                return conditionMet ? EditorGUI.GetPropertyHeight(property, label, true) : 0f;
+            if (enabled)
+            {
+                EditorGUI.PropertyField(position, property, label, true);
+            }        
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            ShowIfAttribute attr = (ShowIfAttribute)attribute;
+            bool enabled = GetConditionalHideAttributeResult(attr, property) == attr.showIfTrue;
+
+            if (enabled)
+            {
+                return EditorGUI.GetPropertyHeight(property, label);
             }
+            
+            return -EditorGUIUtility.standardVerticalSpacing;
+        }
 
-            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        static bool GetConditionalHideAttributeResult(ShowIfAttribute attr, SerializedProperty property)
+        {
+            SerializedProperty sourcePropertyValue;
+
+            if (!property.isArray)
             {
-                if (attribute is not ShowIfAttribute showIfAttribute)
-                {
-                    EditorGUI.PropertyField(position, property, label, true);
-                    return;
-                }
-                
-                SerializedProperty varProperty = property.serializedObject.FindProperty(showIfAttribute.varName);
-                bool conditionMet = IsConditionMet(varProperty, showIfAttribute.condition);
-
-                if (conditionMet)
-                {
-                    EditorGUI.PropertyField(position, property, label, true);
-                }
+                string propertyPath = property.propertyPath;
+                string conditionPath = propertyPath.Replace(property.name, attr.conditionalSourceField);
+                sourcePropertyValue = property.serializedObject.FindProperty(conditionPath) ?? property.serializedObject.FindProperty(attr.conditionalSourceField);
             }
-
-            static bool IsConditionMet(SerializedProperty property, bool condition)
+            else
             {
-                return property != null && EvaluateCondition(property.boolValue, condition);
+                sourcePropertyValue = property.serializedObject.FindProperty(attr.conditionalSourceField);
             }
+            
+            return sourcePropertyValue == null || CheckPropertyType(attr,sourcePropertyValue);
+        }
 
-            static bool EvaluateCondition(bool value, bool condition)
-            {
-                switch (value)
-                {
-                    case true when condition:
-                    case false when !condition: return true;
-                    default: return false;
-                }
+        // ReSharper disable Unity.PerformanceAnalysis
+        static bool CheckPropertyType(ShowIfAttribute attr, SerializedProperty sourcePropertyValue)
+        {
+            switch (sourcePropertyValue.propertyType)
+            {                
+                case SerializedPropertyType.Boolean:
+                    return sourcePropertyValue.boolValue;                
+                case SerializedPropertyType.Enum:
+                    return sourcePropertyValue.enumValueIndex == attr.enumIndex;
+                default:
+                    Debug.LogError("Data type of the property used for conditional hiding [" + sourcePropertyValue.propertyType + "] is currently not supported");
+                    return true;
             }
         }
-#endif
     }
+#endif
 }
