@@ -8,9 +8,10 @@ namespace NuiN.ScriptableHarmony.Core
     public class ScriptableDictionarySO<TKey,TValue> : ScriptableVariableLifetimeSO<TKey>
     {
         public Dictionary<TKey,TValue> dictionary = new();
-        [ReadOnlyPlayMode] Dictionary<TKey,TValue> defaultDictionary = new();
-        
         public SerializableDictionary<TKey, TValue> serializedDictionary;
+
+        Dictionary<TKey,TValue> _defaultDictionary = new();
+        [SerializeField, ReadOnlyPlayMode] SerializableDictionary<TKey, TValue> serializedDefaultDictionary;
         
         [SerializeField] RuntimeOptions runtimeOptions;
 
@@ -19,7 +20,7 @@ namespace NuiN.ScriptableHarmony.Core
         [SerializeField] GetSetReferencesContainer gettersAndSetters = new("list", typeof(ScriptableDictionaryReference<TKey,TValue>), typeof(GetScriptableDictionary<TKey,TValue>), typeof(SetScriptableDictionary<TKey,TValue>));
         protected override GetSetReferencesContainer GettersAndSetters { get => gettersAndSetters;set => gettersAndSetters = value; }
         
-        public Dictionary<TKey,TValue> DefaultValues => defaultDictionary;
+        public Dictionary<TKey,TValue> DefaultValues => _defaultDictionary;
         public override bool LogActions => logActions;
         public override RuntimeOptions RuntimeOptions => runtimeOptions;
         
@@ -47,12 +48,16 @@ namespace NuiN.ScriptableHarmony.Core
 
         protected override void SaveDefaultValue()
         {
-            defaultDictionary = new Dictionary<TKey, TValue>(serializedDictionary.GetDictionary());
+            _defaultDictionary = new Dictionary<TKey, TValue>(serializedDictionary.GetDictionary());
+            serializedDictionary.ValidateAndApply(ref _defaultDictionary);
+
+            serializedDefaultDictionary ??= new SerializableDictionary<TKey, TValue>(ref dictionary);
+            serializedDefaultDictionary.SetValues(ref _defaultDictionary);
         }
 
         protected override void ResetValueToDefault()
         {
-            dictionary = new Dictionary<TKey, TValue>(defaultDictionary);
+            dictionary = new Dictionary<TKey, TValue>(_defaultDictionary);
             serializedDictionary.Serialize(ref dictionary);
         }
 

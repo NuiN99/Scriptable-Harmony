@@ -48,6 +48,18 @@ namespace NuiN.ScriptableHarmony.Core
          }
          Serialize(ref dictionary);
       }
+
+      public void SetValues(ref Dictionary<TKey, TValue> dictionary)
+      {
+         serializedPairs.Clear();
+         foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+         {
+            serializedPairs.Add(new SerializedKeyValuePair<TKey, TValue>(pair.Key, pair.Value));
+         }
+
+         this.dictionary = new Dictionary<TKey, TValue>();
+         ValidateAndApply(ref this.dictionary);
+      }
    
       public Dictionary<TKey, TValue> GetDictionary()
       {

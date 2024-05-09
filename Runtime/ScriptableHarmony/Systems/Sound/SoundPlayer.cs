@@ -28,7 +28,7 @@ namespace NuiN.ScriptableHarmony.Sound
 
         static void ResetSourcePool(Scene scene)
         {
-            sourcePool.Clear();
+            sourcePool?.Clear();
         }
         
         // ReSharper disable Unity.PerformanceAnalysis 
