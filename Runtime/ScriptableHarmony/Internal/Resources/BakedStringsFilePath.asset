@@ -15,7 +15,7 @@ MonoBehaviour:
   description: 
   value: 
   defaultValue: 
-  resetOn: 0
+  runtimeOptions: 0
   logActions: 1
   gettersAndSetters:
     Getters: []
