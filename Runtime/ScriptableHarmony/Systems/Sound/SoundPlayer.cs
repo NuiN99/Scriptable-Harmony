@@ -2,6 +2,7 @@ using System;
 using NuiN.NExtensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace NuiN.ScriptableHarmony.Sound
 {
@@ -9,13 +10,25 @@ namespace NuiN.ScriptableHarmony.Sound
     {
         static UnityEngine.Pool.ObjectPool<AudioSource> sourcePool;
         static Transform pooledSourcesContainer;
+        static AudioSource prefab;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void NullVariables()
+        static void Initialize()
         {
             sourcePool?.Dispose();
             sourcePool = null;
             pooledSourcesContainer = null;
+
+            prefab = new GameObject("AudioSource | Prefab").AddComponent<AudioSource>();
+            Object.DontDestroyOnLoad(prefab);
+            
+            SceneManager.sceneUnloaded -= ResetSourcePool;
+            SceneManager.sceneUnloaded += ResetSourcePool;
+        }
+
+        static void ResetSourcePool(Scene scene)
+        {
+            sourcePool.Clear();
         }
         
         // ReSharper disable Unity.PerformanceAnalysis 
@@ -23,12 +36,11 @@ namespace NuiN.ScriptableHarmony.Sound
         {
             if (sourcePool == null)
             {
-                pooledSourcesContainer ??= new GameObject("AudioSource | ObjectPool").transform;
+                if(pooledSourcesContainer == null) pooledSourcesContainer = new GameObject("AudioSource | ObjectPool").transform;
                 sourcePool = new UnityEngine.Pool.ObjectPool<AudioSource>(
                     createFunc: () =>
                     {
-                        AudioSource source = new GameObject().AddComponent<AudioSource>();
-                        source.transform.SetParent(pooledSourcesContainer);
+                        AudioSource source = Object.Instantiate(prefab, pooledSourcesContainer);
                         source.name = "AudioSource_Pooled";
                         return source;
                     },
