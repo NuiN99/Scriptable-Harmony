@@ -51,6 +51,12 @@ namespace NuiN.ScriptableHarmony.Sound
             :Random.Range(MinPitch, MaxPitch);
         public AudioClip Clip => Clips[Random.Range(0, Clips.Count)];
 
+        public void PlayDefault()
+        {
+            if(!ClipsAreValid()) return;
+            SoundPlayer.Play(this, 1, 1);
+        }
+
         public AudioSource Play(float volumeMult = 1f, float pitchMult = 1f)
         {
             return !ClipsAreValid() ? new AudioSource() : SoundPlayer.Play(this, volumeMult, pitchMult);
