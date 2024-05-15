@@ -48,8 +48,13 @@ public class CommandConsole : MonoBehaviour
 
     void Awake()
     {
-        _registeredCommands = new Dictionary<string, MethodInfo>();
+        RegisterCommandAttributeMethods();
+    }
 
+    void RegisterCommandAttributeMethods()
+    {
+        _registeredCommands = new Dictionary<string, MethodInfo>();
+        
         List<Assembly> loadedAssemblies = commandAssemblyNames.Select(Assembly.Load).ToList();
         
         foreach (var assembly in loadedAssemblies)
@@ -76,11 +81,14 @@ public class CommandConsole : MonoBehaviour
 
     void InvokeCommand(string fullCommand)
     {
+        // reselect the input field and move the caret to the end for good UX
         textInput.ActivateInputField();
         textInput.caretPosition = fullCommand.Length;
         
+        // no input was detected
         if (fullCommand.Trim().Length <= 0) return;
         
+        // the first space after the method name indicates that parameters have been entered
         string[] commandParts = fullCommand.Split(new[] { ' ' }, 2);
         string commandName = commandParts[0];
         
@@ -98,9 +106,11 @@ public class CommandConsole : MonoBehaviour
 
         List<object> parameters = new();
         
+        // if there is no second section of the full command string, there are no parameters
         bool hasParameters = commandParts.Length > 1;
         if(hasParameters)
         {
+            // separate the parameters into their own strings and remove any spaces
             string[] stringParameters = commandParts[1].Split(" ").Where(str => !string.IsNullOrEmpty(str)).ToArray();
             
             if (!HasValidParameterCount(stringParameters.Length, minParamCount, maxParamCount))
@@ -112,7 +122,7 @@ public class CommandConsole : MonoBehaviour
             {
                 ParameterInfo parameterInfo = parameterInfos[i];
 
-                // the optional parameter was not enterered
+                // the optional parameter was not enterered so set it to the default
                 if (i >= stringParameters.Length)
                 {
                     parameters.Add(parameterInfo.DefaultValue);
@@ -120,14 +130,8 @@ public class CommandConsole : MonoBehaviour
                 }
                 
                 string stringParam = stringParameters[i];
-
-                if (i >= maxParamCount && string.IsNullOrEmpty(stringParam))
-                {
-                    parameters.Add(parameterInfo.DefaultValue);
-                    continue;
-                }
-
                 object param = ParseParameter(stringParam, parameterInfo.ParameterType);
+                
                 if (param == null)
                 {
                     Debug.LogError("Invalid Parameter");
@@ -143,6 +147,7 @@ public class CommandConsole : MonoBehaviour
             return;
         }
         
+        // if no parameters were entered, attempt to add any default values to the params
         if (!hasParameters || parameters.Count <= 0)
         {
             optionalParams.ForEach(param => parameters.Add(param.DefaultValue));
@@ -150,13 +155,13 @@ public class CommandConsole : MonoBehaviour
 
         object[] paramsArray = parameters.ToArray();
         
-        
         if (method.IsStatic)
         {
             method.Invoke(null, paramsArray);
         }
         else
         {
+            // find and invoke all instances of the method's class in the scene
             Object[] classInstances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None);
             foreach (var instance in classInstances)
             {
@@ -203,7 +208,7 @@ public class CommandConsole : MonoBehaviour
     }
 
     [Command("test")]
-    void TestCommand(int num1, float num2 )
+    void TestCommand(int num1 = 4, float num2 = 1f)
     {
         Debug.Log(num1 + num2); 
     }
