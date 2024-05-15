@@ -79,34 +79,50 @@ public class CommandConsole : MonoBehaviour
         if (fullCommand.Trim().Length <= 0) return;
         
         string[] commandParts = fullCommand.Split(new[] { ' ' }, 2);
-        string command = commandParts[0];
+        string commandName = commandParts[0];
         
-        if (!_registeredCommands.TryGetValue(command, out MethodInfo method))
+        if (!_registeredCommands.TryGetValue(commandName, out MethodInfo method))
         {
             Debug.Log("Command not found...");
             return;
         }
         
-        object[] parameters = {};
         ParameterInfo[] parameterInfos = method.GetParameters();
+        
+        List<ParameterInfo> optionalParams = parameterInfos.Where(param => param.IsOptional).ToList();
+        int minParamCount = parameterInfos.Length - optionalParams.Count;
+        int maxParamCount = parameterInfos.Length;
 
+        List<object> parameters = new();
+        
         bool hasParameters = commandParts.Length > 1;
-        if (hasParameters)
+        if(hasParameters)
         {
-            string[] stringParameters = commandParts[1].Split(" ");
-            parameters = new object[stringParameters.Length];
-
+            string[] stringParameters = commandParts[1].Split(" ").Where(str => !string.IsNullOrEmpty(str)).ToArray();
             
-            if (parameterInfos.Length != parameters.Length)
+            if (!HasValidParameterCount(stringParameters.Length, minParamCount, maxParamCount))
             {
-                Debug.LogError("Incorrect parameter count");
                 return;
             }
-            
+
             for (int i = 0; i < parameterInfos.Length; i++)
             {
                 ParameterInfo parameterInfo = parameterInfos[i];
+
+                // the optional parameter was not enterered
+                if (i >= stringParameters.Length)
+                {
+                    parameters.Add(parameterInfo.DefaultValue);
+                    continue;
+                }
+                
                 string stringParam = stringParameters[i];
+
+                if (i >= maxParamCount && string.IsNullOrEmpty(stringParam))
+                {
+                    parameters.Add(parameterInfo.DefaultValue);
+                    continue;
+                }
 
                 object param = ParseParameter(stringParam, parameterInfo.ParameterType);
                 if (param == null)
@@ -115,29 +131,36 @@ public class CommandConsole : MonoBehaviour
                     return;
                 }
                 
-                parameters[i] = param;
+                parameters.Add(param);
             }
         }
         
-        if (parameterInfos.Length != parameters.Length)
+        if (!HasValidParameterCount(parameters.Count, minParamCount, maxParamCount))
         {
-            Debug.LogError("Incorrect parameter count");
             return;
+        }
+        
+        if (!hasParameters || parameters.Count <= 0)
+        {
+            optionalParams.ForEach(param => parameters.Add(param.DefaultValue));
         }
         
         textInput.ActivateInputField();
         textInput.caretPosition = fullCommand.Length;
+
+        object[] paramsArray = parameters.ToArray();
+        
         
         if (method.IsStatic)
         {
-            method.Invoke(null, parameters);
+            method.Invoke(null, paramsArray);
         }
         else
         {
             Object[] classInstances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None);
             foreach (var instance in classInstances)
             {
-                method.Invoke(instance, parameters);
+                method.Invoke(instance, paramsArray);
             }
         }
         
@@ -163,8 +186,24 @@ public class CommandConsole : MonoBehaviour
         return value;
     }
 
+    bool HasValidParameterCount(int inputCount, int minCount, int maxCount)
+    {
+        if (inputCount < minCount)
+        {
+            Debug.LogError("Not enough parameters!");
+            return false;
+        }
+        if (inputCount > maxCount)
+        {
+            Debug.LogError("Too many parameters!");
+            return false;
+        }
+
+        return true;
+    }
+
     [Command("test")]
-    static void TestCommand(int num1, float num2 = 1)
+    static void TestCommand(int num1, float num2 )
     {
         Debug.Log(num1 + num2); 
     }
