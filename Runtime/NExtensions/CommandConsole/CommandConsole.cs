@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using NuiN.NExtensions;
 using TMPro;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,12 +19,8 @@ public class CommandConsole : MonoBehaviour
 
     [SerializeField] Vector2 minScale = new(200, 125);
     [SerializeField] Vector2 maxScale = new(1920, 1080);
-
-    #if UNITY_EDITOR
-    [SerializeField] AssemblyDefinitionAsset[] commandAssemblies;
-    #endif
     
-    [SerializeField, ReadOnly] List<string> commandAssemblyNames = new();
+    [SerializeField, ReadOnly] List<string> commandAssemblies = new();
 
     Dictionary<string, MethodInfo> _registeredCommands = new();
 
@@ -34,16 +31,16 @@ public class CommandConsole : MonoBehaviour
 #if UNITY_EDITOR
     void OnValidate()
     {
-        if (commandAssemblyNames == null) return;
-        commandAssemblyNames.Clear();
+        if (commandAssemblies == null) return;
+        commandAssemblies.Clear();
+        commandAssemblies.Add("Assembly-CSharp");
         
-        foreach (AssemblyDefinitionAsset assemblyAsset in commandAssemblies.Reverse())
+        string[] guids = AssetDatabase.FindAssets("t:asmdef", new[] { "Assets" });
+        foreach (string guid in guids)
         {
-            if (assemblyAsset == null)
-            {
-                continue;
-            }
-            commandAssemblyNames.Add(assemblyAsset.name);
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            string assetName = System.IO.Path.GetFileNameWithoutExtension(path);
+            commandAssemblies.Add(assetName);
         }
     }
 #endif
@@ -57,7 +54,7 @@ public class CommandConsole : MonoBehaviour
     {
         _registeredCommands = new Dictionary<string, MethodInfo>();
         
-        List<Assembly> loadedAssemblies = commandAssemblyNames.Select(Assembly.Load).ToList();
+        List<Assembly> loadedAssemblies = commandAssemblies.Select(Assembly.Load).ToList();
         
         foreach (var assembly in loadedAssemblies)
         {
@@ -169,6 +166,7 @@ public class CommandConsole : MonoBehaviour
                 }
                 
                 string stringParam = stringParameters[i];
+                
                 object param = ParseParameter(stringParam, parameterInfo.ParameterType);
                 
                 if (param == null)
@@ -202,6 +200,10 @@ public class CommandConsole : MonoBehaviour
         {
             // find and invoke all instances of the method's class in the scene
             Object[] classInstances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None);
+            if (classInstances.Length <= 0)
+            {
+                Debug.LogError("No instances found to run the command");
+            }
             foreach (var instance in classInstances)
             {
                 method.Invoke(instance, paramsArray);
@@ -225,6 +227,10 @@ public class CommandConsole : MonoBehaviour
         else if (paramType == typeof(bool) && bool.TryParse(param, out bool boolValue))
         {
             value = boolValue;
+        }
+        else if (paramType == typeof(string))
+        {
+            value = param;
         }
 
         return value;
