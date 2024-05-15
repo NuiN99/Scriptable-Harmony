@@ -1,4 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
+
+#if RIDER
+[MeansImplicitUse(ImplicitUseKindFlags.Assign)]
+#endif
 
 [AttributeUsage(AttributeTargets.Method)]
 public class CommandAttribute : Attribute

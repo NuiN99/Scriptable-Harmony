@@ -1,49 +1,41 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NuiN.NExtensions;
 using TMPro;
+using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using Object = UnityEngine.Object;
 
 public class CommandConsole : MonoBehaviour
 {
     [SerializeField] TMP_InputField textInput;
+    
+    #if UNITY_EDITOR
+    [SerializeField] AssemblyDefinitionAsset[] commandAssemblies;
+    #endif
+    
+    [SerializeField, ReadOnly] List<string> commandAssemblyNames = new();
 
-    static Dictionary<string, MethodInfo> registeredCommands = new();
-
-    static bool registrationComplete;
-
-    [RuntimeInitializeOnLoadMethod]
-    static void RegisterCommands()
+    Dictionary<string, MethodInfo> _registeredCommands = new();
+    
+#if UNITY_EDITOR
+    void OnValidate()
     {
-        registeredCommands = new Dictionary<string, MethodInfo>();
-        registrationComplete = false;
+        if (commandAssemblyNames == null) return;
+        commandAssemblyNames.Clear();
         
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        foreach (AssemblyDefinitionAsset assemblyAsset in commandAssemblies.Reverse())
         {
-            foreach (var type in assembly.GetTypes())
+            if (assemblyAsset == null)
             {
-                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                {
-                    var commandAttributes = method.GetCustomAttributes(typeof(CommandAttribute), true);
-                    foreach (CommandAttribute attribute in commandAttributes)
-                    {
-                        if (method.IsStatic || typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType))
-                        {
-                            if (!registeredCommands.TryAdd(attribute.command, method))
-                            {
-                                Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
-                            }
-                        }
-                    }
-                }
+                continue;
             }
+            commandAssemblyNames.Add(assemblyAsset.name);
         }
-
-        registrationComplete = true;
     }
+#endif
 
     void OnEnable()
     {
@@ -54,65 +46,126 @@ public class CommandConsole : MonoBehaviour
         textInput.onSubmit.RemoveListener(InvokeCommand);
     }
 
-    void InvokeCommand(string command)
+    void Awake()
     {
+        _registeredCommands = new Dictionary<string, MethodInfo>();
+
+        List<Assembly> loadedAssemblies = commandAssemblyNames.Select(Assembly.Load).ToList();
+        
+        foreach (var assembly in loadedAssemblies)
+        {
+            foreach (var type in assembly.GetTypes().Where(type => typeof(MonoBehaviour).IsAssignableFrom(type)))
+            {
+                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
+                {
+                    var commandAttributes = method.GetCustomAttributes(typeof(CommandAttribute), true);
+                    foreach (CommandAttribute attribute in commandAttributes)
+                    {
+                        if (method.IsStatic || typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType))
+                        {
+                            if (!_registeredCommands.TryAdd(attribute.command, method))
+                            {
+                                Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void InvokeCommand(string fullCommand)
+    {
+        if (fullCommand.Trim().Length <= 0) return;
+        
+        string[] commandParts = fullCommand.Split(new[] { ' ' }, 2);
+        string command = commandParts[0];
+        
+        if (!_registeredCommands.TryGetValue(command, out MethodInfo method))
+        {
+            Debug.Log("Command not found...");
+            return;
+        }
+        
+        object[] parameters = {};
+        ParameterInfo[] parameterInfos = method.GetParameters();
+
+        bool hasParameters = commandParts.Length > 1;
+        if (hasParameters)
+        {
+            string[] stringParameters = commandParts[1].Split(" ");
+            parameters = new object[stringParameters.Length];
+
+            
+            if (parameterInfos.Length != parameters.Length)
+            {
+                Debug.LogError("Incorrect parameter count");
+                return;
+            }
+            
+            for (int i = 0; i < parameterInfos.Length; i++)
+            {
+                ParameterInfo parameterInfo = parameterInfos[i];
+                string stringParam = stringParameters[i];
+
+                object param = ParseParameter(stringParam, parameterInfo.ParameterType);
+                if (param == null)
+                {
+                    Debug.LogError("Invalid Parameter");
+                    return;
+                }
+                
+                parameters[i] = param;
+            }
+        }
+        
+        if (parameterInfos.Length != parameters.Length)
+        {
+            Debug.LogError("Incorrect parameter count");
+            return;
+        }
+        
         textInput.ActivateInputField();
-        textInput.caretPosition = command.Length;
-
-        if (!registrationComplete)
-        {
-            Debug.LogError("Command registration still in progress, please try again later");
-            return;
-        }
-
-        if (!registeredCommands.TryGetValue(command, out MethodInfo method))
-        {
-            Debug.Log("Command not found");
-            return;
-        }
-
+        textInput.caretPosition = fullCommand.Length;
+        
         if (method.IsStatic)
         {
-            method.Invoke(null, null);
+            method.Invoke(null, parameters);
         }
         else
         {
             Object[] classInstances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None);
             foreach (var instance in classInstances)
             {
-                method.Invoke(instance, null);
+                method.Invoke(instance, parameters);
             }
         }
         
         textInput.SetTextWithoutNotify(string.Empty);
     }
 
-    static MethodInfo GetCommandMethod(string command)
+    object ParseParameter(string param, Type paramType)
     {
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        object value = null;
+        if (paramType == typeof(int) && int.TryParse(param, out int intValue))
         {
-            foreach (var type in assembly.GetTypes())
-            {
-                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                {
-                    var commandAttributes = method.GetCustomAttributes(typeof(CommandAttribute), true);
-                    foreach (CommandAttribute attribute in commandAttributes)
-                    {
-                        if (attribute.command.Equals(command) && (method.IsStatic || typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType)))
-                        {
-                            return method;
-                        }
-                    }
-                }
-            }
+            value = intValue;
         }
-        
-        return null;
+        else if (paramType == typeof(float) && float.TryParse(param, out float floatValue))
+        {
+            value = floatValue;
+        }
+        else if (paramType == typeof(bool) && bool.TryParse(param, out bool boolValue))
+        {
+            value = boolValue;
+        }
+
+        return value;
     }
 
-    [Command("test.command")]
-    void TestCommand()
+    [Command("test")]
+    static void TestCommand(int num1, float num2 = 1)
     {
-        Debug.Log("Test Command Success!"); 
+        Debug.Log(num1 + num2); 
     }
 }
