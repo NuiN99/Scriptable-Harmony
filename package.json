@@ -10,5 +10,8 @@
         "name": "NuiN",
         "email": "endyverse@gmail.com",
         "url": ""
+    },
+    "dependencies": {
+        "com.unity.textmeshpro" : "3.0.8"
     }
 }
