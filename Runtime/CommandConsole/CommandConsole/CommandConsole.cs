@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using NuiN.NExtensions;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace NuiN.CommandConsole
@@ -33,15 +35,30 @@ namespace NuiN.CommandConsole
         {
             if (commandAssemblies == null) return;
             commandAssemblies.Clear();
-            commandAssemblies.Add("Assembly-CSharp");
+            
+            // Assembly-CSharp doesn't exist when no scripts are using it
+            const string assemblyCSharpPath = "Library/ScriptAssemblies/Assembly-CSharp.dll";
+            if (File.Exists(assemblyCSharpPath))
+            {
+                commandAssemblies.Add("Assembly-CSharp");
+            }
             
             string[] guids = AssetDatabase.FindAssets("t:asmdef", new[] { "Assets" });
             foreach (string guid in guids)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                string assetName = System.IO.Path.GetFileNameWithoutExtension(path);
+                
+                // editor assemblies don't exist in the build and throw errors
+                if (path.Contains("/Editor/"))
+                {
+                    continue;
+                }
+                
+                string assetName = Path.GetFileNameWithoutExtension(path);
                 commandAssemblies.Add(assetName);
             }
+            
+            EditorUtility.SetDirty(this);
         }
     #endif
 
@@ -53,7 +70,7 @@ namespace NuiN.CommandConsole
         void RegisterCommandAttributeMethods()
         {
             _registeredCommands = new Dictionary<string, MethodInfo>();
-            
+
             List<Assembly> loadedAssemblies = commandAssemblies.Select(Assembly.Load).ToList();
             
             foreach (var assembly in loadedAssemblies)
@@ -252,10 +269,22 @@ namespace NuiN.CommandConsole
             return true;
         }
 
-        [Command("test")]
-        void TestCommand(int num1 = 4, float num2 = 1f)
+        [Command("add")]
+        void TestCommand(int num1, float num2 = 4)
         {
-            Debug.Log(num1 + num2); 
+            Debug.LogError(num1 + num2); 
+        }
+
+        [Command("scene.load")]
+        void LoadScene(int index)
+        {
+            SceneManager.LoadScene(index);
+        }
+        
+        [Command("scene.reload")]
+        void ReloadScene()
+        {
+            GeneralUtils.ReloadScene();
         }
     }
 }
