@@ -1,17 +1,19 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-#if RIDER
-[MeansImplicitUse(ImplicitUseKindFlags.Assign)]
-#endif
-
-[AttributeUsage(AttributeTargets.Method)]
-public class CommandAttribute : Attribute
+namespace NuiN.CommandConsole
 {
-    public readonly string command;
-    
-    public CommandAttribute(string command)
+#if RIDER
+    [MeansImplicitUse(ImplicitUseKindFlags.Assign)]
+#endif
+    [AttributeUsage(AttributeTargets.Method)]
+    public class CommandAttribute : Attribute
     {
-        this.command = command;
+        public readonly string command;
+    
+        public CommandAttribute(string command)
+        {
+            this.command = command;
+        }
     }
 }

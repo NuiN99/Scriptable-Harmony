@@ -5,256 +5,257 @@ using System.Reflection;
 using NuiN.NExtensions;
 using TMPro;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-public class CommandConsole : MonoBehaviour
+namespace NuiN.CommandConsole
 {
-    [SerializeField] RectTransform panelRoot;
-    [SerializeField] TMP_InputField textInput;
-    [SerializeField] PointerButton scaleButton;
-    [SerializeField] PointerButton moveButton;
-
-    [SerializeField] Vector2 minScale = new(200, 125);
-    [SerializeField] Vector2 maxScale = new(1920, 1080);
-    
-    [SerializeField, ReadOnly] List<string> commandAssemblies = new();
-
-    Dictionary<string, MethodInfo> _registeredCommands = new();
-
-    Vector2 _initialMovePos;
-    Vector2 _initialScalePos;
-    Vector2 _initialScale;
-    
-#if UNITY_EDITOR
-    void OnValidate()
+    public class CommandConsole : MonoBehaviour
     {
-        if (commandAssemblies == null) return;
-        commandAssemblies.Clear();
-        commandAssemblies.Add("Assembly-CSharp");
-        
-        string[] guids = AssetDatabase.FindAssets("t:asmdef", new[] { "Assets" });
-        foreach (string guid in guids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            string assetName = System.IO.Path.GetFileNameWithoutExtension(path);
-            commandAssemblies.Add(assetName);
-        }
-    }
-#endif
+        [SerializeField] RectTransform panelRoot;
+        [SerializeField] TMP_InputField textInput;
+        [SerializeField] PointerButton scaleButton;
+        [SerializeField] PointerButton moveButton;
 
-    void Awake() => RegisterCommandAttributeMethods();
-    void OnEnable() => textInput.onSubmit.AddListener(InvokeCommand);
-    void OnDisable() => textInput.onSubmit.RemoveListener(InvokeCommand);
-    void Update() => MoveAndScalePanel();
+        [SerializeField] Vector2 minScale = new(200, 125);
+        [SerializeField] Vector2 maxScale = new(1920, 1080);
+        
+        [SerializeField, ReadOnly] List<string> commandAssemblies = new();
 
-    void RegisterCommandAttributeMethods()
-    {
-        _registeredCommands = new Dictionary<string, MethodInfo>();
+        Dictionary<string, MethodInfo> _registeredCommands = new();
+
+        Vector2 _initialMovePos;
+        Vector2 _initialScalePos;
+        Vector2 _initialScale;
         
-        List<Assembly> loadedAssemblies = commandAssemblies.Select(Assembly.Load).ToList();
-        
-        foreach (var assembly in loadedAssemblies)
+    #if UNITY_EDITOR
+        void OnValidate()
         {
-            foreach (var type in assembly.GetTypes().Where(type => typeof(MonoBehaviour).IsAssignableFrom(type)))
+            if (commandAssemblies == null) return;
+            commandAssemblies.Clear();
+            commandAssemblies.Add("Assembly-CSharp");
+            
+            string[] guids = AssetDatabase.FindAssets("t:asmdef", new[] { "Assets" });
+            foreach (string guid in guids)
             {
-                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                string assetName = System.IO.Path.GetFileNameWithoutExtension(path);
+                commandAssemblies.Add(assetName);
+            }
+        }
+    #endif
+
+        void Awake() => RegisterCommandAttributeMethods();
+        void OnEnable() => textInput.onSubmit.AddListener(InvokeCommand);
+        void OnDisable() => textInput.onSubmit.RemoveListener(InvokeCommand);
+        void Update() => MoveAndScalePanel();
+
+        void RegisterCommandAttributeMethods()
+        {
+            _registeredCommands = new Dictionary<string, MethodInfo>();
+            
+            List<Assembly> loadedAssemblies = commandAssemblies.Select(Assembly.Load).ToList();
+            
+            foreach (var assembly in loadedAssemblies)
+            {
+                foreach (var type in assembly.GetTypes().Where(type => typeof(MonoBehaviour).IsAssignableFrom(type)))
                 {
-                    var commandAttributes = method.GetCustomAttributes(typeof(CommandAttribute), true);
-                    foreach (CommandAttribute attribute in commandAttributes)
+                    foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
                     {
-                        if (!method.IsStatic && !typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType)) continue;
-                        
-                        if (!_registeredCommands.TryAdd(attribute.command, method))
+                        var commandAttributes = method.GetCustomAttributes(typeof(CommandAttribute), true);
+                        foreach (CommandAttribute attribute in commandAttributes)
                         {
-                            Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
+                            if (!method.IsStatic && !typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType)) continue;
+                            
+                            if (!_registeredCommands.TryAdd(attribute.command, method))
+                            {
+                                Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
-    void MoveAndScalePanel()
-    {
-        if (scaleButton.Pressed)
+        void MoveAndScalePanel()
         {
-            if (_initialScalePos == Vector2.zero) _initialScalePos = panelRoot.position;
-            if (_initialScale != Vector2.zero)  _initialScale = panelRoot.sizeDelta;
+            if (scaleButton.Pressed)
+            {
+                if (_initialScalePos == Vector2.zero) _initialScalePos = panelRoot.position;
+                if (_initialScale != Vector2.zero)  _initialScale = panelRoot.sizeDelta;
 
-            Vector2 newScale =  (_initialScale + ((Vector2)Input.mousePosition - _initialScalePos)) - scaleButton.PressOffset;
-            newScale.x = Mathf.Clamp(newScale.x, minScale.x, maxScale.x);
-            newScale.y = Mathf.Clamp(newScale.y, minScale.y, maxScale.y);
+                Vector2 newScale =  (_initialScale + ((Vector2)Input.mousePosition - _initialScalePos)) - scaleButton.PressOffset;
+                newScale.x = Mathf.Clamp(newScale.x, minScale.x, maxScale.x);
+                newScale.y = Mathf.Clamp(newScale.y, minScale.y, maxScale.y);
+                
+                panelRoot.sizeDelta = newScale;
+            }
+            else
+            {
+                _initialScale = Vector2.zero;
+                _initialScalePos = Vector2.zero;
+            }
+
+            if (moveButton.Pressed)
+            {
+                if (_initialMovePos == Vector2.zero) _initialMovePos = Input.mousePosition - panelRoot.position;
+
+                float maxX = Screen.width - panelRoot.sizeDelta.x;
+                float maxY = Screen.height - panelRoot.sizeDelta.y;
+                
+                Vector2 newPosition = (Vector2)Input.mousePosition - _initialMovePos;
+                newPosition.x = Mathf.Clamp(newPosition.x, 0, maxX);
+                newPosition.y = Mathf.Clamp(newPosition.y, 0, maxY);
+
+                panelRoot.position = newPosition;
+            }
+            else
+            {
+                _initialMovePos = Vector2.zero;
+            }
+        }
+
+        void InvokeCommand(string fullCommand)
+        {
+            // reselect the input field and move the caret to the end for good UX
+            textInput.ActivateInputField();
+            textInput.caretPosition = fullCommand.Length;
             
-            panelRoot.sizeDelta = newScale;
-        }
-        else
-        {
-            _initialScale = Vector2.zero;
-            _initialScalePos = Vector2.zero;
-        }
-
-        if (moveButton.Pressed)
-        {
-            if (_initialMovePos == Vector2.zero) _initialMovePos = Input.mousePosition - panelRoot.position;
-
-            float maxX = Screen.width - panelRoot.sizeDelta.x;
-            float maxY = Screen.height - panelRoot.sizeDelta.y;
+            // no input was detected
+            if (fullCommand.Trim().Length <= 0) return;
             
-            Vector2 newPosition = (Vector2)Input.mousePosition - _initialMovePos;
-            newPosition.x = Mathf.Clamp(newPosition.x, 0, maxX);
-            newPosition.y = Mathf.Clamp(newPosition.y, 0, maxY);
-
-            panelRoot.position = newPosition;
-        }
-        else
-        {
-            _initialMovePos = Vector2.zero;
-        }
-    }
-
-    void InvokeCommand(string fullCommand)
-    {
-        // reselect the input field and move the caret to the end for good UX
-        textInput.ActivateInputField();
-        textInput.caretPosition = fullCommand.Length;
-        
-        // no input was detected
-        if (fullCommand.Trim().Length <= 0) return;
-        
-        // the first space after the method name indicates that parameters have been entered
-        string[] commandParts = fullCommand.Split(new[] { ' ' }, 2);
-        string commandName = commandParts[0];
-        
-        if (!_registeredCommands.TryGetValue(commandName, out MethodInfo method))
-        {
-            Debug.Log("Command not found...");
-            return;
-        }
-        
-        ParameterInfo[] parameterInfos = method.GetParameters();
-        
-        List<ParameterInfo> optionalParams = parameterInfos.Where(param => param.IsOptional).ToList();
-        int minParamCount = parameterInfos.Length - optionalParams.Count;
-        int maxParamCount = parameterInfos.Length;
-
-        List<object> parameters = new();
-        
-        // if there is no second section of the full command string, there are no parameters
-        bool hasParameters = commandParts.Length > 1;
-        if(hasParameters)
-        {
-            // separate the parameters into their own strings and remove any spaces
-            string[] stringParameters = commandParts[1].Split(" ").Where(str => !string.IsNullOrEmpty(str)).ToArray();
+            // the first space after the method name indicates that parameters have been entered
+            string[] commandParts = fullCommand.Split(new[] { ' ' }, 2);
+            string commandName = commandParts[0];
             
-            if (!HasValidParameterCount(stringParameters.Length, minParamCount, maxParamCount))
+            if (!_registeredCommands.TryGetValue(commandName, out MethodInfo method))
+            {
+                Debug.Log("Command not found...");
+                return;
+            }
+            
+            ParameterInfo[] parameterInfos = method.GetParameters();
+            
+            List<ParameterInfo> optionalParams = parameterInfos.Where(param => param.IsOptional).ToList();
+            int minParamCount = parameterInfos.Length - optionalParams.Count;
+            int maxParamCount = parameterInfos.Length;
+
+            List<object> parameters = new();
+            
+            // if there is no second section of the full command string, there are no parameters
+            bool hasParameters = commandParts.Length > 1;
+            if(hasParameters)
+            {
+                // separate the parameters into their own strings and remove any spaces
+                string[] stringParameters = commandParts[1].Split(" ").Where(str => !string.IsNullOrEmpty(str)).ToArray();
+                
+                if (!HasValidParameterCount(stringParameters.Length, minParamCount, maxParamCount))
+                {
+                    return;
+                }
+
+                for (int i = 0; i < parameterInfos.Length; i++)
+                {
+                    ParameterInfo parameterInfo = parameterInfos[i];
+
+                    // the optional parameter was not enterered so set it to the default
+                    if (i >= stringParameters.Length)
+                    {
+                        parameters.Add(parameterInfo.DefaultValue);
+                        continue;
+                    }
+                    
+                    string stringParam = stringParameters[i];
+                    
+                    object param = ParseParameter(stringParam, parameterInfo.ParameterType);
+                    
+                    if (param == null)
+                    {
+                        Debug.LogError("Invalid Parameter");
+                        return;
+                    }
+                    
+                    parameters.Add(param);
+                }
+            }
+            
+            if (!HasValidParameterCount(parameters.Count, minParamCount, maxParamCount))
             {
                 return;
             }
-
-            for (int i = 0; i < parameterInfos.Length; i++)
+            
+            // if no parameters were entered, attempt to add any default values to the params
+            if (!hasParameters || parameters.Count <= 0)
             {
-                ParameterInfo parameterInfo = parameterInfos[i];
+                optionalParams.ForEach(param => parameters.Add(param.DefaultValue));
+            }
 
-                // the optional parameter was not enterered so set it to the default
-                if (i >= stringParameters.Length)
+            object[] paramsArray = parameters.ToArray();
+            
+            if (method.IsStatic)
+            {
+                method.Invoke(null, paramsArray);
+            }
+            else
+            {
+                // find and invoke all instances of the method's class in the scene
+                Object[] classInstances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None);
+                if (classInstances.Length <= 0)
                 {
-                    parameters.Add(parameterInfo.DefaultValue);
-                    continue;
+                    Debug.LogError("No instances found to run the command");
                 }
-                
-                string stringParam = stringParameters[i];
-                
-                object param = ParseParameter(stringParam, parameterInfo.ParameterType);
-                
-                if (param == null)
+                foreach (var instance in classInstances)
                 {
-                    Debug.LogError("Invalid Parameter");
-                    return;
+                    method.Invoke(instance, paramsArray);
                 }
-                
-                parameters.Add(param);
             }
-        }
-        
-        if (!HasValidParameterCount(parameters.Count, minParamCount, maxParamCount))
-        {
-            return;
-        }
-        
-        // if no parameters were entered, attempt to add any default values to the params
-        if (!hasParameters || parameters.Count <= 0)
-        {
-            optionalParams.ForEach(param => parameters.Add(param.DefaultValue));
+            
+            textInput.SetTextWithoutNotify(string.Empty);
         }
 
-        object[] paramsArray = parameters.ToArray();
-        
-        if (method.IsStatic)
+        object ParseParameter(string param, Type paramType)
         {
-            method.Invoke(null, paramsArray);
-        }
-        else
-        {
-            // find and invoke all instances of the method's class in the scene
-            Object[] classInstances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None);
-            if (classInstances.Length <= 0)
+            object value = null;
+            if (paramType == typeof(int) && int.TryParse(param, out int intValue))
             {
-                Debug.LogError("No instances found to run the command");
+                value = intValue;
             }
-            foreach (var instance in classInstances)
+            else if (paramType == typeof(float) && float.TryParse(param, out float floatValue))
             {
-                method.Invoke(instance, paramsArray);
+                value = floatValue;
             }
-        }
-        
-        textInput.SetTextWithoutNotify(string.Empty);
-    }
+            else if (paramType == typeof(bool) && bool.TryParse(param, out bool boolValue))
+            {
+                value = boolValue;
+            }
+            else if (paramType == typeof(string))
+            {
+                value = param;
+            }
 
-    object ParseParameter(string param, Type paramType)
-    {
-        object value = null;
-        if (paramType == typeof(int) && int.TryParse(param, out int intValue))
-        {
-            value = intValue;
-        }
-        else if (paramType == typeof(float) && float.TryParse(param, out float floatValue))
-        {
-            value = floatValue;
-        }
-        else if (paramType == typeof(bool) && bool.TryParse(param, out bool boolValue))
-        {
-            value = boolValue;
-        }
-        else if (paramType == typeof(string))
-        {
-            value = param;
+            return value;
         }
 
-        return value;
-    }
-
-    bool HasValidParameterCount(int inputCount, int minCount, int maxCount)
-    {
-        if (inputCount < minCount)
+        bool HasValidParameterCount(int inputCount, int minCount, int maxCount)
         {
-            Debug.LogError("Not enough parameters!");
-            return false;
+            if (inputCount < minCount)
+            {
+                Debug.LogError("Not enough parameters!");
+                return false;
+            }
+            if (inputCount > maxCount)
+            {
+                Debug.LogError("Too many parameters!");
+                return false;
+            }
+
+            return true;
         }
-        if (inputCount > maxCount)
+
+        [Command("test")]
+        void TestCommand(int num1 = 4, float num2 = 1f)
         {
-            Debug.LogError("Too many parameters!");
-            return false;
+            Debug.Log(num1 + num2); 
         }
-
-        return true;
-    }
-
-    [Command("test")]
-    void TestCommand(int num1 = 4, float num2 = 1f)
-    {
-        Debug.Log(num1 + num2); 
     }
 }
