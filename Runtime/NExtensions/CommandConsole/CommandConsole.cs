@@ -6,12 +6,19 @@ using NuiN.NExtensions;
 using TMPro;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 public class CommandConsole : MonoBehaviour
 {
+    [SerializeField] RectTransform panelRoot;
     [SerializeField] TMP_InputField textInput;
-    
+    [SerializeField] PointerButton scaleButton;
+    [SerializeField] PointerButton moveButton;
+
+    [SerializeField] Vector2 minScale = new(200, 125);
+    [SerializeField] Vector2 maxScale = new(1920, 1080);
+
     #if UNITY_EDITOR
     [SerializeField] AssemblyDefinitionAsset[] commandAssemblies;
     #endif
@@ -19,6 +26,10 @@ public class CommandConsole : MonoBehaviour
     [SerializeField, ReadOnly] List<string> commandAssemblyNames = new();
 
     Dictionary<string, MethodInfo> _registeredCommands = new();
+
+    Vector2 _initialMovePos;
+    Vector2 _initialScalePos;
+    Vector2 _initialScale;
     
 #if UNITY_EDITOR
     void OnValidate()
@@ -37,19 +48,10 @@ public class CommandConsole : MonoBehaviour
     }
 #endif
 
-    void OnEnable()
-    {
-        textInput.onSubmit.AddListener(InvokeCommand);
-    }
-    void OnDisable()
-    {
-        textInput.onSubmit.RemoveListener(InvokeCommand);
-    }
-
-    void Awake()
-    {
-        RegisterCommandAttributeMethods();
-    }
+    void Awake() => RegisterCommandAttributeMethods();
+    void OnEnable() => textInput.onSubmit.AddListener(InvokeCommand);
+    void OnDisable() => textInput.onSubmit.RemoveListener(InvokeCommand);
+    void Update() => MoveAndScalePanel();
 
     void RegisterCommandAttributeMethods()
     {
@@ -66,16 +68,53 @@ public class CommandConsole : MonoBehaviour
                     var commandAttributes = method.GetCustomAttributes(typeof(CommandAttribute), true);
                     foreach (CommandAttribute attribute in commandAttributes)
                     {
-                        if (method.IsStatic || typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType))
+                        if (!method.IsStatic && !typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType)) continue;
+                        
+                        if (!_registeredCommands.TryAdd(attribute.command, method))
                         {
-                            if (!_registeredCommands.TryAdd(attribute.command, method))
-                            {
-                                Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
-                            }
+                            Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
                         }
                     }
                 }
             }
+        }
+    }
+
+    void MoveAndScalePanel()
+    {
+        if (scaleButton.Pressed)
+        {
+            if (_initialScalePos == Vector2.zero) _initialScalePos = panelRoot.position;
+            if (_initialScale != Vector2.zero)  _initialScale = panelRoot.sizeDelta;
+
+            Vector2 newScale =  (_initialScale + ((Vector2)Input.mousePosition - _initialScalePos)) - scaleButton.PressOffset;
+            newScale.x = Mathf.Clamp(newScale.x, minScale.x, maxScale.x);
+            newScale.y = Mathf.Clamp(newScale.y, minScale.y, maxScale.y);
+            
+            panelRoot.sizeDelta = newScale;
+        }
+        else
+        {
+            _initialScale = Vector2.zero;
+            _initialScalePos = Vector2.zero;
+        }
+
+        if (moveButton.Pressed)
+        {
+            if (_initialMovePos == Vector2.zero) _initialMovePos = Input.mousePosition - panelRoot.position;
+
+            float maxX = Screen.width - panelRoot.sizeDelta.x;
+            float maxY = Screen.height - panelRoot.sizeDelta.y;
+            
+            Vector2 newPosition = (Vector2)Input.mousePosition - _initialMovePos;
+            newPosition.x = Mathf.Clamp(newPosition.x, 0, maxX);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0, maxY);
+
+            panelRoot.position = newPosition;
+        }
+        else
+        {
+            _initialMovePos = Vector2.zero;
         }
     }
 
