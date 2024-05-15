@@ -76,6 +76,9 @@ public class CommandConsole : MonoBehaviour
 
     void InvokeCommand(string fullCommand)
     {
+        textInput.ActivateInputField();
+        textInput.caretPosition = fullCommand.Length;
+        
         if (fullCommand.Trim().Length <= 0) return;
         
         string[] commandParts = fullCommand.Split(new[] { ' ' }, 2);
@@ -144,9 +147,6 @@ public class CommandConsole : MonoBehaviour
         {
             optionalParams.ForEach(param => parameters.Add(param.DefaultValue));
         }
-        
-        textInput.ActivateInputField();
-        textInput.caretPosition = fullCommand.Length;
 
         object[] paramsArray = parameters.ToArray();
         
@@ -203,7 +203,7 @@ public class CommandConsole : MonoBehaviour
     }
 
     [Command("test")]
-    static void TestCommand(int num1, float num2 )
+    void TestCommand(int num1, float num2 )
     {
         Debug.Log(num1 + num2); 
     }
