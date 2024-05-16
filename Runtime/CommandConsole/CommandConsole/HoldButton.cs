@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 
 namespace NuiN.CommandConsole
 {
-    public class PointerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
+    public class HoldButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     {
         public bool Pressed { get; private set; }
         public Vector2 PressOffset { get; private set; }

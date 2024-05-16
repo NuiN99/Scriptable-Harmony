@@ -1,81 +1,60 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using NuiN.NExtensions;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace NuiN.CommandConsole
 {
-    public class CommandConsole : MonoBehaviour
+    public class CommandConsolePresenter : MonoBehaviour
     {
-        [SerializeField] RectTransform panelRoot;
-        [SerializeField] TMP_InputField textInput;
-        [SerializeField] PointerButton scaleButton;
-        [SerializeField] PointerButton moveButton;
-
-        [SerializeField] Vector2 minScale = new(200, 125);
-        [SerializeField] Vector2 maxScale = new(1920, 1080);
+        [SerializeField] CommandConsoleModel model;
         
-        [SerializeField, ReadOnly] List<string> commandAssemblies = new();
-
-        Dictionary<string, MethodInfo> _registeredCommands = new();
-
-        Vector2 _initialMovePos;
-        Vector2 _initialScalePos;
-        Vector2 _initialScale;
-        
-    #if UNITY_EDITOR
-        void OnValidate()
+        [Conditional("UNITY_EDITOR")]
+        public void RegisterAssemblies()
         {
-            if (commandAssemblies == null) return;
-            commandAssemblies.Clear();
-            
+            List<string> registeredAssemblies = model.RegisteredAssemblies;
+            if (registeredAssemblies == null) return;
+            registeredAssemblies.Clear();
+                
             // Assembly-CSharp doesn't exist when no scripts are using it
             const string assemblyCSharpPath = "Library/ScriptAssemblies/Assembly-CSharp.dll";
             if (File.Exists(assemblyCSharpPath))
             {
-                commandAssemblies.Add("Assembly-CSharp");
+                registeredAssemblies.Add("Assembly-CSharp");
             }
-            
+                
             string[] guids = AssetDatabase.FindAssets("t:asmdef", new[] { "Assets" });
             foreach (string guid in guids)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                
+                    
                 // editor assemblies don't exist in the build and throw errors
                 if (path.Contains("/Editor/"))
                 {
                     continue;
                 }
-                
+                    
                 string assetName = Path.GetFileNameWithoutExtension(path);
-                commandAssemblies.Add(assetName);
+                registeredAssemblies.Add(assetName);
             }
-            
-            EditorUtility.SetDirty(this);
         }
-    #endif
-
-        void Awake() => RegisterCommandAttributeMethods();
-        void OnEnable() => textInput.onSubmit.AddListener(InvokeCommand);
-        void OnDisable() => textInput.onSubmit.RemoveListener(InvokeCommand);
-        void Update() => MoveAndScalePanel();
-
-        void RegisterCommandAttributeMethods()
+        
+        public void RegisterCommands()
         {
-            _registeredCommands = new Dictionary<string, MethodInfo>();
+            model.RegisteredCommands = new Dictionary<string, MethodInfo>();
 
-            List<Assembly> loadedAssemblies = commandAssemblies.Select(Assembly.Load).ToList();
-            
+            List<Assembly> loadedAssemblies = model.RegisteredAssemblies.Select(Assembly.Load).ToList();
+                
             foreach (var assembly in loadedAssemblies)
             {
-                foreach (var type in assembly.GetTypes().Where(type => typeof(MonoBehaviour).IsAssignableFrom(type)))
+                foreach (var type in assembly.GetTypes())
                 {
                     foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
                     {
@@ -83,8 +62,8 @@ namespace NuiN.CommandConsole
                         foreach (CommandAttribute attribute in commandAttributes)
                         {
                             if (!method.IsStatic && !typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType)) continue;
-                            
-                            if (!_registeredCommands.TryAdd(attribute.command, method))
+                                
+                            if (!model.RegisteredCommands.TryAdd(attribute.command, method))
                             {
                                 Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
                             }
@@ -93,50 +72,12 @@ namespace NuiN.CommandConsole
                 }
             }
         }
-
-        void MoveAndScalePanel()
-        {
-            if (scaleButton.Pressed)
-            {
-                if (_initialScalePos == Vector2.zero) _initialScalePos = panelRoot.position;
-                if (_initialScale != Vector2.zero)  _initialScale = panelRoot.sizeDelta;
-
-                Vector2 newScale =  (_initialScale + ((Vector2)Input.mousePosition - _initialScalePos)) - scaleButton.PressOffset;
-                newScale.x = Mathf.Clamp(newScale.x, minScale.x, maxScale.x);
-                newScale.y = Mathf.Clamp(newScale.y, minScale.y, maxScale.y);
-                
-                panelRoot.sizeDelta = newScale;
-            }
-            else
-            {
-                _initialScale = Vector2.zero;
-                _initialScalePos = Vector2.zero;
-            }
-
-            if (moveButton.Pressed)
-            {
-                if (_initialMovePos == Vector2.zero) _initialMovePos = Input.mousePosition - panelRoot.position;
-
-                float maxX = Screen.width - panelRoot.sizeDelta.x;
-                float maxY = Screen.height - panelRoot.sizeDelta.y;
-                
-                Vector2 newPosition = (Vector2)Input.mousePosition - _initialMovePos;
-                newPosition.x = Mathf.Clamp(newPosition.x, 0, maxX);
-                newPosition.y = Mathf.Clamp(newPosition.y, 0, maxY);
-
-                panelRoot.position = newPosition;
-            }
-            else
-            {
-                _initialMovePos = Vector2.zero;
-            }
-        }
-
-        void InvokeCommand(string fullCommand)
+        
+        public void InvokeCommand(string fullCommand, TMP_InputField inputField)
         {
             // reselect the input field and move the caret to the end for good UX
-            textInput.ActivateInputField();
-            textInput.caretPosition = fullCommand.Length;
+            inputField.ActivateInputField();
+            inputField.caretPosition = fullCommand.Length;
             
             // no input was detected
             if (fullCommand.Trim().Length <= 0) return;
@@ -145,7 +86,7 @@ namespace NuiN.CommandConsole
             string[] commandParts = fullCommand.Split(new[] { ' ' }, 2);
             string commandName = commandParts[0];
             
-            if (!_registeredCommands.TryGetValue(commandName, out MethodInfo method))
+            if (!model.RegisteredCommands.TryGetValue(commandName, out MethodInfo method))
             {
                 Debug.Log("Command not found...");
                 return;
@@ -227,9 +168,9 @@ namespace NuiN.CommandConsole
                 }
             }
             
-            textInput.SetTextWithoutNotify(string.Empty);
+            inputField.SetTextWithoutNotify(string.Empty);
         }
-
+        
         object ParseParameter(string param, Type paramType)
         {
             object value = null;
@@ -252,7 +193,7 @@ namespace NuiN.CommandConsole
 
             return value;
         }
-
+        
         bool HasValidParameterCount(int inputCount, int minCount, int maxCount)
         {
             if (inputCount < minCount)
@@ -269,22 +210,41 @@ namespace NuiN.CommandConsole
             return true;
         }
 
-        [Command("add")]
-        void TestCommand(int num1, float num2 = 4)
+        public void UpdateSize(RectTransform rectTransform, Vector2 pressOffset)
         {
-            Debug.LogError(num1 + num2); 
+            if (model.InitialScalePos == Vector2.zero) model.InitialScalePos = rectTransform.position;
+            if (model.InitialScale != Vector2.zero)  model.InitialScale = rectTransform.sizeDelta;
+
+            Vector2 newScale =  (model.InitialScale + ((Vector2)Input.mousePosition - model.InitialScalePos)) - pressOffset;
+            newScale.x = Mathf.Clamp(newScale.x, model.MinScale.x, model.MaxScale.x);
+            newScale.y = Mathf.Clamp(newScale.y, model.MinScale.y, model.MaxScale.y);
+                    
+            rectTransform.sizeDelta = newScale;
         }
 
-        [Command("scene.load")]
-        void LoadScene(int index)
+        public void UpdatePosition(RectTransform rectTransform)
         {
-            SceneManager.LoadScene(index);
+            if (model.InitialMovePos == Vector2.zero) model.InitialMovePos = Input.mousePosition - rectTransform.position;
+
+            float maxX = Screen.width - rectTransform.sizeDelta.x;
+            float maxY = Screen.height - rectTransform.sizeDelta.y;
+                    
+            Vector2 newPosition = (Vector2)Input.mousePosition - model.InitialMovePos;
+            newPosition.x = Mathf.Clamp(newPosition.x, 0, maxX);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0, maxY);
+
+            rectTransform.position = newPosition;
         }
-        
-        [Command("scene.reload")]
-        void ReloadScene()
+
+        public void ResetInitialSizeValues()
         {
-            GeneralUtils.ReloadScene();
+            model.InitialScalePos = Vector2.zero;
+            model.InitialScale = Vector2.zero;
+        }
+
+        public void ResetInitialPositionValues()
+        {
+            model.InitialMovePos = Vector2.zero;
         }
     }
 }

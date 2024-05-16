@@ -1141,7 +1141,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2562841027532767374}
-  - component: {fileID: 4284694805913565834}
+  - component: {fileID: 4969507209175089793}
+  - component: {fileID: 450594053277002934}
+  - component: {fileID: 1050282434928642774}
   - component: {fileID: 3357455274895004069}
   - component: {fileID: 4055046384483889819}
   - component: {fileID: 5804208480455147153}
@@ -1172,7 +1174,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &4284694805913565834
+--- !u!114 &4969507209175089793
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1181,19 +1183,45 @@ MonoBehaviour:
   m_GameObject: {fileID: 7920275022072907459}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e559aa4ed205a2945a618e93af61892e, type: 3}
+  m_Script: {fileID: 11500000, guid: 7c0b60c4e01ff184daa40b44bca83cb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  presenter: {fileID: 450594053277002934}
   panelRoot: {fileID: 4617400915113296142}
   textInput: {fileID: 5001937306338619255}
   scaleButton: {fileID: 8680881542530960888}
   moveButton: {fileID: 175955140067806268}
-  minScale: {x: 200, y: 125}
-  maxScale: {x: 1920, y: 1080}
-  commandAssemblies:
+--- !u!114 &450594053277002934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7920275022072907459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb337d84696348999577188a4f83e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  model: {fileID: 1050282434928642774}
+--- !u!114 &1050282434928642774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7920275022072907459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10afb80d7c6d472daca76590c52bae83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <RegisteredAssemblies>k__BackingField:
   - NuiN.ScriptableHarmony.Demo
   - com.nuin.scriptableharmony
   - TNRD.SerializableInterface
+  <MinScale>k__BackingField: {x: 200, y: 200}
+  <MaxScale>k__BackingField: {x: 1920, y: 1080}
 --- !u!223 &3357455274895004069
 Canvas:
   m_ObjectHideFlags: 0
