@@ -20,6 +20,14 @@ namespace NuiN.CommandConsole
         {
             if(model.AssemblyContainer != null) model.AssemblyContainer.FindAndRegister();
         }
+
+        public void LoadSavedScaleAndPosition(RectTransform root)
+        {
+            model.ConsolePosition = root.position;
+            model.ConsoleSize = root.sizeDelta;
+            root.position = model.GetSavedPosition();
+            root.sizeDelta = model.GetSavedSize();
+        }
         
         public void RegisterCommands()
         {
@@ -190,11 +198,12 @@ namespace NuiN.CommandConsole
             if (model.InitialScalePos == Vector2.zero) model.InitialScalePos = rectTransform.position;
             if (model.InitialScale != Vector2.zero)  model.InitialScale = rectTransform.sizeDelta;
 
-            Vector2 newScale =  (model.InitialScale + ((Vector2)Input.mousePosition - model.InitialScalePos)) - pressOffset;
-            newScale.x = Mathf.Clamp(newScale.x, model.MinScale.x, model.MaxScale.x);
-            newScale.y = Mathf.Clamp(newScale.y, model.MinScale.y, model.MaxScale.y);
+            Vector2 newSize =  (model.InitialScale + ((Vector2)Input.mousePosition - model.InitialScalePos)) - pressOffset;
+            newSize.x = Mathf.Clamp(newSize.x, model.MinSize.x, model.MaxScale.x);
+            newSize.y = Mathf.Clamp(newSize.y, model.MinSize.y, model.MaxScale.y);
                     
-            rectTransform.sizeDelta = newScale;
+            rectTransform.sizeDelta = newSize;
+            model.ConsoleSize = newSize;
         }
 
         public void UpdatePosition(RectTransform rectTransform)
@@ -209,17 +218,22 @@ namespace NuiN.CommandConsole
             newPosition.y = Mathf.Clamp(newPosition.y, 0, maxY);
 
             rectTransform.position = newPosition;
+            model.ConsolePosition = newPosition;
         }
 
         public void ResetInitialSizeValues()
         {
             model.InitialScalePos = Vector2.zero;
             model.InitialScale = Vector2.zero;
+            
+            model.SetSavedScale();
         }
 
         public void ResetInitialPositionValues()
         {
             model.InitialMovePos = Vector2.zero;
+            
+            model.SetSavedPosition();
         }
     }
 }

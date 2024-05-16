@@ -21,20 +21,30 @@ namespace NuiN.CommandConsole
             presenter.RegisterAssemblies();
         }
 #endif
+        
+        void OnEnable()
+        {
+            textInput.onSubmit.AddListener(InvokeCommandHandler);
+            moveButton.OnRelease += presenter.ResetInitialPositionValues;
+            scaleButton.OnRelease += presenter.ResetInitialSizeValues;
+        }
+
+        void OnDisable()
+        {
+            textInput.onSubmit.RemoveListener(InvokeCommandHandler);
+            moveButton.OnRelease -= presenter.ResetInitialPositionValues;
+            scaleButton.OnRelease -= presenter.ResetInitialSizeValues;
+        }
     
         void Awake() => presenter.RegisterCommands();
-        void OnEnable() => textInput.onSubmit.AddListener(InvokeCommandHandler);
-        void OnDisable() => textInput.onSubmit.RemoveListener(InvokeCommandHandler);
+        void Start() => presenter.LoadSavedScaleAndPosition(panelRoot);
         void InvokeCommandHandler(string command) => presenter.InvokeCommand(command, textInput);
         void Update() => MoveAndScalePanel();
     
         void MoveAndScalePanel()
         {
             if (scaleButton.Pressed) presenter.UpdateSize(panelRoot, scaleButton.PressOffset);
-            else presenter.ResetInitialSizeValues();
-
             if (moveButton.Pressed) presenter.UpdatePosition(panelRoot);
-            else presenter.ResetInitialPositionValues();
         }
     }
 }

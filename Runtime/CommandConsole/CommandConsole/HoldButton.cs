@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,6 +8,8 @@ namespace NuiN.CommandConsole
     {
         public bool Pressed { get; private set; }
         public Vector2 PressOffset { get; private set; }
+
+        public event Action OnRelease;
 
         [SerializeField] RectTransform rectTransform;
     
@@ -20,6 +23,8 @@ namespace NuiN.CommandConsole
         {
             Pressed = false;
             PressOffset = Vector2.zero;
+            
+            OnRelease?.Invoke();
         }
     }
 }
