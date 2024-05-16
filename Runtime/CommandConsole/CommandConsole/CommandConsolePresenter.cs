@@ -131,11 +131,9 @@ namespace NuiN.CommandConsole
                 optionalParams.ForEach(param => parameters.Add(param.DefaultValue));
             }
 
-            object[] paramsArray = parameters.ToArray();
-            
             if (method.IsStatic)
             {
-                method.Invoke(null, paramsArray);
+                InvokeMethod(method, null, parameters);
             }
             else
             {
@@ -147,32 +145,30 @@ namespace NuiN.CommandConsole
                 }
                 foreach (var instance in classInstances)
                 {
-                    method.Invoke(instance, paramsArray);
+                    InvokeMethod(method, instance, parameters);
                 }
             }
             
             inputField.SetTextWithoutNotify(string.Empty);
         }
+
+        void InvokeMethod(MethodInfo method, Object instance, List<object> parameters)
+        {
+            object returnValue = method.Invoke(instance, parameters.ToArray());
+            if (returnValue != null)
+            {
+                Debug.Log(returnValue);
+            }
+        }
         
         object ParseParameter(string param, Type paramType)
         {
             object value = null;
-            if (paramType == typeof(int) && int.TryParse(param, out int intValue))
-            {
-                value = intValue;
-            }
-            else if (paramType == typeof(float) && float.TryParse(param, out float floatValue))
-            {
-                value = floatValue;
-            }
-            else if (paramType == typeof(bool) && bool.TryParse(param, out bool boolValue))
-            {
-                value = boolValue;
-            }
-            else if (paramType == typeof(string))
-            {
-                value = param;
-            }
+            
+            if (paramType == typeof(int) && int.TryParse(param, out int intValue)) value = intValue;
+            else if (paramType == typeof(float) && float.TryParse(param, out float floatValue)) value = floatValue;
+            else if (paramType == typeof(bool) && bool.TryParse(param, out bool boolValue)) value = boolValue;
+            else if (paramType == typeof(string)) value = param;
 
             return value;
         }
@@ -237,6 +233,13 @@ namespace NuiN.CommandConsole
             model.InitialMovePos = Vector2.zero;
             
             model.SetSavedPosition();
+        }
+
+        public void ToggleConsole(GameObject console)
+        {
+            bool isEnabled = !model.IsConsoleEnabled;
+            console.SetActive(isEnabled);
+            model.IsConsoleEnabled = isEnabled;
         }
     }
 }

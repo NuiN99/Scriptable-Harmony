@@ -1186,6 +1186,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c0b60c4e01ff184daa40b44bca83cb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  toggleConsoleInput:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Toggle Console Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: e9a4de94-edb6-4da6-8bf6-e4a51d9bd8eb
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 5cf56d9b-43db-43ae-b9bf-847a957f8fe0
+        m_Path: <Keyboard>/backquote
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Toggle Console Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   presenter: {fileID: 450594053277002934}
   panelRoot: {fileID: 4617400915113296142}
   textInput: {fileID: 5001937306338619255}
@@ -1217,7 +1237,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <AssemblyContainer>k__BackingField: {fileID: 11400000, guid: d24c60f1ecec0f34a84dd51e924f2288, type: 2}
-  <MinScale>k__BackingField: {x: 200, y: 200}
+  <MinSize>k__BackingField: {x: 200, y: 200}
   <MaxScale>k__BackingField: {x: 1920, y: 1080}
 --- !u!223 &3357455274895004069
 Canvas:

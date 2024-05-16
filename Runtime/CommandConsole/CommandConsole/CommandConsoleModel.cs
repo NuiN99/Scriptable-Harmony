@@ -25,6 +25,8 @@ namespace NuiN.CommandConsole
         public Vector2 InitialScalePos { get; set; }
         public Vector2 InitialScale { get; set; }
 
+        public bool IsConsoleEnabled { get; set; } = true;
+
         public Vector2 GetSavedPosition()
         {
             float x = PlayerPrefs.HasKey(POSITION_X_KEY) ? PlayerPrefs.GetFloat(POSITION_X_KEY) : ConsolePosition.x;
