@@ -1,4 +1,5 @@
 using NuiN.CommandConsole;
+using NuiN.NExtensions;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace NuiN.CommandConsole
     public class CommandConsoleView : MonoBehaviour
     {
         [SerializeField] InputActionProperty toggleConsoleInput;
+        [SerializeField, HideInInspector] InputAction deleteLastWordInputAction;
         
         [Header("Dependencies")]
         [SerializeField] CommandConsolePresenter presenter;
@@ -30,6 +32,7 @@ namespace NuiN.CommandConsole
             moveButton.OnRelease += presenter.ResetInitialPositionValues;
             scaleButton.OnRelease += presenter.ResetInitialSizeValues;
             toggleConsoleInput.action.performed += ToggleConsoleHandler;
+            deleteLastWordInputAction.performed += DeleteTextBlockHandler;
         }
 
         void OnDisable()
@@ -38,17 +41,23 @@ namespace NuiN.CommandConsole
             moveButton.OnRelease -= presenter.ResetInitialPositionValues;
             scaleButton.OnRelease -= presenter.ResetInitialSizeValues;
             toggleConsoleInput.action.performed -= ToggleConsoleHandler;
+            deleteLastWordInputAction.performed -= DeleteTextBlockHandler;
         }
         
         void InvokeCommandHandler(string command) => presenter.InvokeCommand(command, textInput);
         void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject);
-    
+        void DeleteTextBlockHandler(InputAction.CallbackContext context)
+        {
+            presenter.DeleteTextBlock(textInput);
+        }
+
         void Awake()
         {
             presenter.RegisterCommands();
             presenter.LoadSavedScaleAndPosition(panelRoot);
             
             toggleConsoleInput.action.Enable();
+            deleteLastWordInputAction.Enable();
         }
 
         void Update()

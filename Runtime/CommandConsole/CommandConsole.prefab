@@ -295,12 +295,12 @@ MonoBehaviour:
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_CustomCaretColor: 0
+  m_CaretColor: {r: 0, g: 0, b: 0, a: 1}
+  m_CustomCaretColor: 1
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
   m_Text: 
   m_CaretBlinkRate: 0.85
-  m_CaretWidth: 1
+  m_CaretWidth: 3
   m_ReadOnly: 0
   m_RichText: 1
   m_GlobalFontAsset: {fileID: 0}
@@ -409,7 +409,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
   m_fontSizeMax: 0
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1018,7 +1018,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
   m_fontSizeMax: 0
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1206,6 +1206,39 @@ MonoBehaviour:
         m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
+  deleteLastWordInputAction:
+    m_Name: Delete Last Word Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 7347397f-797c-4878-a4b5-45f03226d4d6
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: One Modifier
+      m_Id: 5ccb2236-6331-4582-b274-0f62da94803c
+      m_Path: OneModifier
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Delete Last Word Input
+      m_Flags: 4
+    - m_Name: binding
+      m_Id: ea22d030-6d37-4fb7-b9c0-c8248223dab8
+      m_Path: <Keyboard>/ctrl
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Delete Last Word Input
+      m_Flags: 8
+    - m_Name: modifier
+      m_Id: cee68034-c253-4851-a386-12f05e255cc9
+      m_Path: <Keyboard>/backspace
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Delete Last Word Input
+      m_Flags: 8
+    m_Flags: 0
   presenter: {fileID: 450594053277002934}
   panelRoot: {fileID: 4617400915113296142}
   textInput: {fileID: 5001937306338619255}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -240,6 +241,45 @@ namespace NuiN.CommandConsole
             bool isEnabled = !model.IsConsoleEnabled;
             console.SetActive(isEnabled);
             model.IsConsoleEnabled = isEnabled;
+        }
+
+        public void DeleteTextBlock(TMP_InputField inputField)
+        {
+            if (!model.IsConsoleEnabled) return;
+            
+            string text = inputField.text;
+            int caretPosition = inputField.caretPosition;
+
+            bool willDeleteStartWord = true;
+            for (int i = 0; i < inputField.caretPosition; i++)
+            {
+                if (inputField.text[i].ToString() == " ") willDeleteStartWord = false;
+            }
+            
+            if (caretPosition > 0 && caretPosition <= text.Length)
+            {
+                int startIndex = caretPosition - 1;
+                while (startIndex > 0 && !char.IsWhiteSpace(text[startIndex - 1])) startIndex--;
+
+                string newText = text.Remove(startIndex, caretPosition - startIndex);
+
+                inputField.text = newText;
+                inputField.caretPosition = startIndex;
+            }
+
+            if (willDeleteStartWord) StartCoroutine(SetCaretPosition(inputField, 0));
+            else inputField.text += " ";
+        }
+        
+        static IEnumerator SetCaretPosition(TMP_InputField inputField, int index)
+        {
+            int width = inputField.caretWidth;
+            inputField.caretWidth = 0;
+
+            yield return new WaitForEndOfFrame();
+            
+            inputField.caretWidth = width;
+            inputField.caretPosition = index;
         }
     }
 }
