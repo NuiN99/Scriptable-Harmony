@@ -16,41 +16,16 @@ namespace NuiN.CommandConsole
     {
         [SerializeField] CommandConsoleModel model;
         
-        [Conditional("UNITY_EDITOR")]
         public void RegisterAssemblies()
         {
-            List<string> registeredAssemblies = model.RegisteredAssemblies;
-            if (registeredAssemblies == null) return;
-            registeredAssemblies.Clear();
-                
-            // Assembly-CSharp doesn't exist when no scripts are using it
-            const string assemblyCSharpPath = "Library/ScriptAssemblies/Assembly-CSharp.dll";
-            if (File.Exists(assemblyCSharpPath))
-            {
-                registeredAssemblies.Add("Assembly-CSharp");
-            }
-                
-            string[] guids = AssetDatabase.FindAssets("t:asmdef", new[] { "Assets" });
-            foreach (string guid in guids)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                    
-                // editor assemblies don't exist in the build and throw errors
-                if (path.Contains("/Editor/"))
-                {
-                    continue;
-                }
-                    
-                string assetName = Path.GetFileNameWithoutExtension(path);
-                registeredAssemblies.Add(assetName);
-            }
+            if(model.AssemblyContainer != null) model.AssemblyContainer.FindAndRegister();
         }
         
         public void RegisterCommands()
         {
             model.RegisteredCommands = new Dictionary<string, MethodInfo>();
 
-            List<Assembly> loadedAssemblies = model.RegisteredAssemblies.Select(Assembly.Load).ToList();
+            List<Assembly> loadedAssemblies = model.AssemblyContainer.RegisteredAssemblies.Select(Assembly.Load).ToList();
                 
             foreach (var assembly in loadedAssemblies)
             {

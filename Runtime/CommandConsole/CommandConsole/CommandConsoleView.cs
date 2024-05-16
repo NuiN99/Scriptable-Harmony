@@ -14,13 +14,13 @@ namespace NuiN.CommandConsole
         [SerializeField] HoldButton scaleButton;
         [SerializeField] HoldButton moveButton;
     
+#if UNITY_EDITOR
         void OnValidate()
         {
             if (presenter == null) return; 
-            
             presenter.RegisterAssemblies();
-            EditorUtility.SetDirty(this);
         }
+#endif
     
         void Awake() => presenter.RegisterCommands();
         void OnEnable() => textInput.onSubmit.AddListener(InvokeCommandHandler);
