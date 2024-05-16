@@ -195,10 +195,15 @@ namespace NuiN.CommandConsole
 
         public void UpdateSize(RectTransform rectTransform, Vector2 pressOffset)
         {
+            // prevent scaling outside of screen
+            Vector2 mousePosition = (Vector2)Input.mousePosition - pressOffset;
+            mousePosition.x = Mathf.Clamp(mousePosition.x, 0, Screen.width);
+            mousePosition.y = Mathf.Clamp(mousePosition.y, 0, Screen.height);
+            
             if (model.InitialScalePos == Vector2.zero) model.InitialScalePos = rectTransform.position;
             if (model.InitialScale != Vector2.zero)  model.InitialScale = rectTransform.sizeDelta;
 
-            Vector2 newSize =  (model.InitialScale + ((Vector2)Input.mousePosition - model.InitialScalePos)) - pressOffset;
+            Vector2 newSize =  (model.InitialScale + (mousePosition - model.InitialScalePos));
             newSize.x = Mathf.Clamp(newSize.x, model.MinSize.x, model.MaxScale.x);
             newSize.y = Mathf.Clamp(newSize.y, model.MinSize.y, model.MaxScale.y);
                     
@@ -209,13 +214,11 @@ namespace NuiN.CommandConsole
         public void UpdatePosition(RectTransform rectTransform)
         {
             if (model.InitialMovePos == Vector2.zero) model.InitialMovePos = Input.mousePosition - rectTransform.position;
-
-            float maxX = Screen.width - rectTransform.sizeDelta.x;
-            float maxY = Screen.height - rectTransform.sizeDelta.y;
-                    
+            
             Vector2 newPosition = (Vector2)Input.mousePosition - model.InitialMovePos;
-            newPosition.x = Mathf.Clamp(newPosition.x, 0, maxX);
-            newPosition.y = Mathf.Clamp(newPosition.y, 0, maxY);
+            Vector2 maxPosition = new(Screen.width - rectTransform.sizeDelta.x, Screen.height - rectTransform.sizeDelta.y);
+            newPosition.x = Mathf.Clamp(newPosition.x, 0, maxPosition.x);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0, maxPosition.y);
 
             rectTransform.position = newPosition;
             model.ConsolePosition = newPosition;
