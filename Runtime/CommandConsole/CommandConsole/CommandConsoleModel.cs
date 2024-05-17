@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using NuiN.NExtensions;
+using Unity.Collections;
 using UnityEngine;
 
 namespace NuiN.CommandConsole

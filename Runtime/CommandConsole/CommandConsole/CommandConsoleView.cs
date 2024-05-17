@@ -46,10 +46,7 @@ namespace NuiN.CommandConsole
         
         void InvokeCommandHandler(string command) => presenter.InvokeCommand(command, textInput);
         void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject);
-        void DeleteTextBlockHandler(InputAction.CallbackContext context)
-        {
-            presenter.DeleteTextBlock(textInput);
-        }
+        void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
 
         void Awake()
         {
