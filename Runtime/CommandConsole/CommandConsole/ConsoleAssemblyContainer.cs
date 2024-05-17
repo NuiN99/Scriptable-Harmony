@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace NuiN.CommandConsole
 {
-    [CreateAssetMenu(menuName = "ScriptableHarmony/Console Assembly Container")]
     public class ConsoleAssemblyContainer : ScriptableObject
     {
         [field: SerializeField, ReadOnly] public List<string> RegisteredAssemblies { get; set; } = new();

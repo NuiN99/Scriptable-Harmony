@@ -292,9 +292,18 @@ namespace NuiN.CommandConsole
                     {
                         parameters += $" {GetTypeName(param.ParameterType)}";
                     }
-                    Debug.Log("new command:" + commandName + parameters);
+                    
+                    // todo: implement autocomplete UI with selectable options 
                 }
             }
+        }
+
+        public void CreateAndInitializeNewLog(Transform messagesRoot, string message, string stackTrace, LogType logType)
+        {
+            // todo: object pool visible logs
+            
+            ConsoleMessage consoleMessage = Instantiate(model.ConsoleMessagePrefab, messagesRoot);
+            consoleMessage.Initialize(message, logType);
         }
 
         static string GetTypeName(Type type)

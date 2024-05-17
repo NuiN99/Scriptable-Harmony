@@ -13,9 +13,13 @@ namespace NuiN.CommandConsole
         const string SIZE_Y_KEY = "COMMAND_CONSOLE_SIZE_Y";
         
         [field: SerializeField] public ConsoleAssemblyContainer AssemblyContainer { get; private set; }
+        [field: SerializeField] public ConsoleMessage ConsoleMessagePrefab { get; private set; }
         [field: SerializeField] public Vector2 MinSize { get; private set; } = new(200, 200);
+
         public Vector2 MaxScale => new(Screen.width, Screen.height);
         public Dictionary<CommandKey, MethodInfo> RegisteredCommands { get; set; } = new();
+
+        public Dictionary<string, int> Logs { get; set; } = new();
         
         public Vector2 ConsolePosition { get; set; }
         public Vector2 ConsoleSize { get; set; }
