@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using NuiN.NExtensions;
 using UnityEngine;
 
 namespace NuiN.CommandConsole
@@ -12,6 +13,9 @@ namespace NuiN.CommandConsole
         const string SIZE_X_KEY = "COMMAND_CONSOLE_SIZE_X";
         const string SIZE_Y_KEY = "COMMAND_CONSOLE_SIZE_Y";
         
+        const string COLLAPSE_MESSAGES_KEY = "COMMAND_CONSOLE_COLLAPSE_MESSAGES";
+        const string CONSOLE_ENABLED_KEY = "COMMAND_CONSOLE_ENABLED";
+        
         [field: SerializeField] public ConsoleAssemblyContainer AssemblyContainer { get; private set; }
         [field: SerializeField] public ConsoleMessage ConsoleMessagePrefab { get; private set; }
         [field: SerializeField] public Vector2 MinSize { get; private set; } = new(200, 200);
@@ -19,7 +23,7 @@ namespace NuiN.CommandConsole
         public Vector2 MaxScale => new(Screen.width, Screen.height);
         public Dictionary<CommandKey, MethodInfo> RegisteredCommands { get; set; } = new();
 
-        public Dictionary<string, int> Logs { get; set; } = new();
+        public Dictionary<MessageKey, ConsoleMessage> Logs { get; set; } = new();
         
         public Vector2 ConsolePosition { get; set; }
         public Vector2 ConsoleSize { get; set; }
@@ -31,6 +35,7 @@ namespace NuiN.CommandConsole
         public CommandKey SelectedCommand { get; set; }
 
         public bool IsConsoleEnabled { get; set; } = true;
+        public bool CollapseMessages { get; set; }
 
         public Vector2 GetSavedPosition()
         {
@@ -43,7 +48,9 @@ namespace NuiN.CommandConsole
             x = Mathf.Clamp(x, 0, maxX);
             y = Mathf.Clamp(y, 0, maxY);
 
-            return new Vector2(x, y);
+            Vector2 savedPosition = new Vector2(x, y);
+            ConsolePosition = savedPosition;
+            return savedPosition;
         }
         
         public Vector2 GetSavedSize()
@@ -54,8 +61,28 @@ namespace NuiN.CommandConsole
             x = Mathf.Clamp(x, MinSize.x, MaxScale.x);
             y = Mathf.Clamp(y, MinSize.y, MaxScale.y);
 
-            return new Vector2(x, y);
+            Vector2 savedSize = new Vector2(x, y);
+            ConsoleSize = savedSize;
+            return savedSize;
         }
+
+        public bool GetSavedCollapseMessagesValue()
+        {
+            bool collapseMessages = GeneralUtils.GetPrefsBool(CollapseMessages, COLLAPSE_MESSAGES_KEY);
+            CollapseMessages = collapseMessages;
+            return collapseMessages;
+        }
+        
+        public bool GetSavedToggleConsoleValue()
+        {
+            bool consoleEnabled = GeneralUtils.GetPrefsBool(IsConsoleEnabled, CONSOLE_ENABLED_KEY);
+            IsConsoleEnabled = consoleEnabled;
+            return consoleEnabled;
+        }
+
+        public void SetSavedCollapseMessagesValue() => GeneralUtils.SetPrefsBool(CollapseMessages, COLLAPSE_MESSAGES_KEY);
+
+        public void SetSavedToggleConsoleValue() => GeneralUtils.SetPrefsBool(IsConsoleEnabled, CONSOLE_ENABLED_KEY);
 
         public void SetSavedPosition()
         {

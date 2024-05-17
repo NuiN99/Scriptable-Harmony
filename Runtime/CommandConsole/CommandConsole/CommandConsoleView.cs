@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using Toggle = UnityEngine.UI.Toggle;
 
 namespace NuiN.CommandConsole
 {
@@ -21,6 +22,7 @@ namespace NuiN.CommandConsole
         [SerializeField] TMP_InputField textInput;
         [SerializeField] HoldButton scaleButton;
         [SerializeField] HoldButton moveButton;
+        [SerializeField] Toggle collapseMessagesToggle;
         
 #if UNITY_EDITOR
         void OnValidate()
@@ -36,6 +38,8 @@ namespace NuiN.CommandConsole
             moveButton.OnRelease += presenter.ResetInitialPositionValues;
             scaleButton.OnRelease += presenter.ResetInitialSizeValues;
             
+            collapseMessagesToggle.onValueChanged.AddListener(CollapseToggleValueChangedHandler);
+            
             toggleConsoleInput.action.performed += ToggleConsoleHandler;
             deleteLastWordInputAction.performed += DeleteTextBlockHandler;
 
@@ -48,6 +52,8 @@ namespace NuiN.CommandConsole
             
             moveButton.OnRelease -= presenter.ResetInitialPositionValues;
             scaleButton.OnRelease -= presenter.ResetInitialSizeValues;
+            
+            collapseMessagesToggle.onValueChanged.RemoveListener(CollapseToggleValueChangedHandler);
             
             toggleConsoleInput.action.performed -= ToggleConsoleHandler;
             deleteLastWordInputAction.performed -= DeleteTextBlockHandler;
@@ -64,11 +70,12 @@ namespace NuiN.CommandConsole
         void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject);
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
         void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);
+        void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
 
         void Awake()
         {
             presenter.RegisterCommands();
-            presenter.LoadSavedScaleAndPosition(panelRoot);
+            presenter.LoadSavedValues(panelRoot, collapseMessagesToggle);
             
             toggleConsoleInput.action.Enable();
             deleteLastWordInputAction.Enable();

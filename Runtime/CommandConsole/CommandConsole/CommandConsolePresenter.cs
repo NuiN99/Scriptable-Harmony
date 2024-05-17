@@ -22,12 +22,13 @@ namespace NuiN.CommandConsole
             if(model.AssemblyContainer != null) model.AssemblyContainer.FindAndRegister();
         }
 
-        public void LoadSavedScaleAndPosition(RectTransform root)
+        public void LoadSavedValues(RectTransform root, Toggle collapseMessagesToggle)
         {
-            model.ConsolePosition = root.position;
-            model.ConsoleSize = root.sizeDelta;
             root.position = model.GetSavedPosition();
             root.sizeDelta = model.GetSavedSize();
+
+            collapseMessagesToggle.isOn = model.GetSavedCollapseMessagesValue();;
+            root.gameObject.SetActive( model.GetSavedToggleConsoleValue());
         }
         
         public void RegisterCommands()
@@ -68,6 +69,7 @@ namespace NuiN.CommandConsole
             // reselect the input field and move the caret to the end for good UX
             inputField.ActivateInputField();
             inputField.caretPosition = fullCommand.Length;
+            inputField.SetTextWithoutNotify(string.Empty);
             
             // no input was detected
             if (fullCommand.Trim().Length <= 0) return;
@@ -154,8 +156,6 @@ namespace NuiN.CommandConsole
                     InvokeMethod(method, instance, parameters);
                 }
             }
-            
-            inputField.SetTextWithoutNotify(string.Empty);
         }
 
         void InvokeMethod(MethodInfo method, Object instance, List<object> parameters)
@@ -234,6 +234,7 @@ namespace NuiN.CommandConsole
             bool isEnabled = !model.IsConsoleEnabled;
             console.SetActive(isEnabled);
             model.IsConsoleEnabled = isEnabled;
+            model.SetSavedToggleConsoleValue();
         }
 
         /// <summary> Replicate CTRL+Backspace functionality on Windows </summary>
@@ -313,9 +314,19 @@ namespace NuiN.CommandConsole
         public void CreateAndInitializeNewLog(Transform messagesRoot, string message, string stackTrace, LogType logType)
         {
             // todo: object pool visible logs
+
+            MessageKey key = new MessageKey(message, logType);
+            bool containsKey = model.Logs.TryGetValue(key, out ConsoleMessage consoleMessage);
+            if (model.CollapseMessages && containsKey)
+            {
+                consoleMessage.IncrementMessageCount();
+                return;
+            }
             
-            ConsoleMessage consoleMessage = Instantiate(model.ConsoleMessagePrefab, messagesRoot);
-            consoleMessage.Initialize(message, logType);
+            consoleMessage = Instantiate(model.ConsoleMessagePrefab, messagesRoot);
+            consoleMessage.Initialize(key);
+
+            if(!containsKey) model.Logs.Add(key, consoleMessage);
         }
 
         static string GetTypeName(Type type)
@@ -379,6 +390,12 @@ namespace NuiN.CommandConsole
             if(type == typeof(short) && short.TryParse(arg, out short shortVal)) return shortVal;
 
             return null;
+        }
+
+        public void ToggleMessageCollapsing(bool value)
+        {
+            model.CollapseMessages = value;
+            model.SetSavedCollapseMessagesValue();
         }
     }
 }
