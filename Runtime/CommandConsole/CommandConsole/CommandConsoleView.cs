@@ -2,6 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace NuiN.CommandConsole
 {
@@ -15,6 +17,7 @@ namespace NuiN.CommandConsole
         [SerializeField] CommandConsolePresenter presenter;
         [SerializeField] RectTransform panelRoot;
         [SerializeField] Transform messagesRoot;
+        [SerializeField] ScrollRect messagesScrollRect;
         [SerializeField] TMP_InputField textInput;
         [SerializeField] HoldButton scaleButton;
         [SerializeField] HoldButton moveButton;
@@ -52,7 +55,12 @@ namespace NuiN.CommandConsole
             Application.logMessageReceived -= LogMessageRecievedHandler;
         }
         
-        void InvokeCommandHandler(string command) => presenter.InvokeCommand(textInput);
+        void InvokeCommandHandler(string command)
+        {
+            presenter.InvokeCommand(textInput);
+            presenter.SetScrollRectPosition(messagesScrollRect, 0);
+        }
+
         void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject);
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
         void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);

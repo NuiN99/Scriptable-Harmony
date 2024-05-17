@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
@@ -76,7 +77,7 @@ namespace NuiN.CommandConsole
             
             if (!model.RegisteredCommands.TryGetValue(model.SelectedCommand, out MethodInfo method))
             {
-                Debug.Log("Command not found!");
+                Debug.LogWarning("Command not found!");
                 return;
             }
             
@@ -117,7 +118,7 @@ namespace NuiN.CommandConsole
                     
                     if (param == null)
                     {
-                        Debug.LogError("Invalid Parameter");
+                        Debug.LogWarning("Invalid Parameter");
                         return;
                     }
                     
@@ -146,7 +147,7 @@ namespace NuiN.CommandConsole
                 Object[] classInstances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None);
                 if (classInstances.Length <= 0)
                 {
-                    Debug.LogError("No instances found to run the command");
+                    Debug.LogWarning("No instances found to run the command");
                 }
                 foreach (var instance in classInstances)
                 {
@@ -170,12 +171,12 @@ namespace NuiN.CommandConsole
         {
             if (inputCount < minCount)
             {
-                Debug.LogError("Not enough parameters!");
+                Debug.LogWarning("Not enough parameters!");
                 return false;
             }
             if (inputCount > maxCount)
             {
-                Debug.LogError("Too many parameters!");
+                Debug.LogWarning("Too many parameters!");
                 return false;
             }
 
@@ -274,6 +275,17 @@ namespace NuiN.CommandConsole
             
             inputField.caretWidth = width;
             inputField.caretPosition = index;
+        }
+
+        public void SetScrollRectPosition(ScrollRect scrollRect, float height)
+        {
+            StartCoroutine(SetScrollRectPositionRoutine(scrollRect, height));
+        }
+        
+        IEnumerator SetScrollRectPositionRoutine(ScrollRect scrollRect, float height)
+        {
+            yield return new WaitForEndOfFrame();
+            scrollRect.verticalNormalizedPosition = height;
         }
 
         public void AutoCompleteAndSetCommand(string inputText)
