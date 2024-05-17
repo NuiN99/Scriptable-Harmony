@@ -12,6 +12,8 @@ namespace NuiN.CommandConsole
 {
     public class CommandConsolePresenter : MonoBehaviour
     {
+        const string INVALID_PARAMETER = "invalid!";
+
         [SerializeField] CommandConsoleModel model;
         
         public void RegisterAssemblies()
@@ -29,7 +31,7 @@ namespace NuiN.CommandConsole
         
         public void RegisterCommands()
         {
-            model.RegisteredCommands = new Dictionary<string, MethodInfo>();
+            model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>();
 
             List<Assembly> loadedAssemblies = model.AssemblyContainer.RegisteredAssemblies.Select(Assembly.Load).ToList();
                 
@@ -43,8 +45,9 @@ namespace NuiN.CommandConsole
                         foreach (CommandAttribute attribute in commandAttributes)
                         {
                             if (!method.IsStatic && !typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType)) continue;
-                                
-                            if (!model.RegisteredCommands.TryAdd(attribute.command, method))
+
+                            CommandKey commandKey = new CommandKey(attribute.command, method.GetParameters());
+                            if (!model.RegisteredCommands.TryAdd(commandKey, method))
                             {
                                 Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
                             }
@@ -52,10 +55,15 @@ namespace NuiN.CommandConsole
                     }
                 }
             }
+            
+            IOrderedEnumerable<KeyValuePair<CommandKey, MethodInfo>> sortedCommands = from entry in  model.RegisteredCommands orderby entry.Key.name select entry;
+            model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>(sortedCommands);
         }
         
-        public void InvokeCommand(string fullCommand, TMP_InputField inputField)
+        public void InvokeCommand(TMP_InputField inputField)
         {
+            string fullCommand = inputField.text;
+            
             // reselect the input field and move the caret to the end for good UX
             inputField.ActivateInputField();
             inputField.caretPosition = fullCommand.Length;
@@ -65,9 +73,8 @@ namespace NuiN.CommandConsole
             
             // the first space after the method name indicates that parameters have been entered
             string[] commandParts = fullCommand.Split(new[] { ' ' }, 2);
-            string commandName = commandParts[0];
             
-            if (!model.RegisteredCommands.TryGetValue(commandName, out MethodInfo method))
+            if (!model.RegisteredCommands.TryGetValue(model.SelectedCommand, out MethodInfo method))
             {
                 Debug.Log("Command not found...");
                 return;
@@ -106,7 +113,7 @@ namespace NuiN.CommandConsole
                     
                     string stringParam = stringParameters[i];
                     
-                    object param = ParseParameter(stringParam, parameterInfo.ParameterType);
+                    object param = GetParsedArg(parameterInfo.ParameterType, stringParam);
                     
                     if (param == null)
                     {
@@ -157,18 +164,6 @@ namespace NuiN.CommandConsole
             {
                 Debug.Log(returnValue);
             }
-        }
-        
-        object ParseParameter(string param, Type paramType)
-        {
-            object value = null;
-            
-            if (paramType == typeof(int) && int.TryParse(param, out int intValue)) value = intValue;
-            else if (paramType == typeof(float) && float.TryParse(param, out float floatValue)) value = floatValue;
-            else if (paramType == typeof(bool) && bool.TryParse(param, out bool boolValue)) value = boolValue;
-            else if (paramType == typeof(string)) value = param;
-
-            return value;
         }
         
         bool HasValidParameterCount(int inputCount, int minCount, int maxCount)
@@ -277,6 +272,89 @@ namespace NuiN.CommandConsole
             
             inputField.caretWidth = width;
             inputField.caretPosition = index;
+        }
+
+        public void SetSelectedCommand(string inputText)
+        {
+            foreach (KeyValuePair<CommandKey, MethodInfo> command in model.RegisteredCommands)
+            {
+                string commandName = command.Key.name;
+                if (inputText.Length <= 0 || commandName.ToLower().StartsWith(inputText.ToLower()))
+                {
+                    MethodInfo methodInfo = command.Value;
+                    
+                    model.SelectedCommand = command.Key;
+
+                    string parameters = string.Empty;
+                    foreach (var param in methodInfo.GetParameters())
+                    {
+                        parameters += $" {GetTypeName(param.ParameterType)}";
+                    }
+                    Debug.Log("new command:" + commandName + parameters);
+                }
+            }
+        }
+
+        static string GetTypeName(Type type)
+        {
+            return type switch
+            {
+                not null when type == typeof(float) => "float",
+                not null when type == typeof(bool) => "bool",
+                not null when type == typeof(int) => "int",
+                not null when type == typeof(string) => "string",
+                not null when type == typeof(Vector3) => "Vector3",
+                not null when type == typeof(Vector2) => "Vector2",
+                not null when type == typeof(Vector2Int) => "Vector2Int",
+                not null when type == typeof(Vector3Int) => "Vector3Int",
+                not null when type == typeof(long) => "long",
+                not null when type == typeof(ulong) => "ulong",
+                not null when type == typeof(double) => "double",
+                not null when type == typeof(byte) => "byte",
+                not null when type == typeof(sbyte) => "sbyte",
+                not null when type == typeof(short) => "short",
+                not null when type == typeof(char) => "char",
+                _ => INVALID_PARAMETER
+            };
+        }
+        
+        public static object GetParsedArg(Type type, string arg)
+        {
+            if (type == typeof(string)) return arg;
+            if(type == typeof(float) && float.TryParse(arg, out float floatVal)) return floatVal;
+            if(type == typeof(int) && int.TryParse(arg, out int intVal)) return intVal;
+            if(type == typeof(bool) && bool.TryParse(arg, out bool boolVal)) return boolVal;
+            
+            string[] commaSplitValues = arg.Split(",");
+            if(type == typeof(Vector2) && commaSplitValues.Length == 2)
+            {
+                if (float.TryParse(commaSplitValues[0], out float f1) && float.TryParse(commaSplitValues[1], out float f2))
+                    return new Vector2(f1, f2);
+            }
+            if(type == typeof(Vector3) && commaSplitValues.Length == 3)
+            {
+                if (float.TryParse(commaSplitValues[0], out float f1) && float.TryParse(commaSplitValues[1], out float f2) && float.TryParse(commaSplitValues[2], out float f3))
+                    return new Vector3(f1, f2, f3);
+            }
+            if(type == typeof(Vector2Int) && commaSplitValues.Length == 2)
+            {
+                if (int.TryParse(commaSplitValues[0], out int i1) && int.TryParse(commaSplitValues[1], out int i2))
+                    return new Vector2Int(i1, i2);
+            }
+            if(type == typeof(Vector3Int) && commaSplitValues.Length == 3)
+            {
+                if (int.TryParse(commaSplitValues[0], out int i1) && int.TryParse(commaSplitValues[1], out int i2) && int.TryParse(commaSplitValues[2], out int i3))
+                    return new Vector3Int(i1, i2, i3);
+            }
+            
+            if(type == typeof(long) && long.TryParse(arg, out long longVal)) return longVal;
+            if(type == typeof(ulong) && ulong.TryParse(arg, out ulong ulongVal)) return ulongVal;
+            if(type == typeof(double) && double.TryParse(arg, out double doubleVal)) return doubleVal;
+            if(type == typeof(byte) && byte.TryParse(arg, out byte byteVal)) return byteVal;
+            if(type == typeof(sbyte) && sbyte.TryParse(arg, out sbyte sbyteVal)) return sbyteVal;
+            if(type == typeof(short) && short.TryParse(arg, out short shortVal)) return shortVal;
+
+            return null;
         }
     }
 }

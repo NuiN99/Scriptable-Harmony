@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace NuiN.CommandConsole
@@ -15,6 +16,7 @@ namespace NuiN.CommandConsole
         [SerializeField] TMP_InputField textInput;
         [SerializeField] HoldButton scaleButton;
         [SerializeField] HoldButton moveButton;
+
     
 #if UNITY_EDITOR
         void OnValidate()
@@ -41,7 +43,8 @@ namespace NuiN.CommandConsole
             deleteLastWordInputAction.performed -= DeleteTextBlockHandler;
         }
         
-        void InvokeCommandHandler(string command) => presenter.InvokeCommand(command, textInput);
+        void InvokeCommandHandler(string command) => presenter.InvokeCommand(textInput);
+
         void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject);
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
 
@@ -58,6 +61,11 @@ namespace NuiN.CommandConsole
         {
             if (scaleButton.Pressed) presenter.UpdateSize(panelRoot, scaleButton.PressOffset);
             if (moveButton.Pressed) presenter.UpdatePosition(panelRoot);
+
+            if (EventSystem.current.currentSelectedGameObject == textInput.gameObject)
+            {
+                presenter.SetSelectedCommand(textInput.text);
+            }
         }
     }
 }

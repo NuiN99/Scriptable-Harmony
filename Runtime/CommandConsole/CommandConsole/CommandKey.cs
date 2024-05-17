@@ -6,13 +6,13 @@ namespace NuiN.CommandConsole
 {
     public readonly struct CommandKey : IEqualityComparer<CommandKey>
     {
-        public readonly string command;
+        public readonly string name;
         public readonly List<Type> parameterTypes;
 
-        public CommandKey(string command, List<ParameterInfo> parameterInfos)
+        public CommandKey(string name, IEnumerable<ParameterInfo> parameterInfos)
         {
             parameterTypes = new List<Type>();
-            this.command = command;
+            this.name = name;
             foreach (var param in parameterInfos)
             {
                 parameterTypes.Add(param.ParameterType);
@@ -21,7 +21,7 @@ namespace NuiN.CommandConsole
         
         public bool Equals(CommandKey x, CommandKey y)
         {
-            if (x.command != y.command) return false;
+            if (x.name != y.name) return false;
             
             if (x.parameterTypes.Count != y.parameterTypes.Count) return false;
             
@@ -39,7 +39,7 @@ namespace NuiN.CommandConsole
             unchecked
             {
                 int hash = 17;
-                hash = hash * 31 + obj.command.GetHashCode();
+                hash = hash * 31 + obj.name.GetHashCode();
 
                 foreach (var type in obj.parameterTypes)
                 {
