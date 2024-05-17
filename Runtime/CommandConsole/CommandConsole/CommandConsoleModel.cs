@@ -14,7 +14,7 @@ namespace NuiN.CommandConsole
         
         [field: SerializeField] public ConsoleAssemblyContainer AssemblyContainer { get; private set; }
         [field: SerializeField] public Vector2 MinSize { get; private set; } = new(200, 200);
-        public Vector2 MaxScale => new Vector2(Screen.width, Screen.height);
+        public Vector2 MaxScale => new(Screen.width, Screen.height);
         public Dictionary<CommandKey, MethodInfo> RegisteredCommands { get; set; } = new();
         
         public Vector2 ConsolePosition { get; set; }

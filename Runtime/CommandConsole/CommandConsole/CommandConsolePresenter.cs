@@ -76,7 +76,7 @@ namespace NuiN.CommandConsole
             
             if (!model.RegisteredCommands.TryGetValue(model.SelectedCommand, out MethodInfo method))
             {
-                Debug.Log("Command not found...");
+                Debug.Log("Command not found!");
                 return;
             }
             
@@ -235,6 +235,7 @@ namespace NuiN.CommandConsole
             model.IsConsoleEnabled = isEnabled;
         }
 
+        /// <summary> Replicate CTRL+Backspace functionality on Windows </summary>
         public void DeleteTextBlock(TMP_InputField inputField)
         {
             if (!model.IsConsoleEnabled) return;
@@ -263,6 +264,7 @@ namespace NuiN.CommandConsole
             else inputField.text += " ";
         }
         
+        /// <summary> Hack to properly set caret position </summary>
         static IEnumerator SetCaretPosition(TMP_InputField inputField, int index)
         {
             int width = inputField.caretWidth;
@@ -274,7 +276,7 @@ namespace NuiN.CommandConsole
             inputField.caretPosition = index;
         }
 
-        public void SetSelectedCommand(string inputText)
+        public void AutoCompleteAndSetCommand(string inputText)
         {
             foreach (KeyValuePair<CommandKey, MethodInfo> command in model.RegisteredCommands)
             {
@@ -318,13 +320,14 @@ namespace NuiN.CommandConsole
             };
         }
         
-        public static object GetParsedArg(Type type, string arg)
+        static object GetParsedArg(Type type, string arg)
         {
             if (type == typeof(string)) return arg;
             if(type == typeof(float) && float.TryParse(arg, out float floatVal)) return floatVal;
             if(type == typeof(int) && int.TryParse(arg, out int intVal)) return intVal;
             if(type == typeof(bool) && bool.TryParse(arg, out bool boolVal)) return boolVal;
             
+            // split the arg by commas. example valid vector3 arg: "3.2,1.5"
             string[] commaSplitValues = arg.Split(",");
             if(type == typeof(Vector2) && commaSplitValues.Length == 2)
             {

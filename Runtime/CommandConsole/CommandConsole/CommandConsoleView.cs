@@ -16,8 +16,7 @@ namespace NuiN.CommandConsole
         [SerializeField] TMP_InputField textInput;
         [SerializeField] HoldButton scaleButton;
         [SerializeField] HoldButton moveButton;
-
-    
+        
 #if UNITY_EDITOR
         void OnValidate()
         {
@@ -64,7 +63,7 @@ namespace NuiN.CommandConsole
 
             if (EventSystem.current.currentSelectedGameObject == textInput.gameObject)
             {
-                presenter.SetSelectedCommand(textInput.text);
+                presenter.AutoCompleteAndSetCommand(textInput.text);
             }
         }
     }
