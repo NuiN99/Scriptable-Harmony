@@ -24,6 +24,8 @@ namespace NuiN.CommandConsole
 
         public void LoadSavedValues(RectTransform root, Toggle collapseMessagesToggle)
         {
+            model.ConsolePosition = root.position;
+            model.ConsoleSize = root.sizeDelta;
             root.position = model.GetSavedPosition();
             root.sizeDelta = model.GetSavedSize();
 
