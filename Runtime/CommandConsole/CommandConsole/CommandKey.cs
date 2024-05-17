@@ -4,12 +4,12 @@ using System.Reflection;
 
 namespace NuiN.CommandConsole
 {
-    public readonly struct MethodKey : IEqualityComparer<MethodKey>
+    public readonly struct CommandKey : IEqualityComparer<CommandKey>
     {
         public readonly string command;
         public readonly List<Type> parameterTypes;
 
-        public MethodKey(string command, List<ParameterInfo> parameterInfos)
+        public CommandKey(string command, List<ParameterInfo> parameterInfos)
         {
             parameterTypes = new List<Type>();
             this.command = command;
@@ -19,7 +19,7 @@ namespace NuiN.CommandConsole
             }
         }
         
-        public bool Equals(MethodKey x, MethodKey y)
+        public bool Equals(CommandKey x, CommandKey y)
         {
             if (x.command != y.command) return false;
             
@@ -33,7 +33,7 @@ namespace NuiN.CommandConsole
             return true;
         }
 
-        public int GetHashCode(MethodKey obj)
+        public int GetHashCode(CommandKey obj)
         {
             // prevent integer overflow
             unchecked
