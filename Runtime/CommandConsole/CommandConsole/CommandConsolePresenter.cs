@@ -60,7 +60,7 @@ namespace NuiN.CommandConsole
                 }
             }
             
-            IOrderedEnumerable<KeyValuePair<CommandKey, MethodInfo>> sortedCommands = from entry in  model.RegisteredCommands orderby entry.Key.name select entry;
+            IOrderedEnumerable<KeyValuePair<CommandKey, MethodInfo>> sortedCommands = from entry in  model.RegisteredCommands orderby entry.Key.name descending select entry;
             model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>(sortedCommands);
         }
         
@@ -71,7 +71,7 @@ namespace NuiN.CommandConsole
             // reselect the input field and move the caret to the end for good UX
             inputField.ActivateInputField();
             inputField.caretPosition = fullCommand.Length;
-            inputField.SetTextWithoutNotify(string.Empty);
+            inputField.text = string.Empty;
             
             // no input was detected
             if (fullCommand.Trim().Length <= 0) return;
@@ -290,29 +290,7 @@ namespace NuiN.CommandConsole
             yield return new WaitForEndOfFrame();
             scrollRect.verticalNormalizedPosition = height;
         }
-
-        public void AutoCompleteAndSetCommand(string inputText)
-        {
-            foreach (KeyValuePair<CommandKey, MethodInfo> command in model.RegisteredCommands)
-            {
-                string commandName = command.Key.name;
-                if (inputText.Length <= 0 || commandName.ToLower().StartsWith(inputText.ToLower()))
-                {
-                    MethodInfo methodInfo = command.Value;
-                    
-                    model.SelectedCommand = command.Key;
-
-                    string parameters = string.Empty;
-                    foreach (var param in methodInfo.GetParameters())
-                    {
-                        parameters += $" {GetTypeName(param.ParameterType)}";
-                    }
-                    
-                    // todo: implement autocomplete UI with selectable options 
-                }
-            }
-        }
-
+        
         public void CreateAndInitializeNewLog(Transform messagesRoot, string message, string stackTrace, LogType logType)
         {
             // todo: object pool visible logs
@@ -399,5 +377,58 @@ namespace NuiN.CommandConsole
             model.CollapseMessages = value;
             model.SetSavedCollapseMessagesValue();
         }
+
+        public void PopulateAutoCompleteOptions(Transform root, TMP_Text prefab, TMP_Text placeholderText, string inputText, bool ignoreStringCheck = false)
+        {
+            ClearAutoCompleteOptions();
+            
+            foreach ((CommandKey key, MethodInfo methodInfo) in model.RegisteredCommands)
+            {
+                string commandName = key.name;
+                if (ignoreStringCheck || (inputText.Length <= 0 || commandName.ToLower().StartsWith(inputText.ToLower())))
+                {
+                    model.SelectedCommand = key;
+
+                    string parameters = string.Empty;
+                    foreach (var param in methodInfo.GetParameters())
+                    {
+                        parameters += $" {GetTypeName(param.ParameterType)}";
+                    }
+
+                    TMP_Text option = Instantiate(prefab, root);
+
+                    const string colorStart = "<color=yellow>";
+                    const string colorEnd = "</color>";
+                    option.text = model.SelectedCommand.name + colorStart + parameters + colorEnd;
+            
+                    model.AutoCompleteOptions.Add(option);
+
+                    // todo: implement autocomplete UI with selectable options 
+                }
+            }
+            
+            placeholderText.SetText(model.SelectedCommand.name);
+        }
+
+        public void ClearAutoCompleteOptions()
+        {
+            List<TMP_Text> autoCompleteOptions = model.AutoCompleteOptions;
+            for (int i = autoCompleteOptions.Count-1; i >= 0; i--)
+            {
+                var oldOption = autoCompleteOptions[i];
+                Destroy(oldOption.gameObject);
+                autoCompleteOptions.Remove(oldOption);
+            }
+        }
+        
+        public void FillAutoCompletedText(TMP_InputField inputField)
+        {
+            if (model.IsConsoleEnabled)
+            {
+                inputField.text = model.SelectedCommand.name;
+                StartCoroutine(SetCaretPosition(inputField, inputField.text.Length));
+            }
+        }
+
     }
 }

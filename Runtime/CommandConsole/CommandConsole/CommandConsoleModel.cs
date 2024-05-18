@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using NuiN.NExtensions;
+using TMPro;
 using UnityEngine;
 
 namespace NuiN.CommandConsole
@@ -22,8 +23,8 @@ namespace NuiN.CommandConsole
 
         public Vector2 MaxScale => new(Screen.width, Screen.height);
         public Dictionary<CommandKey, MethodInfo> RegisteredCommands { get; set; } = new();
-
         public Dictionary<MessageKey, ConsoleMessage> Logs { get; set; } = new();
+        public List<TMP_Text> AutoCompleteOptions { get; set; } = new();
         
         public Vector2 ConsolePosition { get; set; }
         public Vector2 ConsoleSize { get; set; }

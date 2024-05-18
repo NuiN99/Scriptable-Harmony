@@ -13,13 +13,17 @@ namespace NuiN.CommandConsole
         [Header("Input")]
         [SerializeField] InputActionProperty toggleConsoleInput;
         [SerializeField, HideInInspector] InputAction deleteLastWordInputAction;
+        [SerializeField, HideInInspector] InputAction autoCompleteInputAction;
         
         [Header("Dependencies")]
         [SerializeField] CommandConsolePresenter presenter;
         [SerializeField] RectTransform panelRoot;
         [SerializeField] Transform messagesRoot;
         [SerializeField] ScrollRect messagesScrollRect;
+        [SerializeField] Transform autoCompleteRoot;
+        [SerializeField] TMP_Text autoCompleteOptionPrefab;
         [SerializeField] TMP_InputField textInput;
+        [SerializeField] TMP_Text inputPlaceholderText;
         [SerializeField] HoldButton scaleButton;
         [SerializeField] HoldButton moveButton;
         [SerializeField] Toggle collapseMessagesToggle;
@@ -34,6 +38,8 @@ namespace NuiN.CommandConsole
         void OnEnable()
         {
             textInput.onSubmit.AddListener(InvokeCommandHandler);
+            textInput.onValueChanged.AddListener(PopulateAutoCompleteOptionsHandler);
+            textInput.onSelect.AddListener(PopulateAutoCompleteOptionsOnSelectHandler);
             
             moveButton.OnRelease += presenter.ResetInitialPositionValues;
             scaleButton.OnRelease += presenter.ResetInitialSizeValues;
@@ -42,6 +48,7 @@ namespace NuiN.CommandConsole
             
             toggleConsoleInput.action.performed += ToggleConsoleHandler;
             deleteLastWordInputAction.performed += DeleteTextBlockHandler;
+            autoCompleteInputAction.performed += FillAutoCompletedTextHandler;
 
             Application.logMessageReceived += LogMessageRecievedHandler;
         }
@@ -49,6 +56,8 @@ namespace NuiN.CommandConsole
         void OnDisable()
         {
             textInput.onSubmit.RemoveListener(InvokeCommandHandler);
+            textInput.onValueChanged.RemoveListener(PopulateAutoCompleteOptionsHandler);
+            textInput.onSelect.RemoveListener(PopulateAutoCompleteOptionsOnSelectHandler);
             
             moveButton.OnRelease -= presenter.ResetInitialPositionValues;
             scaleButton.OnRelease -= presenter.ResetInitialSizeValues;
@@ -57,20 +66,25 @@ namespace NuiN.CommandConsole
             
             toggleConsoleInput.action.performed -= ToggleConsoleHandler;
             deleteLastWordInputAction.performed -= DeleteTextBlockHandler;
+            autoCompleteInputAction.performed -= FillAutoCompletedTextHandler;
             
             Application.logMessageReceived -= LogMessageRecievedHandler;
         }
         
         void InvokeCommandHandler(string command)
         {
+            presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text, true);
             presenter.InvokeCommand(textInput);
             presenter.SetScrollRectPosition(messagesScrollRect, 0);
         }
 
         void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject);
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
+        void FillAutoCompletedTextHandler(InputAction.CallbackContext context) => presenter.FillAutoCompletedText(textInput);
         void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);
         void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
+        void PopulateAutoCompleteOptionsHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
+        void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text, true);
 
         void Awake()
         {
@@ -79,17 +93,13 @@ namespace NuiN.CommandConsole
             
             toggleConsoleInput.action.Enable();
             deleteLastWordInputAction.Enable();
+            autoCompleteInputAction.Enable();
         }
 
         void Update()
         {
             if (scaleButton.Pressed) presenter.UpdateSize(panelRoot, scaleButton.PressOffset);
             if (moveButton.Pressed) presenter.UpdatePosition(panelRoot);
-
-            if (EventSystem.current.currentSelectedGameObject == textInput.gameObject)
-            {
-                presenter.AutoCompleteAndSetCommand(textInput.text);
-            }
         }
     }
 }
