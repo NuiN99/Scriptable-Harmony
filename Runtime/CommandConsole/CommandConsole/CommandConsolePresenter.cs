@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NuiN.NExtensions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -148,25 +149,32 @@ namespace NuiN.CommandConsole
             else
             {
                 // find and invoke all instances of the method's class in the scene
-                Object[] classInstances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None);
-                if (classInstances.Length <= 0)
+                List<MonoBehaviour> instances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None).Select(obj => obj as MonoBehaviour).ToList();
+
+                if (instances.Count <= 0)
                 {
                     Debug.LogWarning("No instances found to run the command");
                 }
-                foreach (var instance in classInstances)
+                foreach (MonoBehaviour instance in instances)
                 {
                     InvokeMethod(method, instance, parameters);
                 }
             }
         }
 
-        void InvokeMethod(MethodInfo method, Object instance, List<object> parameters)
+        void InvokeMethod(MethodInfo method, MonoBehaviour instance, List<object> parameters)
         {
             object returnValue = method.Invoke(instance, parameters.ToArray());
-            if (returnValue != null)
+            if (returnValue == null) return;
+            
+            if (method.ReturnType == typeof(IEnumerator))
             {
-                Debug.Log(returnValue);
+                MonoBehaviour coroutineStarter = instance != null ? instance : this;
+                coroutineStarter.StartCoroutine(returnValue as IEnumerator);
+                
+                return;
             }
+            Debug.Log(returnValue);
         }
         
         bool HasValidParameterCount(int inputCount, int minCount, int maxCount)

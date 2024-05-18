@@ -27,10 +27,10 @@ namespace NuiN.CommandConsole
         static Vector3Int Vector3Int(Vector3Int v) => v;
 
         [Command("coroutine")]
-        static IEnumerator Coroutine()
+        static IEnumerator Coroutine(string message)
         {
             yield return new WaitForSeconds(1);
-            Debug.LogAssertion("Waited!!!");
+            Debug.Log(message);
         }
     }
 }
