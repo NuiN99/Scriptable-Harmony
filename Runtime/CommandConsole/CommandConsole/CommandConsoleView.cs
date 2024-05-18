@@ -40,6 +40,7 @@ namespace NuiN.CommandConsole
             textInput.onSubmit.AddListener(InvokeCommandHandler);
             textInput.onValueChanged.AddListener(PopulateAutoCompleteOptionsHandler);
             textInput.onSelect.AddListener(PopulateAutoCompleteOptionsOnSelectHandler);
+            textInput.onDeselect.AddListener(ClearAutoCompleteOptionsHandler);
             
             moveButton.OnRelease += presenter.ResetInitialPositionValues;
             scaleButton.OnRelease += presenter.ResetInitialSizeValues;
@@ -58,6 +59,7 @@ namespace NuiN.CommandConsole
             textInput.onSubmit.RemoveListener(InvokeCommandHandler);
             textInput.onValueChanged.RemoveListener(PopulateAutoCompleteOptionsHandler);
             textInput.onSelect.RemoveListener(PopulateAutoCompleteOptionsOnSelectHandler);
+            textInput.onDeselect.RemoveListener(ClearAutoCompleteOptionsHandler);
             
             moveButton.OnRelease -= presenter.ResetInitialPositionValues;
             scaleButton.OnRelease -= presenter.ResetInitialSizeValues;
@@ -85,6 +87,7 @@ namespace NuiN.CommandConsole
         void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
         void PopulateAutoCompleteOptionsHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
         void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text, true);
+        void ClearAutoCompleteOptionsHandler(string text) => presenter.ClearAutoCompleteOptions();
 
         void Awake()
         {
