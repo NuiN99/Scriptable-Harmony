@@ -1,9 +1,7 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 using Toggle = UnityEngine.UI.Toggle;
 
 namespace NuiN.CommandConsole
@@ -75,9 +73,10 @@ namespace NuiN.CommandConsole
         
         void InvokeCommandHandler(string command)
         {
-            presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text, true);
             presenter.InvokeCommand(textInput);
             presenter.SetScrollRectPosition(messagesScrollRect, 0);
+            
+            presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
         }
 
         void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject);
@@ -86,6 +85,7 @@ namespace NuiN.CommandConsole
         void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);
         void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
         void PopulateAutoCompleteOptionsHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
+
         void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text, true);
         void ClearAutoCompleteOptionsHandler(string text) => presenter.ClearAutoCompleteOptions();
 

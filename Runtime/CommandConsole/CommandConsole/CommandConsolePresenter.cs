@@ -29,7 +29,7 @@ namespace NuiN.CommandConsole
             root.position = model.GetSavedPosition();
             root.sizeDelta = model.GetSavedSize();
 
-            collapseMessagesToggle.isOn = model.GetSavedCollapseMessagesValue();;
+            collapseMessagesToggle.isOn = model.GetSavedCollapseMessagesValue();
             root.gameObject.SetActive(model.GetSavedToggleConsoleValue());
         }
         
@@ -71,7 +71,7 @@ namespace NuiN.CommandConsole
             // reselect the input field and move the caret to the end for good UX
             inputField.ActivateInputField();
             inputField.caretPosition = fullCommand.Length;
-            inputField.text = string.Empty;
+            inputField.SetTextWithoutNotify(string.Empty); 
             
             // no input was detected
             if (fullCommand.Trim().Length <= 0) return;
@@ -399,7 +399,7 @@ namespace NuiN.CommandConsole
 
                     const string colorStart = "<color=yellow>";
                     const string colorEnd = "</color>";
-                    option.text = model.SelectedCommand.name + colorStart + parameters + colorEnd;
+                    option.text = key.name + colorStart + parameters + colorEnd;
             
                     model.AutoCompleteOptions.Add(option);
 

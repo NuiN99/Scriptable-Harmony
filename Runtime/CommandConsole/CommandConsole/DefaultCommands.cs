@@ -1,4 +1,4 @@
-using System.Reflection;
+using System.Collections;
 using UnityEngine;
 
 namespace NuiN.CommandConsole
@@ -25,5 +25,12 @@ namespace NuiN.CommandConsole
         
         [Command("v3int")]
         static Vector3Int Vector3Int(Vector3Int v) => v;
+
+        [Command("coroutine")]
+        static IEnumerator Coroutine()
+        {
+            yield return new WaitForSeconds(1);
+            Debug.LogAssertion("Waited!!!");
+        }
     }
 }
