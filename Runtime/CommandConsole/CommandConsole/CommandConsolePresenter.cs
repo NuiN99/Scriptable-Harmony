@@ -30,7 +30,7 @@ namespace NuiN.CommandConsole
             root.sizeDelta = model.GetSavedSize();
 
             collapseMessagesToggle.isOn = model.GetSavedCollapseMessagesValue();;
-            root.gameObject.SetActive( model.GetSavedToggleConsoleValue());
+            root.gameObject.SetActive(model.GetSavedToggleConsoleValue());
         }
         
         public void RegisterCommands()
