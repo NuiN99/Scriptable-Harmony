@@ -3,12 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NuiN.NExtensions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
-using Object = UnityEngine.Object;
 
 namespace NuiN.CommandConsole
 {
@@ -400,7 +398,7 @@ namespace NuiN.CommandConsole
                     string parameters = string.Empty;
                     foreach (var param in methodInfo.GetParameters())
                     {
-                        parameters += $" {GetTypeName(param.ParameterType)}";
+                        parameters += $" {param.Name}({GetTypeName(param.ParameterType)})";
                     }
 
                     TMP_Text option = Instantiate(prefab, root);
