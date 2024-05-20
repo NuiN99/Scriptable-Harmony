@@ -20,6 +20,7 @@ namespace NuiN.NExtensions
         {
             _timeStart = Time.time;
             _firstIteration = true;
+            StartCompleted = true;
             return this;
         }
 
