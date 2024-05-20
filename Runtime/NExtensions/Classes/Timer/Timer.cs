@@ -19,8 +19,6 @@ namespace NuiN.NExtensions
         public Timer Reset()
         {
             _timeStart = Time.time;
-            _firstIteration = true;
-            StartCompleted = true;
             return this;
         }
 
