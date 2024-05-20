@@ -16,6 +16,13 @@ namespace NuiN.NExtensions
             return this;
         }
 
+        public Timer Reset()
+        {
+            _timeStart = Time.time;
+            _firstIteration = true;
+            return this;
+        }
+
         public bool Complete()
         {
             float time = Time.time;
