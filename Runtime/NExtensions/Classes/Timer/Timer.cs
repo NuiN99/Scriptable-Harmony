@@ -6,6 +6,7 @@ namespace NuiN.NExtensions
     {
         float _timeStart;
         bool _firstIteration = true;
+        bool _startCompleted;
         
         public abstract float Duration { get; protected set; }
         protected abstract bool StartCompleted { get; set; }
@@ -29,11 +30,12 @@ namespace NuiN.NExtensions
             if (_firstIteration)
             {
                 Setup();
+                _startCompleted = StartCompleted;
                 _firstIteration = false;
                 
-                if (StartCompleted)
+                if (_startCompleted)
                 {
-                    StartCompleted = false;
+                    _startCompleted = false;
                     return true;
                 }
                 
