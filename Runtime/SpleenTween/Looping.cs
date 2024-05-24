@@ -1,4 +1,4 @@
-namespace SpleenTween
+namespace NuiN.SpleenTween
 {
     public enum Loop
     {

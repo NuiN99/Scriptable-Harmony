@@ -1,4 +1,4 @@
-namespace SpleenTween 
+namespace NuiN.SpleenTween 
 {
     using System;
     using UnityEngine;
@@ -17,6 +17,7 @@ namespace SpleenTween
         Tween OnStop(Action onStop);
         Tween SetEase(Ease ease);
         Tween SetEase(AnimationCurve animationCurve);
+        Tween SetEase(TweenSettings settings);
         Tween SetLoop(Loop loopType, int cycles = -1);
         Tween SetDelay(float delay, bool startDelay = true);
         Tween SetDestroyOnLoad(bool destroy);

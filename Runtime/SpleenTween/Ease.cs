@@ -1,9 +1,9 @@
-﻿namespace SpleenTween
+﻿namespace NuiN.SpleenTween
 {
     public enum Ease
     {
-        Linear,
         Custom,
+        Linear,
 
         InSine, OutSine, InOutSine,
         InQuad, OutQuad, InOutQuad,

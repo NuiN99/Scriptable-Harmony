@@ -1,7 +1,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-namespace SpleenTween
+namespace NuiN.SpleenTween
 {
     using System;
     using UnityEngine;

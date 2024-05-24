@@ -78,7 +78,7 @@ namespace NuiN.NExtensions
                 case SerializedPropertyType.Boolean:
                     return sourcePropertyValue.boolValue;                
                 case SerializedPropertyType.Enum:
-                    return sourcePropertyValue.enumValueIndex == attr.enumIndex;
+                    return sourcePropertyValue.enumValueIndex != attr.enumIndex;
                 default:
                     Debug.LogError("Data type of the property used for conditional hiding [" + sourcePropertyValue.propertyType + "] is currently not supported");
                     return true;

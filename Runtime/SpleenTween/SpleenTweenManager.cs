@@ -1,4 +1,4 @@
-namespace SpleenTween
+namespace NuiN.SpleenTween
 {
     using System.Collections.Generic;
     using UnityEngine;

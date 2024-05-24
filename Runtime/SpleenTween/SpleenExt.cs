@@ -1,6 +1,6 @@
 using UnityEngine.UIElements.Experimental;
 
-namespace SpleenTween
+namespace NuiN.SpleenTween
 {
     using System;
     using UnityEngine;

@@ -1,4 +1,4 @@
-namespace SpleenTween
+namespace NuiN.SpleenTween
 {
     using System;
     using UnityEngine;
@@ -212,6 +212,14 @@ namespace SpleenTween
         {
             EaseType = Ease.Custom;
             _customEase = animationCurve;
+            return this;
+        }
+
+        Tween Tween.SetEase(TweenSettings settings)
+        {
+            EaseType = settings.Ease;
+            if (settings.Ease == Ease.Custom)  _customEase = settings.CustomEase;
+
             return this;
         }
 

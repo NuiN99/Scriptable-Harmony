@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace NuiN.ScriptableHarmony.Particles
 {
-    internal static class ParticleSpawnerManager
+    public static class ParticleSpawner
     {
         static Dictionary<ParticleSystem, (UnityEngine.Pool.ObjectPool<ParticleSystem> pool, Transform container)> prefabObjectPools = new();
 
