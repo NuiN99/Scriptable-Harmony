@@ -2227,7 +2227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10afb80d7c6d472daca76590c52bae83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <AssemblyContainer>k__BackingField: {fileID: 11400000, guid: d24c60f1ecec0f34a84dd51e924f2288, type: 2}
+  <AssemblyContainerSO>k__BackingField: {fileID: 11400000, guid: d24c60f1ecec0f34a84dd51e924f2288, type: 2}
   <ConsoleMessagePrefab>k__BackingField: {fileID: 2898733888827155385, guid: d7a8d31d0e183a6429dd963018ccbc10, type: 3}
   <MinSize>k__BackingField: {x: 200, y: 200}
 --- !u!223 &3357455274895004069

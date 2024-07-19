@@ -18,7 +18,7 @@ namespace NuiN.CommandConsole
         
         public void RegisterAssemblies()
         {
-            if(model.AssemblyContainer != null) model.AssemblyContainer.FindAndRegister();
+            if(model.AssemblyContainerSO != null) model.AssemblyContainerSO.FindAndRegister();
         }
 
         public void LoadSavedValues(RectTransform root, Toggle collapseMessagesToggle)
@@ -36,7 +36,7 @@ namespace NuiN.CommandConsole
         {
             model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>();
 
-            List<Assembly> loadedAssemblies = model.AssemblyContainer.RegisteredAssemblies.Select(Assembly.Load).ToList();
+            List<Assembly> loadedAssemblies = model.AssemblyContainerSO.RegisteredAssemblies.Select(Assembly.Load).ToList();
                 
             foreach (var assembly in loadedAssemblies)
             {

@@ -5,9 +5,9 @@ using NuiN.ScriptableHarmony.Core;
 using UnityEditor;
 using UnityEngine;
 
-namespace NuiN.CommandConsole
+namespace NuiN.ScriptableHarmony
 {
-    public class ConsoleAssemblyContainer : ScriptableObject
+    public class AssemblyContainerSO : ScriptableObject
     {
         [field: SerializeField, ReadOnly] public List<string> RegisteredAssemblies { get; set; } = new();
 
