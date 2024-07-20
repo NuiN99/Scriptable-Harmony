@@ -2,6 +2,6 @@
 
 namespace NuiN.CommandConsole
 {
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class InjectComponentAttribute : Attribute { }
 }

@@ -68,6 +68,27 @@ namespace NuiN.ScriptableHarmony.Editor
                     Debug.LogWarning($"Component of type {componentType.Name} not found on {monoBehaviourInstance.name} when attempting injection", monoBehaviourInstance);
                 }
             }
+
+            PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (PropertyInfo property in properties)
+            {
+                if (property.GetCustomAttribute<InjectComponentAttribute>() == null) continue;
+                
+                Type componentType = property.PropertyType;
+                Component component = monoBehaviourInstance.GetComponent(componentType);
+                if (component == null) component = monoBehaviourInstance.GetComponentInParent(componentType);
+                if (component == null) component = monoBehaviourInstance.GetComponentInChildren(componentType);
+
+                if (component != null)
+                {
+                    property.SetValue(monoBehaviourInstance, component);
+                    EditorUtility.SetDirty(monoBehaviourInstance);
+                }
+                else
+                {
+                    Debug.LogWarning($"Component of type {componentType.Name} not found on {monoBehaviourInstance.name} when attempting injection", monoBehaviourInstance);
+                }
+            }
         }
     }
 }
