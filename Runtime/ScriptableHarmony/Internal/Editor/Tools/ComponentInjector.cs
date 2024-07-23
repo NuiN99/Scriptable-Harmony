@@ -51,8 +51,10 @@ namespace NuiN.ScriptableHarmony.Editor
 
             foreach (FieldInfo field in fields)
             {
-                if ((!field.IsDefined(typeof(ObsoleteAttribute), true) && !field.GetValue(monoBehaviourInstance).Equals(null)) || field.GetCustomAttribute<InjectComponentAttribute>() == null) continue;
-                
+                if (field.GetCustomAttribute<InjectComponentAttribute>() == null) continue;
+                if (!field.IsDefined(typeof(ObsoleteAttribute), true))
+                if (!field.GetValue(monoBehaviourInstance).Equals(null)) continue;
+
                 Type componentType = field.FieldType;
                 Component component = monoBehaviourInstance.GetComponent(componentType);
                 if (component == null) component = monoBehaviourInstance.GetComponentInParent(componentType);
@@ -72,7 +74,9 @@ namespace NuiN.ScriptableHarmony.Editor
             PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (PropertyInfo property in properties)
             {
-                if ((!property.IsDefined(typeof(ObsoleteAttribute), true) && !property.GetValue(monoBehaviourInstance).Equals(null)) ||  property.GetCustomAttribute<InjectComponentAttribute>() == null) continue;
+                if (property.GetCustomAttribute<InjectComponentAttribute>() == null) continue;
+                if (!property.IsDefined(typeof(ObsoleteAttribute), true))
+                if (!property.GetValue(monoBehaviourInstance).Equals(null)) continue;
                 
                 Type componentType = property.PropertyType;
                 Component component = monoBehaviourInstance.GetComponent(componentType);
