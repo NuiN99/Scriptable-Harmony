@@ -53,7 +53,7 @@ namespace NuiN.ScriptableHarmony.Editor
             {
                 if (field.GetCustomAttribute<InjectComponentAttribute>() == null) continue;
                 if (!field.IsDefined(typeof(ObsoleteAttribute), true))
-                if (!field.GetValue(monoBehaviourInstance).Equals(null)) continue;
+                if (!field.GetValue(monoBehaviourInstance) == null) continue;
 
                 Type componentType = field.FieldType;
                 Component component = monoBehaviourInstance.GetComponent(componentType);
@@ -76,7 +76,7 @@ namespace NuiN.ScriptableHarmony.Editor
             {
                 if (property.GetCustomAttribute<InjectComponentAttribute>() == null) continue;
                 if (!property.IsDefined(typeof(ObsoleteAttribute), true))
-                if (!property.GetValue(monoBehaviourInstance).Equals(null)) continue;
+                if (!property.GetValue(monoBehaviourInstance) == null) continue;
                 
                 Type componentType = property.PropertyType;
                 Component component = monoBehaviourInstance.GetComponent(componentType);
