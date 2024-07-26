@@ -1,3 +1,4 @@
+using NuiN.NExtensions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,7 +15,7 @@ namespace NuiN.CommandConsole
         [SerializeField, HideInInspector] InputAction autoCompleteInputAction;
         
         [Header("Dependencies")]
-        [SerializeField] CommandConsolePresenter presenter;
+        [SerializeField, InjectComponent] CommandConsolePresenter presenter;
         [SerializeField] RectTransform panelRoot;
         [SerializeField] Transform messagesRoot;
         [SerializeField] ScrollRect messagesScrollRect;

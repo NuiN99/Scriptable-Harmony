@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NuiN.NExtensions;
 using NuiN.ScriptableHarmony;
 using TMPro;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace NuiN.CommandConsole
     {
         const string INVALID_PARAMETER = "invalid!";
 
-        [SerializeField] CommandConsoleModel model;
+        [SerializeField, InjectComponent] CommandConsoleModel model;
         
         public void RegisterAssemblies()
         {
