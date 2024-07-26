@@ -9,6 +9,25 @@ namespace NuiN.ScriptableHarmony
 {
     public class AssemblyContainerSO : ScriptableObject
     {
+        static AssemblyContainerSO instance;
+        public static AssemblyContainerSO Instance => GetAssemblyContainer();
+
+        static AssemblyContainerSO GetAssemblyContainer()
+        {
+            if (instance != null) return instance;
+            instance = Resources.Load<AssemblyContainerSO>("SH_AssemblyContainer");
+            if (instance != null) return instance;
+            
+#if UNITY_EDITOR
+            AssetDatabase.CreateFolder("Assets", "Resources");
+            AssemblyContainerSO asset = CreateInstance<AssemblyContainerSO>();
+            AssetDatabase.CreateAsset(asset, "Assets/Resources/SH_AssemblyContainer.asset");
+            AssetDatabase.SaveAssets();
+            instance = asset;
+#endif
+            return instance;
+        }
+
         [field: SerializeField, ReadOnly] public List<string> RegisteredAssemblies { get; set; } = new();
 
         #if UNITY_EDITOR

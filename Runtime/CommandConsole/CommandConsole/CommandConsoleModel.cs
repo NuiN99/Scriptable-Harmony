@@ -18,7 +18,6 @@ namespace NuiN.CommandConsole
         const string COLLAPSE_MESSAGES_KEY = "COMMAND_CONSOLE_COLLAPSE_MESSAGES";
         const string CONSOLE_ENABLED_KEY = "COMMAND_CONSOLE_ENABLED";
         
-        [field: SerializeField] public AssemblyContainerSO AssemblyContainerSO { get; private set; }
         [field: SerializeField] public ConsoleMessage ConsoleMessagePrefab { get; private set; }
         [field: SerializeField] public Vector2 MinSize { get; private set; } = new(200, 200);
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NuiN.ScriptableHarmony;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,7 +19,7 @@ namespace NuiN.CommandConsole
         
         public void RegisterAssemblies()
         {
-            if(model.AssemblyContainerSO != null) model.AssemblyContainerSO.FindAndRegister();
+             AssemblyContainerSO.Instance.FindAndRegister();
         }
 
         public void LoadSavedValues(RectTransform root, Toggle collapseMessagesToggle)
@@ -36,7 +37,7 @@ namespace NuiN.CommandConsole
         {
             model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>();
 
-            List<Assembly> loadedAssemblies = model.AssemblyContainerSO.RegisteredAssemblies.Select(Assembly.Load).ToList();
+            List<Assembly> loadedAssemblies = AssemblyContainerSO.Instance.RegisteredAssemblies.Select(Assembly.Load).ToList();
                 
             foreach (var assembly in loadedAssemblies)
             {
@@ -403,7 +404,7 @@ namespace NuiN.CommandConsole
 
                     TMP_Text option = Instantiate(prefab, root);
 
-                    const string colorStart = "<color=yellow>";
+                    const string colorStart = "<color=#00FFF8>";
                     const string colorEnd = "</color>";
                     option.text = key.name + colorStart + parameters + colorEnd;
             
