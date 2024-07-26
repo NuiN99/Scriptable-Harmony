@@ -1,4 +1,4 @@
-﻿namespace TNRD
+﻿namespace NuiN.NExtensions
 {
     internal interface ISerializableInterface
     {

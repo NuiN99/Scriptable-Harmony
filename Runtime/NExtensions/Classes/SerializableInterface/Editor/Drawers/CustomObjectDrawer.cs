@@ -2,11 +2,10 @@
 #define UNITY_2022_3_20_OR_NEWER
 using TNRD.Utilities;
 #endif
-using TNRD.Utilities;
 using UnityEditor;
 using UnityEngine;
 
-namespace TNRD.Drawers
+namespace NuiN.NExtensions.Editor
 {
     public partial class CustomObjectDrawer
     {
@@ -97,7 +96,7 @@ namespace TNRD.Drawers
 
         private void ForceRepaintEditors()
         {
-            foreach (Editor activeEditor in ActiveEditorTracker.sharedTracker.activeEditors)
+            foreach (UnityEditor.Editor activeEditor in ActiveEditorTracker.sharedTracker.activeEditors)
             {
                 activeEditor.Repaint();
             }

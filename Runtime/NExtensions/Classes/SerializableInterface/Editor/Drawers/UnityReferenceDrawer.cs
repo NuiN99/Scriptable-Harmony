@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Reflection;
-using TNRD.Utilities;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace TNRD.Drawers
+namespace NuiN.NExtensions.Editor
 {
     internal class UnityReferenceDrawer : ReferenceDrawer, IReferenceDrawer
     {

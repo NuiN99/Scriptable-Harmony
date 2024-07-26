@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace TNRD
+namespace NuiN.NExtensions
 {
     /// <summary>
     /// A wrapper around an interface that supports serialization for both UnityEngine.Object and regular object types

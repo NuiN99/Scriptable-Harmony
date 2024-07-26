@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections;
-using TNRD.Drawers;
-using TNRD.Utilities;
+using NuiN.NExtensions.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace TNRD
+namespace NuiN.NExtensions
 {
     [CustomPropertyDrawer(typeof(SerializableInterface<>), true)]
     internal sealed class SerializableInterfacePropertyDrawer : PropertyDrawer

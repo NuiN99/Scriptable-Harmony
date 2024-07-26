@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace NuiN.NExtensions
 {
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class InjectComponentAttribute : PropertyAttribute
     {
         public readonly SearchOrder searchOrder = SearchOrder.ChildrenFirst;

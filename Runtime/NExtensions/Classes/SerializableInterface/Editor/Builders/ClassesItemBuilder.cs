@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using TNRD.Items;
-using TNRD.Utilities;
+using NuiN.NExtensions.Items;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine.Assertions;
 
-namespace TNRD.Builders
+namespace NuiN.NExtensions.Editor
 {
     internal sealed class ClassesItemBuilder
     {

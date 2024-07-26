@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace TNRD.Drawers
+namespace NuiN.NExtensions.Editor
 {
     internal interface IReferenceDrawer
     {

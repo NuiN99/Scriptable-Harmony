@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using TNRD.Builders;
-using TNRD.Items;
+using NuiN.NExtensions.Items;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 
-namespace TNRD.Utilities
+namespace NuiN.NExtensions.Editor
 {
     internal sealed class SerializableInterfaceAdvancedDropdown : AdvancedDropdown
     {

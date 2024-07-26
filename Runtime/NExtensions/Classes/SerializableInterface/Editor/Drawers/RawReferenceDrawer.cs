@@ -4,11 +4,10 @@
 
 using System;
 using System.Reflection;
-using TNRD.Utilities;
 using UnityEditor;
 using UnityEngine;
 
-namespace TNRD.Drawers
+namespace NuiN.NExtensions.Editor
 {
     internal partial class RawReferenceDrawer : ReferenceDrawer, IReferenceDrawer
     {

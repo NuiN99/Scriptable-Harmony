@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace TNRD.Drawers
+namespace NuiN.NExtensions.Editor
 {
     public partial class CustomObjectDrawer
     {

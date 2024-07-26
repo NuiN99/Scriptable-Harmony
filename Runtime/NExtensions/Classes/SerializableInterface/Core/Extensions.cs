@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace TNRD
+namespace NuiN.NExtensions
 {
     public static class Extensions
     {

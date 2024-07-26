@@ -1,4 +1,4 @@
-﻿namespace TNRD.Items
+﻿namespace NuiN.NExtensions.Items
 {
     internal interface IDropdownItem
     {

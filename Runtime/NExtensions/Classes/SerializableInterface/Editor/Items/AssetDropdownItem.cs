@@ -1,10 +1,10 @@
 ﻿using System.IO;
-using TNRD.Utilities;
+using NuiN.NExtensions.Editor;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace TNRD.Items
+namespace NuiN.NExtensions.Items
 {
     internal sealed class AssetDropdownItem : AdvancedDropdownItem, IDropdownItem
     {

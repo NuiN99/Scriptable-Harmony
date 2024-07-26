@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace TNRD.Utilities
+namespace NuiN.NExtensions.Editor
 {
     internal static class IconUtility
     {

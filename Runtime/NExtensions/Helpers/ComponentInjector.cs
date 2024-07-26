@@ -129,16 +129,23 @@ namespace NuiN.NExtensions.Editor
 
             if (component == null && attribute.injectOptions == InjectOptions.AddComponent)
             {
+                if (!componentType.IsAssignableFrom(typeof(MonoBehaviour)))
+                {
+                    Debug.LogError($"Attempted to add non-MonoBehaviour component of type <color=red>{componentType.Name}</color> on <color=white>{GetMonobehaviourName(monoBehaviourInstance)}</color> while attempting injection", monoBehaviourInstance);
+                    return component;
+                }
+                
                 component = monoBehaviourInstance.gameObject.AddComponent(componentType);
             }
             
             return component;
         }
 
-        static void WarnInjectionFailed(Type componentType, Component instance)
-        {
-            Debug.LogWarning($"Component of type <color=yellow>{componentType.Name}</color> not found on <color=white>{instance.name}</color> while attempting injection", instance);
-        }
+        static string GetMonobehaviourName(Component instance) 
+            => $"{instance.name} -> {instance.GetType().Name}";
+
+        static void WarnInjectionFailed(Type componentType, Component instance) 
+            => Debug.LogWarning($"Component of type <color=yellow>{componentType.Name}</color> not found on <color=white>{GetMonobehaviourName(instance)}</color> while attempting injection", instance);
     }
 }
 #endif

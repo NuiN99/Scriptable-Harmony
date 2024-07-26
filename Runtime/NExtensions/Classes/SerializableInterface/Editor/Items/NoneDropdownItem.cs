@@ -1,6 +1,6 @@
 ﻿using UnityEditor.IMGUI.Controls;
 
-namespace TNRD.Items
+namespace NuiN.NExtensions.Items
 {
     public class NoneDropdownItem : AdvancedDropdownItem, IDropdownItem
     {

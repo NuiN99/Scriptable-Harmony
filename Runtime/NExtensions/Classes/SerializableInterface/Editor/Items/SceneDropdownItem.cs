@@ -1,8 +1,8 @@
-﻿using TNRD.Utilities;
+﻿using NuiN.NExtensions.Editor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace TNRD.Items
+namespace NuiN.NExtensions.Items
 {
     internal sealed class SceneDropdownItem : AdvancedDropdownItem, IDropdownItem
     {

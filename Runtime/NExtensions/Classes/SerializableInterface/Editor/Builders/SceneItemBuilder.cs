@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Linq;
-using TNRD.Items;
-using TNRD.Utilities;
+using NuiN.NExtensions.Items;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 
-namespace TNRD.Builders
+namespace NuiN.NExtensions.Editor
 {
     internal sealed class SceneItemBuilder
     {

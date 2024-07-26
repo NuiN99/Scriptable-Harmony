@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using TNRD.Utilities;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -9,7 +8,7 @@ using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace TNRD.Drawers
+namespace NuiN.NExtensions.Editor
 {
     internal abstract class ReferenceDrawer
     {

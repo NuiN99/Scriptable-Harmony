@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 
-namespace TNRD.Utilities
+namespace NuiN.NExtensions.Editor
 {
     internal static class SerializedPropertyExtensions
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using TNRD.Utilities;
+using NuiN.NExtensions.Editor;
 using UnityEditor.IMGUI.Controls;
 
-namespace TNRD.Items
+namespace NuiN.NExtensions.Items
 {
     internal sealed class ClassDropdownItem : AdvancedDropdownItem, IDropdownItem
     {

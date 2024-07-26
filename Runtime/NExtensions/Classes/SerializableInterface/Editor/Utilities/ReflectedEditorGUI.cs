@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using UnityEditor;
 
-namespace TNRD.Utilities
+namespace NuiN.NExtensions.Editor
 {
     public static class ReflectedEditorGUI
     {
