@@ -24,6 +24,7 @@ namespace NuiN.CommandConsole
         [SerializeField] TMP_Text inputPlaceholderText;
         [SerializeField] HoldButton scaleButton;
         [SerializeField] HoldButton moveButton;
+        [SerializeField] Button clearButton;
         [SerializeField] Toggle collapseMessagesToggle;
         
 #if UNITY_EDITOR
@@ -43,6 +44,7 @@ namespace NuiN.CommandConsole
             moveButton.OnRelease += presenter.ResetInitialPositionValues;
             scaleButton.OnRelease += presenter.ResetInitialSizeValues;
             
+            clearButton.onClick.AddListener(ClearMessagesHandler);
             collapseMessagesToggle.onValueChanged.AddListener(CollapseToggleValueChangedHandler);
             
             toggleConsoleInput.action.performed += ToggleConsoleHandler;
@@ -62,6 +64,7 @@ namespace NuiN.CommandConsole
             moveButton.OnRelease -= presenter.ResetInitialPositionValues;
             scaleButton.OnRelease -= presenter.ResetInitialSizeValues;
             
+            clearButton.onClick.RemoveListener(ClearMessagesHandler);
             collapseMessagesToggle.onValueChanged.RemoveListener(CollapseToggleValueChangedHandler);
             
             toggleConsoleInput.action.performed -= ToggleConsoleHandler;
@@ -85,9 +88,9 @@ namespace NuiN.CommandConsole
         void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);
         void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
         void PopulateAutoCompleteOptionsHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
-
         void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text, true);
         void ClearAutoCompleteOptionsHandler(string text) => presenter.ClearAutoCompleteOptions();
+        void ClearMessagesHandler() => presenter.ClearMessages(messagesRoot);
 
         void Awake()
         {
@@ -97,6 +100,8 @@ namespace NuiN.CommandConsole
             toggleConsoleInput.action.Enable();
             deleteLastWordInputAction.Enable();
             autoCompleteInputAction.Enable();
+            
+            panelRoot.gameObject.SetActive(false);
         }
 
         void Update()

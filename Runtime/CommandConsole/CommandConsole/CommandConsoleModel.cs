@@ -16,7 +16,6 @@ namespace NuiN.CommandConsole
         const string SIZE_Y_KEY = "COMMAND_CONSOLE_SIZE_Y";
         
         const string COLLAPSE_MESSAGES_KEY = "COMMAND_CONSOLE_COLLAPSE_MESSAGES";
-        const string CONSOLE_ENABLED_KEY = "COMMAND_CONSOLE_ENABLED";
         
         [field: SerializeField] public ConsoleMessage ConsoleMessagePrefab { get; private set; }
         [field: SerializeField] public Vector2 MinSize { get; private set; } = new(200, 200);
@@ -35,7 +34,7 @@ namespace NuiN.CommandConsole
         
         public CommandKey SelectedCommand { get; set; }
 
-        public bool IsConsoleEnabled { get; set; } = true;
+        public bool IsConsoleEnabled { get; set; }
         public bool CollapseMessages { get; set; }
 
         public Vector2 GetSavedPosition()
@@ -73,17 +72,8 @@ namespace NuiN.CommandConsole
             CollapseMessages = collapseMessages;
             return collapseMessages;
         }
-        
-        public bool GetSavedToggleConsoleValue()
-        {
-            bool consoleEnabled = GeneralUtils.GetPrefsBool(IsConsoleEnabled, CONSOLE_ENABLED_KEY);
-            IsConsoleEnabled = consoleEnabled;
-            return consoleEnabled;
-        }
 
         public void SetSavedCollapseMessagesValue() => GeneralUtils.SetPrefsBool(CollapseMessages, COLLAPSE_MESSAGES_KEY);
-
-        public void SetSavedToggleConsoleValue() => GeneralUtils.SetPrefsBool(IsConsoleEnabled, CONSOLE_ENABLED_KEY);
 
         public void SetSavedPosition()
         {

@@ -30,7 +30,6 @@ namespace NuiN.CommandConsole
             root.sizeDelta = model.GetSavedSize();
 
             collapseMessagesToggle.isOn = model.GetSavedCollapseMessagesValue();
-            root.gameObject.SetActive(model.GetSavedToggleConsoleValue());
         }
         
         public void RegisterCommands()
@@ -243,7 +242,6 @@ namespace NuiN.CommandConsole
             bool isEnabled = !model.IsConsoleEnabled;
             console.SetActive(isEnabled);
             model.IsConsoleEnabled = isEnabled;
-            model.SetSavedToggleConsoleValue();
         }
 
         /// <summary> Replicate CTRL+Backspace functionality on Windows </summary>
@@ -437,5 +435,19 @@ namespace NuiN.CommandConsole
             }
         }
 
+        public void ClearMessages(Transform messagesRoot)
+        {
+            foreach (KeyValuePair<MessageKey, ConsoleMessage> log in model.Logs)
+            {
+                if(log.Value != null) Destroy(log.Value.gameObject);
+            }
+
+            foreach (Transform message in messagesRoot)
+            {
+                Destroy(message.gameObject);
+            }
+            
+            model.Logs.Clear();
+        }
     }
 }
