@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a68ba8d5d064c3092e484b9c1135e01, type: 3}
   m_Name: ConsoleMessageIcons
   m_EditorClassIdentifier: 
-  logIcon: {fileID: 21300000, guid: 6cc5103edc9f0dd4f80e8274c73dfeac, type: 3}
-  warningIcon: {fileID: 21300000, guid: 3f2d8e263d8314a48a35859e01318f35, type: 3}
-  errorIcon: {fileID: 21300000, guid: 11e6f279ade864c6d951e8db74c11b54, type: 3}
-  exceptionIcon: {fileID: 21300000, guid: 26c69ebfc75254d2d85011964359be73, type: 3}
-  assertIcon: {fileID: 21300000, guid: 04b7844ba6de040e3a9f0081d763c83d, type: 3}
+  logIcon: {fileID: 21300000, guid: e3869f7b9f0f168428b52ce884955cd4, type: 3}
+  warningIcon: {fileID: 21300000, guid: 7dc6084c9954e49429e6424e3976acba, type: 3}
+  errorIcon: {fileID: 21300000, guid: 8d26747223ddd4f4287db9e49f75deaa, type: 3}
+  exceptionIcon: {fileID: 21300000, guid: 2cc09510b2073a44a9c6446bd7885651, type: 3}
+  assertIcon: {fileID: 21300000, guid: 23990099b2713714abe128645b68144d, type: 3}
