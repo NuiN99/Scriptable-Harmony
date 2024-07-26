@@ -7,11 +7,11 @@ namespace NuiN.CommandConsole
     [MeansImplicitUse(ImplicitUseKindFlags.Assign)]
 #endif
     [AttributeUsage(AttributeTargets.Method)]
-    public class CommandAttribute : Attribute
+    public class ConsoleCommandAttribute : Attribute
     {
         public readonly string command;
     
-        public CommandAttribute(string command)
+        public ConsoleCommandAttribute(string command)
         {
             this.command = command;
         }

@@ -27,14 +27,7 @@ namespace NuiN.CommandConsole
         [SerializeField] HoldButton moveButton;
         [SerializeField] Button clearButton;
         [SerializeField] Toggle collapseMessagesToggle;
-        
-#if UNITY_EDITOR
-        void OnValidate()
-        {
-            if (presenter == null) return; 
-            presenter.RegisterAssemblies();
-        }
-#endif
+
         void OnEnable()
         {
             textInput.onSubmit.AddListener(InvokeCommandHandler);

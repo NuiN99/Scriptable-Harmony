@@ -17,11 +17,6 @@ namespace NuiN.CommandConsole
         const string INVALID_PARAMETER = "invalid!";
 
         [SerializeField, InjectComponent] CommandConsoleModel model;
-        
-        public void RegisterAssemblies()
-        {
-             AssemblyContainerSO.Instance.FindAndRegister();
-        }
 
         public void LoadSavedValues(RectTransform root, Toggle collapseMessagesToggle)
         {
@@ -45,8 +40,8 @@ namespace NuiN.CommandConsole
                 {
                     foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
                     {
-                        var commandAttributes = method.GetCustomAttributes(typeof(CommandAttribute), true);
-                        foreach (CommandAttribute attribute in commandAttributes)
+                        var commandAttributes = method.GetCustomAttributes(typeof(ConsoleCommandAttribute), true);
+                        foreach (ConsoleCommandAttribute attribute in commandAttributes)
                         {
                             if (!method.IsStatic && !typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType)) continue;
 
@@ -418,7 +413,6 @@ namespace NuiN.CommandConsole
             
             if (inputText.Length <= 0)
             {
-                model.SelectedCommand = default;
                 placeholderText.SetText(string.Empty);
             }
             else

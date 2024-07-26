@@ -66,6 +66,10 @@ namespace NuiN.ScriptableHarmony
                 string assetName = Path.GetFileNameWithoutExtension(path);
                 registeredAssemblies.Add(assetName);
             }
+
+            //add ScriptableHarmony assembly to include DefaultCommands for CommandConsole
+            const string shAssembly = "com.nuin.scriptableharmony";
+            if (!registeredAssemblies.Contains(shAssembly)) registeredAssemblies.Add(shAssembly);
             
             EditorUtility.SetDirty(this);
             #endif
