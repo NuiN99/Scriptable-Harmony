@@ -797,7 +797,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4516986432229443603}
   m_TextViewport: {fileID: 7013997346925387750}
   m_TextComponent: {fileID: 758189627964585223}
-  m_Placeholder: {fileID: 5515748529780861285}
+  m_Placeholder: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
@@ -2654,7 +2654,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2616924490170610146}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

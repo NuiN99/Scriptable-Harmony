@@ -387,18 +387,21 @@ namespace NuiN.CommandConsole
         public void PopulateAutoCompleteOptions(Transform root, TMP_Text prefab, TMP_Text placeholderText, string inputText, bool ignoreStringCheck = false)
         {
             ClearAutoCompleteOptions();
-            
+
             foreach ((CommandKey key, MethodInfo methodInfo) in model.RegisteredCommands)
             {
                 string commandName = key.name;
-                if (ignoreStringCheck || (inputText.Length <= 0 || commandName.ToLower().StartsWith(inputText.ToLower())))
+                if (commandName.ToLower().StartsWith(inputText.ToLower()))
                 {
                     model.SelectedCommand = key;
 
                     string parameters = string.Empty;
                     foreach (var param in methodInfo.GetParameters())
                     {
-                        parameters += $" {param.Name}({GetTypeName(param.ParameterType)})";
+                        parameters += $" {param.Name}";
+                        
+                        // include parameter type
+                        //parameters += GetTypeName(param.ParameterType);
                     }
 
                     TMP_Text option = Instantiate(prefab, root);
@@ -413,7 +416,16 @@ namespace NuiN.CommandConsole
                 }
             }
             
-            placeholderText.SetText(model.SelectedCommand.name);
+            if (inputText.Length <= 0)
+            {
+                model.SelectedCommand = default;
+                placeholderText.SetText(string.Empty);
+            }
+            else
+            {
+                placeholderText.SetText(model.SelectedCommand.name);
+
+            }
         }
 
         public void ClearAutoCompleteOptions()
