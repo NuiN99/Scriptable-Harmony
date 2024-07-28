@@ -9,6 +9,9 @@ namespace NuiN.ScriptableHarmony
 {
     public class AssemblyContainerSO : ScriptableObject
     {
+        [field: SerializeField, ReadOnly] public List<string> RegisteredAssemblies { get; set; } = new();
+        [field: SerializeField] public List<string> IgnoredAssemblies { get; set; } = new();
+        
         static AssemblyContainerSO instance;
         public static AssemblyContainerSO Instance => GetAssemblyContainer();
 
@@ -27,8 +30,6 @@ namespace NuiN.ScriptableHarmony
 #endif
             return instance;
         }
-
-        [field: SerializeField, ReadOnly] public List<string> RegisteredAssemblies { get; set; } = new();
 
         #if UNITY_EDITOR
         void OnEnable() => OnSaveEvent.OnSave += FindAndRegister;
@@ -64,12 +65,15 @@ namespace NuiN.ScriptableHarmony
                 }
                     
                 string assetName = Path.GetFileNameWithoutExtension(path);
+                
+                if(IgnoredAssemblies.Contains(assetName)) continue;
+                
                 registeredAssemblies.Add(assetName);
             }
 
             //add ScriptableHarmony assembly to include DefaultCommands for CommandConsole
             const string shAssembly = "com.nuin.scriptableharmony";
-            if (!registeredAssemblies.Contains(shAssembly)) registeredAssemblies.Add(shAssembly);
+            if (!registeredAssemblies.Contains(shAssembly) && !IgnoredAssemblies.Contains(shAssembly)) registeredAssemblies.Add(shAssembly);
             
             EditorUtility.SetDirty(this);
             #endif
