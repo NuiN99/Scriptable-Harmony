@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 
 namespace NuiN.NExtensions
@@ -6,3 +7,4 @@ namespace NuiN.NExtensions
     [CustomEditor( typeof( UnityEngine.MonoBehaviour ), true )]
     public class ShowInInspectorMonoBehaviourEditor : ShowInInspectorEditor { }
 }
+#endif

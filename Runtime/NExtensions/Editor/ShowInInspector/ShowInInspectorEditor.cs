@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 
 namespace NuiN.NExtensions
@@ -17,3 +19,5 @@ namespace NuiN.NExtensions
 		public override void OnInspectorGUI() => DrawGUI();
 	}
 }
+
+#endif
