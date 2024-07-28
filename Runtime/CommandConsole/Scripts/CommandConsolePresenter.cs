@@ -233,11 +233,24 @@ namespace NuiN.CommandConsole
             model.SetSavedPosition();
         }
 
-        public void ToggleConsole(GameObject console)
+        public void ToggleConsole(GameObject console, TMP_InputField inputField)
         {
             bool isEnabled = !model.IsConsoleEnabled;
             console.SetActive(isEnabled);
             model.IsConsoleEnabled = isEnabled;
+
+            if (isEnabled)
+            {
+                inputField.ActivateInputField();
+                inputField.Select();
+                CommandConsoleEvents.InvokeOpen();
+            }
+            else
+            {
+                inputField.text = string.Empty;
+                StartCoroutine(SetCaretPosition(inputField, 0));
+                CommandConsoleEvents.InvokeClose();
+            }
         }
 
         /// <summary> Replicate CTRL+Backspace functionality on Windows </summary>
@@ -406,6 +419,8 @@ namespace NuiN.CommandConsole
                     option.text = key.name + colorStart + parameters + colorEnd;
             
                     model.AutoCompleteOptions.Add(option);
+                    
+                    placeholderText.SetText(model.SelectedCommand.name);
 
                     // todo: implement autocomplete UI with selectable options 
                 }
@@ -414,11 +429,6 @@ namespace NuiN.CommandConsole
             if (inputText.Length <= 0)
             {
                 placeholderText.SetText(string.Empty);
-            }
-            else
-            {
-                placeholderText.SetText(model.SelectedCommand.name);
-
             }
         }
 
