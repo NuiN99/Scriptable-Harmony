@@ -18,6 +18,11 @@ namespace NuiN.NExtensions
         {
             return animator.NormalizedTime() >= 1;
         }
+
+        public static float CurrentStateDuration(this Animator animator, int layerIndex = 0)
+        {
+            return animator.GetCurrentAnimatorStateInfo(layerIndex).length;
+        }
         
         /// <summary>
         /// Remember to wait for crossfade time before calling
