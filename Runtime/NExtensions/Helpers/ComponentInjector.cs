@@ -20,7 +20,7 @@ namespace NuiN.NExtensions.Editor
         
         static void InjectComponentsInScene()
         {
-            foreach (MonoBehaviour monoBehaviourInstance in Object.FindObjectsOfType<MonoBehaviour>())
+            foreach (MonoBehaviour monoBehaviourInstance in Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
             {
                 InjectComponents(monoBehaviourInstance);
             }
@@ -28,7 +28,7 @@ namespace NuiN.NExtensions.Editor
         
         static void InjectComponentsInPrefabs()
         {
-            string[] allPrefabs = AssetDatabase.FindAssets("t:Prefab");
+            string[] allPrefabs = AssetDatabase.FindAssets("t:Prefab", new[] {"Assets"});
 
             foreach (string prefabGuid in allPrefabs)
             {
@@ -46,59 +46,37 @@ namespace NuiN.NExtensions.Editor
         
         static void InjectComponents(Component monoBehaviourInstance)
         {
-            if (monoBehaviourInstance == null) return;
-            
             Type type = monoBehaviourInstance.GetType();
+            if (type.GetCustomAttributes(typeof(InjectComponentAttribute), true).Length > 0)
+            {
+                return;
+            }
+            
             FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-            InjectMembers(fields, monoBehaviourInstance);
-            InjectMembers(properties, monoBehaviourInstance);
+            InjectFields(fields, monoBehaviourInstance);
         }
 
-        static void InjectMembers(IEnumerable<MemberInfo> members, Component monoBehaviourInstance)
+        static void InjectFields(IEnumerable<FieldInfo> fields, Component monoBehaviourInstance)
         {
-            foreach (MemberInfo member in members)
+            foreach (FieldInfo field in fields)
             {
-                InjectComponentAttribute attribute = member.GetCustomAttribute<InjectComponentAttribute>();
+                InjectComponentAttribute attribute = field.GetCustomAttribute<InjectComponentAttribute>();
                 if (attribute == null) continue;
                 
-                Type type = null;
-                Component component = null;
-                Action setAction = null;
-                if (member is FieldInfo field)
+                if (field.GetValue(monoBehaviourInstance) != null)
                 {
-                    if (field.GetValue(monoBehaviourInstance) != null)
+                    if (!field.GetValue(monoBehaviourInstance).Equals(null))
                     {
-                        if (!field.GetValue(monoBehaviourInstance).Equals(null))
-                        {
-                            continue;
-                        }
+                        continue;
                     }
-                    
-                    type = field.FieldType;
-                    component = GetComponent(monoBehaviourInstance, type, attribute);
-                    setAction = () => field.SetValue(monoBehaviourInstance, component);
                 }
-                else if (member is PropertyInfo property)
-                {
-                    if (property.GetValue(monoBehaviourInstance) != null)
-                    {
-                        if (!property.GetValue(monoBehaviourInstance).Equals(null))
-                        {
-                            continue;
-                        }
-                    }
                     
-                    type = property.PropertyType;
-                    component = GetComponent(monoBehaviourInstance, type, attribute);
-                    setAction = () => property.SetValue(monoBehaviourInstance, component);
-                }
-                
+                Type type = field.FieldType;
+                Component component = GetComponent(monoBehaviourInstance, type, attribute);
                 if (component != null)
                 {
-                    setAction.Invoke();
+                    field.SetValue(monoBehaviourInstance, component);
                     EditorUtility.SetDirty(monoBehaviourInstance);
                 }
                 else
