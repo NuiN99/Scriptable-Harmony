@@ -6,6 +6,9 @@ namespace NuiN.NExtensions
     [SelectionBase]
     public class Ragdoll : MonoBehaviour
     {
+        [Header("Setup Options")]
+        [SerializeField] float setupTotalMass;
+        
         [Header("Values")]
         [SerializeField] float ragdollTime = 3f;
         public float limbForceMult = 2f;
@@ -37,22 +40,14 @@ namespace NuiN.NExtensions
                 Debug.LogError("There are no RagdollLimbs on this Ragdoll: Remember to create the Ragdoll using the Create Ragdoll Button");
             }
         }
-
-        void Start()
-        {
-            DisableRagdoll();
-        }
         
         [MethodButton("Create Ragdoll")]
-        public void SetupRagdollInInspector(
-            float combinedMass = 100f, 
-            CollisionDetectionMode collisionDetectionMode = CollisionDetectionMode.Continuous, 
-            bool useTriggers = false)
+        public void SetupRagdollInInspector()
         {
             UpdateLimbComponents();
-            SetTotalMass(combinedMass);
-            SetCollisionDetectionMode(collisionDetectionMode);
-            SetColliderTypes(useTriggers);
+            SetTotalMass(setupTotalMass);
+            SetCollisionDetectionMode(CollisionDetectionMode.Continuous);
+            SetColliderTypes(false);
         }
 
         void UpdateLimbComponents()
@@ -62,12 +57,13 @@ namespace NuiN.NExtensions
             {
                 if (rb.TryGetComponent(out RagdollLimb existingLimb))
                 {
-                    existingLimb.ragdoll = this;
+                    existingLimb.Setup(this);
                 }
                 else
                 {
                     if (rb.gameObject == this.gameObject) continue;
-                    rb.gameObject.AddComponent<RagdollLimb>().ragdoll = this;
+                    RagdollLimb limb = rb.gameObject.AddComponent<RagdollLimb>();
+                    limb.Setup(this);
                 }
             }
         }
@@ -102,7 +98,6 @@ namespace NuiN.NExtensions
                 limb.GetComponent<Collider>().isTrigger = isTrigger;
             }
         }
-
 
         public void ChangeBodyType(CollisionDetectionMode type)
         {
@@ -149,7 +144,7 @@ namespace NuiN.NExtensions
             {
                 if (usesTriggers) limb.col.isTrigger = true;
 
-                limb.rb.isKinematic = true;
+                if(limb.rb != null) limb.rb.isKinematic = true;
             }
         }
 

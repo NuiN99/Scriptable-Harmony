@@ -8,10 +8,11 @@ namespace NuiN.NExtensions
         public Rigidbody rb;
         public Collider col;
 
-        void Awake()
+        public void Setup(Ragdoll ragdoll)
         {
-            col = GetComponent<Collider>();
+            this.ragdoll = ragdoll;
             rb = GetComponent<Rigidbody>();
+            col = GetComponent<Collider>();
         }
 
         void OnCollisionEnter(Collision other)
