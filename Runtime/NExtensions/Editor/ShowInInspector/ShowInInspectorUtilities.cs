@@ -49,8 +49,6 @@ namespace NuiN.NExtensions
             // Then properties
             if (editorData.Properties.Length > 0)
             {
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Properties:");
                 Draw(editorData.Properties);
             }
         }
@@ -64,7 +62,7 @@ namespace NuiN.NExtensions
             foreach (BaseData field in showInInspectorDatas)
             {
                 EditorGUILayout.BeginHorizontal(emptyOptions);
-                EditorGUI.BeginDisabledGroup(!field.HasSetter);
+                EditorGUI.BeginDisabledGroup(true);
 
                 switch (field.InspectorType)
                 {
@@ -152,7 +150,6 @@ namespace NuiN.NExtensions
 
                 EditorGUI.EndDisabledGroup();
                 EditorGUILayout.EndHorizontal();
-
             }
 
             EditorGUILayout.EndVertical();
