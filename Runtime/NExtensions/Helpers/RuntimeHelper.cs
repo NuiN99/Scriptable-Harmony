@@ -63,8 +63,8 @@ namespace NuiN.NExtensions
 
         void Awake()
         {
-            if(instance != null && instance != this) Destroy(instance.gameObject);
-            else instance = this;
+            instance = this;
+            DontDestroyOnLoad(this);
         }
    
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
