@@ -7,11 +7,9 @@ namespace NuiN.NExtensions
 {
     public static class RuntimeHelper
     {
-        public static void SubOnLoad(Action action) => RuntimeHelperInstance.OnGameLoaded += action;
-        public static void UnSubOnLoad(Action action) => RuntimeHelperInstance.OnGameLoaded -= action;
-        
-        public static void SubOnUpdate(Action action) => RuntimeHelperInstance.OnUpdate += action;
-        public static void UnSubOnUpdate(Action action) => RuntimeHelperInstance.OnUpdate -= action;
+        public static event Action OnGameLoaded = delegate { };
+        public static event Action OnUpdate = delegate { };
+        public static event Action OnDrawGizmos = delegate { };
 
         public static Coroutine StartCoroutine(IEnumerator coroutine) => RuntimeHelperInstance.MonoInstance.StartCoroutine(coroutine);
         
@@ -22,13 +20,14 @@ namespace NuiN.NExtensions
             yield return new WaitForSeconds(seconds);
             onComplete?.Invoke();
         }
+
+        internal static void InvokeOnGameLoaded() => OnGameLoaded.Invoke();
+        internal static void InvokeOnUpdate() => OnUpdate.Invoke();
+        internal static void InvokeOnDrawGizmos() => OnDrawGizmos.Invoke();
     }
     
     internal class RuntimeHelperInstance : MonoBehaviour
     {
-        internal static event Action OnGameLoaded = delegate { };
-        internal static event Action OnUpdate = delegate { };
-
         static RuntimeHelperInstance instance;
         public static MonoBehaviour MonoInstance { get; private set; }
    
@@ -37,7 +36,7 @@ namespace NuiN.NExtensions
         {
             instance = new GameObject("Scriptable Harmony Runtime Helper").AddComponent<RuntimeHelperInstance>();
             MonoInstance = instance;
-            OnGameLoaded.Invoke();
+            RuntimeHelper.InvokeOnGameLoaded();
         }
 
         void Awake()
@@ -54,10 +53,8 @@ namespace NuiN.NExtensions
             DontDestroyOnLoad(gameObject);
         }
 
-        void Update()
-        {
-            OnUpdate.Invoke();
-        }
+        void Update() => RuntimeHelper.InvokeOnUpdate();
+        void OnDrawGizmos() => RuntimeHelper.InvokeOnDrawGizmos();
 
 #if UNITY_EDITOR
         static void UnloadInstance(PlayModeStateChange newMode)
