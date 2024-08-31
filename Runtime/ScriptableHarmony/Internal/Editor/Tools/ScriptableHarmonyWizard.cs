@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using NuiN.NExtensions;
 using NuiN.NExtensions.Editor;
 using NuiN.ScriptableHarmony.Core;
 using NuiN.ScriptableHarmony.Sound;
@@ -37,6 +38,12 @@ namespace NuiN.ScriptableHarmony.Editor
 
             window._currentTab = EditorPrefs.HasKey(PREFS_LAST_TAB) ? (Tab)EditorPrefs.GetInt(PREFS_LAST_TAB) : default;
             window.Show();
+
+            RuntimeHelper.OnDrawGizmos += () =>
+            {
+                Debug.Log("hello");
+                Gizmos.DrawCube(Vector3.zero, Vector3.one);
+            };
         }
 
         public static void Open(Tab tab)
