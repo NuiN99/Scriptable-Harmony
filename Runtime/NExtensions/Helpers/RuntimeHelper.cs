@@ -5,51 +5,20 @@ using UnityEngine;
 
 namespace NuiN.NExtensions
 {
-    public static class RuntimeHelper
+    public class RuntimeHelper : MonoBehaviour
     {
-        public static event Action OnGameLoaded
-        {
-            add => RuntimeHelperInstance.Instance.onGameLoaded += value;
-            remove => RuntimeHelperInstance.Instance.onGameLoaded -= value;
-        }
+        public static event Action OnGameLoadedEvent = delegate { };
+        public static event Action UpdateEvent = delegate { };
+        public static event Action OnDrawGizmosEvent = delegate { };
         
-        public static event Action OnUpdate
-        {
-            add => RuntimeHelperInstance.Instance.onUpdate += value;
-            remove => RuntimeHelperInstance.Instance.onUpdate -= value;
-        }
-        
-        public static event Action OnDrawGizmos
-        {
-            add => RuntimeHelperInstance.Instance.onDrawGizmos += value;
-            remove => RuntimeHelperInstance.Instance.onDrawGizmos -= value;
-        }
-
-        public static Coroutine StartCoroutine(IEnumerator coroutine) => RuntimeHelperInstance.Instance.StartCoroutine(coroutine);
-        
-        public static Coroutine DoAfter(float seconds, Action onComplete) => RuntimeHelperInstance.Instance.StartCoroutine(DoAfterRoutine(seconds, onComplete));
-
-        static IEnumerator DoAfterRoutine(float seconds, Action onComplete)
-        {
-            yield return new WaitForSeconds(seconds);
-            onComplete?.Invoke();
-        }
-    }
-    
-    public class RuntimeHelperInstance : MonoBehaviour
-    {
-        internal Action onGameLoaded = delegate { };
-        internal Action onUpdate = delegate { };
-        internal Action onDrawGizmos = delegate { };
-        
-        static RuntimeHelperInstance instance;
-        internal static RuntimeHelperInstance Instance
+        static RuntimeHelper instance;
+        public static RuntimeHelper Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = FindObjectOfType<RuntimeHelperInstance>();
+                    instance = FindObjectOfType<RuntimeHelper>();
                     
                     if (instance == null)
                     {
@@ -68,29 +37,23 @@ namespace NuiN.NExtensions
         }
    
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void InvokeGameLoadedEvent() => Instance.onGameLoaded.Invoke();
+        static void InvokeGameLoadedEvent() => OnGameLoadedEvent.Invoke();
 
-        static RuntimeHelperInstance CreateInstance()
+        static RuntimeHelper CreateInstance()
         {
-            RuntimeHelperInstance obj = new GameObject("Scriptable Harmony Runtime Helper").AddComponent<RuntimeHelperInstance>();
+            RuntimeHelper obj = new GameObject("Scriptable Harmony Runtime Helper").AddComponent<RuntimeHelper>();
             if(Application.isPlaying) DontDestroyOnLoad(obj);
             return obj;
         }
-
-        void Update() => Instance.onUpdate.Invoke();
-        void OnDrawGizmos() => Instance.onDrawGizmos.Invoke();
-
-#if UNITY_EDITOR
-        static void UnloadInstance(PlayModeStateChange newMode)
+        
+        static IEnumerator DoAfterRoutine(float seconds, Action onComplete)
         {
-            if (newMode != PlayModeStateChange.EnteredEditMode) return;
-            
-            Instance.StopAllCoroutines();
-            Destroy(Instance.gameObject);
+            yield return new WaitForSeconds(seconds);
+            onComplete?.Invoke();
         }
-        void OnEnable() => EditorApplication.playModeStateChanged += UnloadInstance;
-        void OnDisable() => EditorApplication.playModeStateChanged -= UnloadInstance;
-        #endif
+
+        void Update() => UpdateEvent.Invoke();
+        void OnDrawGizmos() => OnDrawGizmosEvent.Invoke();
     }
 }
 

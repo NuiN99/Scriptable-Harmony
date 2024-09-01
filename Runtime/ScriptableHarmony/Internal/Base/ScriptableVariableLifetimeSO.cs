@@ -13,7 +13,7 @@ namespace NuiN.ScriptableHarmony.Core
         protected new virtual void OnEnable()
         {
             base.OnEnable();
-            RuntimeHelper.OnGameLoaded += SaveDefaultValue;
+            RuntimeHelper.OnGameLoadedEvent += SaveDefaultValue;
             SceneManager.activeSceneChanged += OnSceneLoad;
             ScriptableHarmonyManager.OnResetAllVariableObjects += ResetValueToDefault;
 #if UNITY_EDITOR
@@ -24,7 +24,7 @@ namespace NuiN.ScriptableHarmony.Core
         new void OnDisable()
         {
             base.OnDisable();
-            RuntimeHelper.OnGameLoaded -= SaveDefaultValue;
+            RuntimeHelper.OnGameLoadedEvent -= SaveDefaultValue;
             SceneManager.activeSceneChanged -= OnSceneLoad;
             ScriptableHarmonyManager.OnResetAllVariableObjects -= ResetValueToDefault;
 #if  UNITY_EDITOR
