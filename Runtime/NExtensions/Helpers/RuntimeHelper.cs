@@ -7,9 +7,9 @@ namespace NuiN.NExtensions
 {
     public class RuntimeHelper : MonoBehaviour
     {
-        public event Action OnGameLoadedEvent = delegate { };
-        public event Action UpdateEvent = delegate { };
-        public event Action OnDrawGizmosEvent = delegate { };
+        public static event Action OnGameLoadedEvent = delegate { };
+        public static event Action UpdateEvent = delegate { };
+        public static event Action OnDrawGizmosEvent = delegate { };
         
         static RuntimeHelper instance;
         public static RuntimeHelper Instance
@@ -37,7 +37,7 @@ namespace NuiN.NExtensions
         }
    
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void InvokeGameLoadedEvent() => Instance.OnGameLoadedEvent.Invoke();
+        static void InvokeGameLoadedEvent() => OnGameLoadedEvent.Invoke();
 
         static RuntimeHelper CreateInstance()
         {
