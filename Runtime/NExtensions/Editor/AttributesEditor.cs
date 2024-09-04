@@ -10,8 +10,8 @@ namespace NuiN.NExtensions
 	[CustomEditor( typeof( MonoBehaviour ), true ), CanEditMultipleObjects]
 	public class AttributesEditor : UnityEditor.Editor
 	{
-		void OnEnable() => RuntimeHelper.UpdateEvent += Repaint;
-		void OnDisable() => RuntimeHelper.UpdateEvent -= Repaint;
+		void OnEnable() => RuntimeHelper.OnUpdate += Repaint;
+		void OnDisable() => RuntimeHelper.OnUpdate -= Repaint;
 
 		public override void OnInspectorGUI()
 		{

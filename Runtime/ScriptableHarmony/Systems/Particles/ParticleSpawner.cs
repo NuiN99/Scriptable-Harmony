@@ -89,7 +89,7 @@ namespace NuiN.ScriptableHarmony.Particles
             }
             
             
-            RuntimeHelper.Instance.DoAfter(lifetime.Value, () =>
+            RuntimeHelper.DoAfter(lifetime.Value, () =>
             {
                 if(particleSystem != null) poolTuple.pool?.Release(particleSystem);
             });

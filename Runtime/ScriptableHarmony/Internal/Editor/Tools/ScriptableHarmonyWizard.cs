@@ -39,7 +39,7 @@ namespace NuiN.ScriptableHarmony.Editor
             window._currentTab = EditorPrefs.HasKey(PREFS_LAST_TAB) ? (Tab)EditorPrefs.GetInt(PREFS_LAST_TAB) : default;
             window.Show();
 
-            RuntimeHelper.OnDrawGizmosEvent += () =>
+            RuntimeHelper.OnDrawGizmos += () =>
             {
                 Debug.Log("hello");
                 Gizmos.DrawCube(Vector3.zero, Vector3.one);
