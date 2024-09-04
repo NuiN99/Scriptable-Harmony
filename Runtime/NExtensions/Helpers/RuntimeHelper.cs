@@ -36,7 +36,7 @@ namespace NuiN.NExtensions
         }
     }
     
-    public class RuntimeHelperInstance : MonoBehaviour
+    internal class RuntimeHelperInstance : MonoBehaviour
     {
         internal Action onGameLoaded = delegate { };
         internal Action onUpdate = delegate { };
