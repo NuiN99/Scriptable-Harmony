@@ -60,12 +60,6 @@ namespace NuiN.NExtensions
                 return instance;
             }
         }
-
-        void Awake()
-        {
-            if(instance != null && instance != this) Destroy(instance.gameObject);
-            else instance = this;
-        }
    
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void InvokeGameLoadedEvent() => Instance.onGameLoaded.Invoke();
