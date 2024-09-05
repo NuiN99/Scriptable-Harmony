@@ -2286,18 +2286,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c0b60c4e01ff184daa40b44bca83cb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toggleConsoleInput:
+  toggleConsoleInputAction:
     m_UseReference: 0
     m_Action:
       m_Name: Toggle Console Input
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: e9a4de94-edb6-4da6-8bf6-e4a51d9bd8eb
+      m_Id: c3c4ccaf-f311-4927-9f3d-53e155b23ee0
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: 5cf56d9b-43db-43ae-b9bf-847a957f8fe0
+        m_Id: 3b6c1ae3-6936-443d-b61a-a6c4e011eb3c
         m_Path: <Keyboard>/backquote
         m_Interactions: 
         m_Processors: 
@@ -2307,55 +2307,109 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 0}
   deleteLastWordInputAction:
-    m_Name: Delete Last Word Input
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 7347397f-797c-4878-a4b5-45f03226d4d6
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: One Modifier
-      m_Id: 5ccb2236-6331-4582-b274-0f62da94803c
-      m_Path: OneModifier
-      m_Interactions: 
+    m_UseReference: 0
+    m_Action:
+      m_Name: Delete Last Word Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 3367fb73-0dd7-453d-8006-673e3a06e0b9
       m_Processors: 
-      m_Groups: 
-      m_Action: Delete Last Word Input
-      m_Flags: 4
-    - m_Name: binding
-      m_Id: ea22d030-6d37-4fb7-b9c0-c8248223dab8
-      m_Path: <Keyboard>/ctrl
       m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Delete Last Word Input
-      m_Flags: 8
-    - m_Name: modifier
-      m_Id: cee68034-c253-4851-a386-12f05e255cc9
-      m_Path: <Keyboard>/backspace
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Delete Last Word Input
-      m_Flags: 8
-    m_Flags: 0
-  autoCompleteInputAction:
-    m_Name: Auto Complete Input
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 16ca4a5c-1a49-4727-954d-4751d394c955
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 5e7e1534-3716-48df-9dc6-9952b4eb044b
-      m_Path: <Keyboard>/tab
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Auto Complete Input
+      m_SingletonActionBindings:
+      - m_Name: One Modifier
+        m_Id: 047b5fe8-3e5b-4c2e-94ed-738375c2cfbf
+        m_Path: OneModifier
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Delete Last Word Input
+        m_Flags: 4
+      - m_Name: modifier
+        m_Id: 6b42c126-60de-4662-8780-fee93710d298
+        m_Path: <Keyboard>/ctrl
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Delete Last Word Input
+        m_Flags: 8
+      - m_Name: binding
+        m_Id: 1df20efd-5849-4bcd-8489-10eff04ed7c8
+        m_Path: <Keyboard>/backspace
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Delete Last Word Input
+        m_Flags: 8
       m_Flags: 0
-    m_Flags: 0
+    m_Reference: {fileID: 0}
+  autoCompleteInputAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Auto Complete Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: f94f3a38-8c02-44f7-a29e-71e2836dc640
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 98dbfb20-843b-4b52-be0a-8f93ecc9174a
+        m_Path: <Keyboard>/tab
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Auto Complete Input
+        m_Flags: 0
+      - m_Name: 
+        m_Id: 42e56caf-94c6-49f7-baef-c057f272763d
+        m_Path: <Keyboard>/rightArrow
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Auto Complete Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  commandHistoryUpInputAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Command History Up Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: cf9fc5ff-dcf4-4b53-89bd-5433921b9409
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 9aa6bc58-aaa2-4af8-badf-88d8a069482b
+        m_Path: <Keyboard>/upArrow
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Command History Up Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  commandHistoryDownInputAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Command History Down Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 5a323d78-bd87-493c-b6c7-e912bfb5831b
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 1ca041f2-6c29-40e2-ab9a-51ae9f38f902
+        m_Path: <Keyboard>/downArrow
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Command History Down Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   presenter: {fileID: 450594053277002934}
   panelRoot: {fileID: 4617400915113296142}
   messagesRoot: {fileID: 6500568075337380243}
@@ -2654,7 +2708,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2616924490170610146}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

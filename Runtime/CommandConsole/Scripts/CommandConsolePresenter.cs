@@ -236,21 +236,29 @@ namespace NuiN.CommandConsole
         public void ToggleConsole(GameObject console, TMP_InputField inputField)
         {
             bool isEnabled = !model.IsConsoleEnabled;
-            console.SetActive(isEnabled);
-            model.IsConsoleEnabled = isEnabled;
 
-            if (isEnabled)
-            {
-                inputField.ActivateInputField();
-                inputField.Select();
-                CommandConsoleEvents.InvokeOpen();
-            }
-            else
-            {
-                inputField.text = string.Empty;
-                StartCoroutine(SetCaretPosition(inputField, 0));
-                CommandConsoleEvents.InvokeClose();
-            }
+            if (isEnabled) EnableConsole(console, inputField);
+            else DisableConsole(console, inputField);
+        }
+
+        public void EnableConsole(GameObject console, TMP_InputField inputField)
+        {
+            console.SetActive(true);
+            model.IsConsoleEnabled = true;
+            
+            inputField.ActivateInputField();
+            inputField.Select();
+            CommandConsoleEvents.InvokeOpen();
+        }
+
+        public void DisableConsole(GameObject console, TMP_InputField inputField)
+        {
+            console.SetActive(false);
+            model.IsConsoleEnabled = false;
+            
+            inputField.text = string.Empty;
+            StartCoroutine(SetCaretPosition(inputField, 0));
+            CommandConsoleEvents.InvokeClose();
         }
 
         /// <summary> Replicate CTRL+Backspace functionality on Windows </summary>
@@ -396,37 +404,41 @@ namespace NuiN.CommandConsole
         {
             ClearAutoCompleteOptions();
 
+            model.SelectedCommand = CommandKey.empty;
+            placeholderText.SetText(string.Empty);
+            
             foreach ((CommandKey key, MethodInfo methodInfo) in model.RegisteredCommands)
             {
                 string commandName = key.name;
-                if (commandName.ToLower().StartsWith(inputText.ToLower()))
+
+                string inputCommandName = inputText.Split(new[] { ' ' }, 2)[0];
+                if (!commandName.ToLower().StartsWith(inputCommandName.ToLower()) || (inputText.Length > commandName.Length && !key.HasParameters)) continue;
+                
+                model.SelectedCommand = key;
+
+                string parameters = string.Empty;
+                foreach (var param in methodInfo.GetParameters())
                 {
-                    model.SelectedCommand = key;
-
-                    string parameters = string.Empty;
-                    foreach (var param in methodInfo.GetParameters())
-                    {
-                        parameters += $" {param.Name}";
+                    parameters += $" {param.Name}";
                         
-                        // include parameter type
-                        //parameters += GetTypeName(param.ParameterType);
-                    }
-
-                    TMP_Text option = Instantiate(prefab, root);
-
-                    const string colorStart = "<color=#00FFF8>";
-                    const string colorEnd = "</color>";
-                    option.text = key.name + colorStart + parameters + colorEnd;
-            
-                    model.AutoCompleteOptions.Add(option);
-                    
-                    placeholderText.SetText(model.SelectedCommand.name);
-
-                    // todo: implement autocomplete UI with selectable options 
+                    // include parameter type
+                    //parameters += GetTypeName(param.ParameterType);
                 }
+
+                TMP_Text option = Instantiate(prefab, root);
+
+                const string colorStart = "<color=#00FFF8>";
+                const string colorEnd = "</color>";
+                option.text = key.name + colorStart + parameters + colorEnd;
+            
+                model.AutoCompleteOptions.Add(option);
+                    
+                placeholderText.SetText(model.SelectedCommand.name);
+
+                // todo: implement autocomplete UI with selectable options 
             }
             
-            if (inputText.Length <= 0)
+            if (inputText == string.Empty)
             {
                 placeholderText.SetText(string.Empty);
             }
@@ -465,6 +477,24 @@ namespace NuiN.CommandConsole
             }
             
             model.Logs.Clear();
+        }
+
+        public void SubmitCommand(TMP_InputField textInput, TMP_Text inputPlaceholderText, ScrollRect messagesScrollRect, Transform autoCompleteRoot, TMP_Text autoCompleteOptionPrefab, RectTransform panelRoot)
+        {
+            string inputtedCommand = textInput.text.Split(new[] { ' ' }, 2)[0];
+            if (!model.SelectedCommand.Equals(CommandKey.empty) && inputtedCommand != inputPlaceholderText.text)
+            {
+                FillAutoCompletedText(textInput);
+                textInput.ActivateInputField();
+                return;
+            }
+            
+            InvokeCommand(textInput);
+            SetScrollRectPosition(messagesScrollRect, 0);
+            
+            PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
+
+            DisableConsole(panelRoot.gameObject, textInput);
         }
     }
 }

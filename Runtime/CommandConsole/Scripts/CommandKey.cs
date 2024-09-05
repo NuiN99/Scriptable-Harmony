@@ -6,6 +6,9 @@ namespace NuiN.CommandConsole
 {
     public readonly struct CommandKey : IEqualityComparer<CommandKey>
     {
+        public static CommandKey empty = new(string.Empty, new List<ParameterInfo>());
+        public bool HasParameters => parameterTypes.Count > 0;
+        
         public readonly string name;
         public readonly List<Type> parameterTypes;
 
