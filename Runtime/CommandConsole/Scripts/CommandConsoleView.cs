@@ -15,6 +15,7 @@ namespace NuiN.CommandConsole
         [SerializeField] InputActionProperty autoCompleteInputAction;
         [SerializeField] InputActionProperty commandHistoryUpInputAction;
         [SerializeField] InputActionProperty commandHistoryDownInputAction;
+        [SerializeField] InputActionProperty closeConsoleInputAction;
         
         [Header("Dependencies")]
         [SerializeField, InjectComponent] CommandConsolePresenter presenter;
@@ -37,6 +38,8 @@ namespace NuiN.CommandConsole
             textInput.onSelect.AddListener(PopulateAutoCompleteOptionsOnSelectHandler);
             textInput.onDeselect.AddListener(ClearAutoCompleteOptionsHandler);
             
+            textInput.onEndEdit.AddListener(InputDeselectedHandler);
+            
             moveButton.OnRelease += presenter.ResetInitialPositionValues;
             scaleButton.OnRelease += presenter.ResetInitialSizeValues;
             
@@ -46,7 +49,7 @@ namespace NuiN.CommandConsole
             toggleConsoleInputAction.action.performed += ToggleConsoleHandler;
             deleteLastWordInputAction.action.performed += DeleteTextBlockHandler;
             autoCompleteInputAction.action.performed += FillAutoCompletedTextHandler;
-
+            
             Application.logMessageReceived += LogMessageRecievedHandler;
         }
 
@@ -56,6 +59,8 @@ namespace NuiN.CommandConsole
             textInput.onValueChanged.RemoveListener(PopulateAutoCompleteOptionsHandler);
             textInput.onSelect.RemoveListener(PopulateAutoCompleteOptionsOnSelectHandler);
             textInput.onDeselect.RemoveListener(ClearAutoCompleteOptionsHandler);
+            
+            textInput.onEndEdit.RemoveListener(InputDeselectedHandler);
             
             moveButton.OnRelease -= presenter.ResetInitialPositionValues;
             scaleButton.OnRelease -= presenter.ResetInitialSizeValues;
@@ -79,6 +84,12 @@ namespace NuiN.CommandConsole
         void PopulateAutoCompleteOptionsHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
         void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text, true);
         void ClearAutoCompleteOptionsHandler(string text) => presenter.ClearAutoCompleteOptions();
+        void InputDeselectedHandler(string text)
+        {
+            if (!Input.GetKey(KeyCode.Escape)) return;
+            presenter.DisableConsole(panelRoot.gameObject, textInput);
+        }
+
         void ClearMessagesHandler() => presenter.ClearMessages(messagesRoot);
 
         void Awake()

@@ -2410,6 +2410,26 @@ MonoBehaviour:
         m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
+  closeConsoleInputAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Close Console Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: a7ad9c19-bb72-4f52-93b0-1fa859c73f4b
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 88c7d945-b24a-4123-b224-ffbe5b1e98f9
+        m_Path: <Keyboard>/escape
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Close Console Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
   presenter: {fileID: 450594053277002934}
   panelRoot: {fileID: 4617400915113296142}
   messagesRoot: {fileID: 6500568075337380243}

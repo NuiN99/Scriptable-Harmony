@@ -136,23 +136,31 @@ namespace NuiN.CommandConsole
                 optionalParams.ForEach(param => parameters.Add(param.DefaultValue));
             }
 
-            if (method.IsStatic)
+            try
             {
-                InvokeMethod(method, null, parameters);
-            }
-            else
-            {
-                // find and invoke all instances of the method's class in the scene
-                List<MonoBehaviour> instances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None).Select(obj => obj as MonoBehaviour).ToList();
+                if (method.IsStatic)
+                {
+                    InvokeMethod(method, null, parameters);
+                }
+                else
+                {
+                    // find and invoke all instances of the method's class in the scene
+                    List<MonoBehaviour> instances = FindObjectsByType(method.DeclaringType, FindObjectsSortMode.None).Select(obj => obj as MonoBehaviour).ToList();
 
-                if (instances.Count <= 0)
-                {
-                    Debug.LogWarning("No instances found to run the command");
+                    if (instances.Count <= 0)
+                    {
+                        Debug.LogWarning("No instances found to run the command");
+                    }
+
+                    foreach (MonoBehaviour instance in instances)
+                    {
+                        InvokeMethod(method, instance, parameters);
+                    }
                 }
-                foreach (MonoBehaviour instance in instances)
-                {
-                    InvokeMethod(method, instance, parameters);
-                }
+            }
+            catch (Exception err)
+            {
+                Debug.LogError(err.Message);
             }
         }
 
