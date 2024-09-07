@@ -8,7 +8,18 @@ namespace NuiN.NExtensions
     public partial class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
         [SerializeField]
-        internal List<SerializedKeyValuePair<TKey, TValue>> _serializedList = new List<SerializedKeyValuePair<TKey, TValue>>();
+        internal List<SerializedKeyValuePair<TKey, TValue>> serializedList;
+        
+        public SerializedDictionary(SerializedDictionary<TKey, TValue> dictionary)
+        {
+            serializedList = new List<SerializedKeyValuePair<TKey, TValue>>();
+            Clear();
+            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+            {
+                serializedList.Add(new SerializedKeyValuePair<TKey, TValue>(pair.Key, pair.Value));
+                TryAdd(pair.Key, pair.Value);
+            }
+        }
 
 #if UNITY_EDITOR
         internal IKeyable LookupTable
@@ -28,7 +39,7 @@ namespace NuiN.NExtensions
         {
             Clear();
 
-            foreach (var kvp in _serializedList)
+            foreach (var kvp in serializedList)
             {
 #if UNITY_EDITOR
                 if (!ContainsKey(kvp.Key))

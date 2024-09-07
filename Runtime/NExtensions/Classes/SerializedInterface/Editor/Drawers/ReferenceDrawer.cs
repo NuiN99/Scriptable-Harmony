@@ -69,8 +69,8 @@ namespace NuiN.NExtensions.Editor
         private void OnButtonClicked(Rect position, SerializedProperty property)
         {
             AdvancedDropdownState state = new AdvancedDropdownState();
-            SerializableInterfaceAdvancedDropdown dropdown =
-                new SerializableInterfaceAdvancedDropdown(state, GenericType, GetRelevantScene(property), property, FieldInfo.GetCustomAttribute<ClassesOnlyAttribute>() != null);
+            SerializedInterfaceAdvancedDropdown dropdown =
+                new SerializedInterfaceAdvancedDropdown(state, GenericType, GetRelevantScene(property), property, FieldInfo.GetCustomAttribute<ClassesOnlyAttribute>() != null);
             dropdown.ItemSelectedEvent += OnItemSelected;
             dropdown.Show(position);
         }
@@ -221,7 +221,7 @@ namespace NuiN.NExtensions.Editor
 #if UNITY_2021_2_OR_NEWER
             return property.RawReferenceProperty().managedReferenceValue;
 #else
-            ISerializableInterface target = (ISerializableInterface) SerializedPropertyUtilities.GetValue(property);
+            ISerializedInterface target = (ISerializedInterface) SerializedPropertyUtilities.GetValue(property);
             return target.GetRawReference();
 #endif
         }

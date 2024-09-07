@@ -174,7 +174,7 @@ namespace NuiN.ScriptableHarmony
             return $"{type}{GetSingularSuffix()}";
         }
         
-        static string GetPluralSuffix() => GetSingularSuffix() + "s";
+        static string GetPluralSuffix() => dataType == SOType.Dictionary ? "Dictionaries" : GetSingularSuffix() + "s";
 
         static string GetFileName() => $"New {type} {GetSingularSuffix()}";
 

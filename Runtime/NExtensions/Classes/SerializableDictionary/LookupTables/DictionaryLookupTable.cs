@@ -30,10 +30,10 @@ namespace NuiN.NExtensions
         {
             _occurences.Clear();
 
-            int count = _dictionary._serializedList.Count;
+            int count = _dictionary.serializedList.Count;
             for (int i = 0; i < count; i++)
             {
-                var kvp = _dictionary._serializedList[i];
+                var kvp = _dictionary.serializedList[i];
                 if (!SerializedCollectionsUtility.IsValidKey(kvp.Key))
                     continue;
 
@@ -46,27 +46,27 @@ namespace NuiN.NExtensions
 
         public void RemoveKey(object key)
         {
-            for (int i = _dictionary._serializedList.Count - 1; i >= 0; i--)
+            for (int i = _dictionary.serializedList.Count - 1; i >= 0; i--)
             {
-                var dictKey = _dictionary._serializedList[i].Key;
+                var dictKey = _dictionary.serializedList[i].Key;
                 if ((object)dictKey == key || dictKey.Equals(key))
-                    _dictionary._serializedList.RemoveAt(i);
+                    _dictionary.serializedList.RemoveAt(i);
             }
         }
 
         public void RemoveAt(int index)
         {
-            _dictionary._serializedList.RemoveAt(index);
+            _dictionary.serializedList.RemoveAt(index);
         }
 
         public object GetKeyAt(int index)
         {
-            return _dictionary._serializedList[index];
+            return _dictionary.serializedList[index];
         }
 
         public void RemoveDuplicates()
         {
-            _dictionary._serializedList = _dictionary._serializedList
+            _dictionary.serializedList = _dictionary.serializedList
                 .GroupBy(x => x.Key)
                 .Where(x => SerializedCollectionsUtility.IsValidKey(x.Key))
                 .Select(x => x.First()).ToList();
@@ -76,7 +76,7 @@ namespace NuiN.NExtensions
         {
             var entry = new SerializedKeyValuePair<TKey, TValue>();
             entry.Key = (TKey) key;
-            _dictionary._serializedList.Add(entry);
+            _dictionary.serializedList.Add(entry);
         }
     }
 }

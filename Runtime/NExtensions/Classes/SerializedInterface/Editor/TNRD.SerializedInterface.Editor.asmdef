@@ -1,8 +1,10 @@
 {
-    "name": "TNRD.SerializableInterface",
+    "name": "TNRD.SerializedInterface.Editor",
     "rootNamespace": "TNRD",
-    "references": [],
-    "includePlatforms": [],
+    "references": [
+        "TNRD.SerializedInterface"
+    ],
+    "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

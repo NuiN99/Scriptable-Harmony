@@ -10,17 +10,17 @@ namespace NuiN.NExtensions
     /// </summary>
     /// <typeparam name="TInterface">The type of the interface you want to serialize</typeparam>
     [Serializable]
-    public class SerializableInterface<TInterface> : ISerializableInterface where TInterface : class
+    public class SerializedInterface<TInterface> : ISerializedInterface where TInterface : class
     {
         [HideInInspector, SerializeField] private ReferenceMode mode = ReferenceMode.Unity;
         [HideInInspector, SerializeField] private UnityEngine.Object unityReference;
         [SerializeReference, UsedImplicitly] private object rawReference;
 
-        public SerializableInterface()
+        public SerializedInterface()
         {
         }
 
-        public SerializableInterface(TInterface value)
+        public SerializedInterface(TInterface value)
         {
             Value = value;
         }
@@ -54,7 +54,7 @@ namespace NuiN.NExtensions
         }
 
         /// <inheritdoc />
-        object ISerializableInterface.GetRawReference()
+        object ISerializedInterface.GetRawReference()
         {
             return rawReference;
         }

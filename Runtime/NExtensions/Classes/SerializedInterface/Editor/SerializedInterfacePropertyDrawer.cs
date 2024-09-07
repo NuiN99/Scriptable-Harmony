@@ -7,8 +7,8 @@ using UnityEngine.Assertions;
 
 namespace NuiN.NExtensions
 {
-    [CustomPropertyDrawer(typeof(SerializableInterface<>), true)]
-    internal sealed class SerializableInterfacePropertyDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(SerializedInterface<>), true)]
+    internal sealed class SerializedInterfacePropertyDrawer : PropertyDrawer
     {
         private readonly RawReferenceDrawer rawReferenceDrawer = new RawReferenceDrawer();
         private readonly UnityReferenceDrawer unityReferenceDrawer = new UnityReferenceDrawer();
@@ -61,7 +61,7 @@ namespace NuiN.NExtensions
                     {
                         type = type.GetGenericArguments()[0];
                     }
-                    else if (type.GetGenericTypeDefinition() == typeof(SerializableInterface<>))
+                    else if (type.GetGenericTypeDefinition() == typeof(SerializedInterface<>))
                     {
                         return type.GetGenericArguments()[0];
                     }

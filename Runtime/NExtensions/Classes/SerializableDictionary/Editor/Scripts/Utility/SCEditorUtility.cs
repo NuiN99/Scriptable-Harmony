@@ -98,7 +98,7 @@ namespace NuiN.NExtensions.Editor
             if (getDrawerMethod == null)
                 return false;
             
-            return getDrawerMethod.Invoke(null, new object[] { type, true }) != null;
+            return getDrawerMethod.Invoke(null, new object[] { type, false }) != null;
         }
 
         internal static void AddGenericMenuItem(GenericMenu genericMenu, bool isOn, bool isEnabled, GUIContent content, GenericMenu.MenuFunction action)

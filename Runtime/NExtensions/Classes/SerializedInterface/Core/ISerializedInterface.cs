@@ -1,6 +1,6 @@
 ﻿namespace NuiN.NExtensions
 {
-    internal interface ISerializableInterface
+    internal interface ISerializedInterface
     {
         internal object GetRawReference();
     }

@@ -128,7 +128,7 @@ namespace NuiN.ScriptableHarmony.Editor
                 SOType.List => typeName.EndsWith("ListSO") ? typeName[..^6] : typeName,
                 SOType.RuntimeSet => typeName.EndsWith("RuntimeSetSO") ? typeName[..^12] : typeName,
                 SOType.RuntimeSingle => typeName.EndsWith("RuntimeSingleSO") ? typeName[..^15] : typeName,
-                SOType.Dictionary => typeName.EndsWith("DictionarySO") ? typeName[..^10] : typeName,
+                SOType.Dictionary => typeName.EndsWith("DictionarySO") ? typeName[..^12] : typeName,
                 SOType.Variable => typeName.EndsWith("VariableSO") ? typeName[..^10] : typeName,
                 _ => typeName
             };

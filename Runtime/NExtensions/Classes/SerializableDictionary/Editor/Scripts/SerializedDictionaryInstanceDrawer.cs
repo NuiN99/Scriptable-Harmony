@@ -202,6 +202,7 @@ namespace NuiN.NExtensions.Editor
             else if (!ListProperty.serializedObject.isEditingMultipleObjects && !_singleEditingData.IsValid)
             {
                 var dictionary = SCEditorUtility.GetPropertyValue(ListProperty, ListProperty.serializedObject.targetObject);
+                if (dictionary == null) return;
                 _singleEditingData.LookupTable = GetLookupTable(dictionary);
             }
         }
@@ -446,6 +447,7 @@ namespace NuiN.NExtensions.Editor
             {
                 Undo.RecordObject(targetObject, "Populate");
                 var dictionary = SCEditorUtility.GetPropertyValue(ListProperty, targetObject);
+                if (dictionary == null) return;
                 var lookupTable = GetLookupTable(dictionary);
 
                 if (modificationType == ModificationType.Add)
@@ -504,6 +506,7 @@ namespace NuiN.NExtensions.Editor
             {
                 Undo.RecordObject(targetObject, "Remove Conflicts");
                 var dictionary = SCEditorUtility.GetPropertyValue(ListProperty, targetObject);
+                if (dictionary == null) return;
                 var lookupTable = GetLookupTable(dictionary);
 
                 List<int> duplicateIndices = new List<int>();

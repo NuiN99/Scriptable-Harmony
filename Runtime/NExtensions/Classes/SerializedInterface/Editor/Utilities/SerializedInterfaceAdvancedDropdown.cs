@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace NuiN.NExtensions.Editor
 {
-    internal sealed class SerializableInterfaceAdvancedDropdown : AdvancedDropdown
+    internal sealed class SerializedInterfaceAdvancedDropdown : AdvancedDropdown
     {
         private readonly Type interfaceType;
         private readonly MethodInfo sortChildrenMethod;
@@ -24,7 +24,7 @@ namespace NuiN.NExtensions.Editor
         public event ItemSelectedDelegate ItemSelectedEvent; // Suffixed with Event because of the override
 
         /// <inheritdoc />
-        public SerializableInterfaceAdvancedDropdown(
+        public SerializedInterfaceAdvancedDropdown(
             AdvancedDropdownState state,
             Type interfaceType,
             Scene? relevantScene,
