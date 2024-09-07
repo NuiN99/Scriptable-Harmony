@@ -1,4 +1,3 @@
-using System.Collections;
 using NuiN.NExtensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;

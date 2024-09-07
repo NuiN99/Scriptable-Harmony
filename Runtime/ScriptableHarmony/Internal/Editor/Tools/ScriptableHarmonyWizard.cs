@@ -2,7 +2,6 @@
 
 using NuiN.NExtensions.Editor;
 using NuiN.ScriptableHarmony.Core;
-using NuiN.ScriptableHarmony.Sound;
 using UnityEditor;
 using UnityEngine;
 
