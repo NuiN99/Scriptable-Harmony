@@ -23,6 +23,12 @@ namespace NuiN.NExtensions
             }
         }
 
+        public BetterTimer(float duration)
+        {
+            Duration = duration;
+            Restart();
+        }
+
         public void Restart()
         {
             _startTime = UnityEngine.Time.time;
