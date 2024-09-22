@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NuiN.NExtensions
 {
-    public class CollisionProxy : MonoBehaviour
+    public class CollisionEventDispatcher : MonoBehaviour
     {
         public event Action<Collision> CollisionEnter;
         public event Action<Collision> CollisionExit;
