@@ -4,8 +4,8 @@ namespace NuiN.NExtensions
 {
     public static class VectorUtils
     {
-        public static Vector3 Direction(Vector3 start, Vector3 end, float magnitude = 1f) 
-            => (end - start).normalized * magnitude;
+        public static Vector3 Direction(Vector3 start, Vector3 end) 
+            => (end - start).normalized;
         
         public static float DirectionAngle(Vector3 direction) 
             => Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;

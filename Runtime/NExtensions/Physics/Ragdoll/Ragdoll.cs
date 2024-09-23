@@ -1,4 +1,6 @@
-using System.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NuiN.NExtensions
@@ -6,34 +8,26 @@ namespace NuiN.NExtensions
     [SelectionBase]
     public class Ragdoll : MonoBehaviour
     {
-        [Header("Setup Options")]
-        [SerializeField] float setupTotalMass;
+        public event Action OnRagdollEnabled = delegate { };
+        public event Action OnRagdollDisabled = delegate { };
         
-        [Header("Values")]
-        [SerializeField] float ragdollTime = 3f;
-        public float limbForceMult = 2f;
-        [SerializeField] bool destroyAfterRagdollTime;
-
-        [Header("Ragdoll Collision Activation")]
-        public bool ragdollsOnCollision = true;
-        public LayerMask affectedBy;
+        [ShowInInspector] public bool IsRagdolling { get; private set; }
+        
+        [SerializeField, InjectComponent] Animator animator;
+        
+        public IReadOnlyList<RagdollLimb> Limbs => _limbs.ToList().AsReadOnly();
+        
+        [field: SerializeField] public float TotalMass { get; private set; }
 
         [Header("Debugging")]
-        [SerializeField] [ReadOnly] CollisionDetectionMode collisionMode;
-        [SerializeField] [ReadOnly] float totalMass;
-        [SerializeField] [ReadOnly] float limbMass;
-        [SerializeField] [ReadOnly] public bool usesTriggers;
-        [SerializeField] [ReadOnlyPlayMode] public bool ragdolling;
-
-        Animator _animator;
+        [ShowInInspector] float _totalMass;
+        [ShowInInspector] float _individualLimbMass;
+        
         RagdollLimb[] _limbs;
-        IRagdoll[] _ragdollInterfaces;
-
+        
         void Awake()
         {
-            _animator = GetComponentInChildren<Animator>();
             _limbs = GetComponentsInChildren<RagdollLimb>();
-            _ragdollInterfaces = GetComponentsInChildren<IRagdoll>();
 
             if (_limbs.Length <= 0)
             {
@@ -45,8 +39,8 @@ namespace NuiN.NExtensions
         public void SetupRagdollInInspector()
         {
             UpdateLimbComponents();
-            SetTotalMass(setupTotalMass);
-            SetCollisionDetectionMode(CollisionDetectionMode.Continuous);
+            SetTotalMass(TotalMass);
+            SetCollisionDetectionMode(CollisionDetectionMode.ContinuousDynamic);
             SetColliderTypes(false);
         }
 
@@ -70,20 +64,20 @@ namespace NuiN.NExtensions
         
         public void SetCollisionDetectionMode(CollisionDetectionMode mode)
         {
-            collisionMode = mode;
             foreach (var rb in GetComponentsInChildren<Rigidbody>())
             {
                 rb.collisionDetectionMode = mode;
             }
         }
+        
         public void SetTotalMass(float mass)
         {
             Rigidbody[] rigidbodies = GetComponentsInChildren<Rigidbody>();
             int count = rigidbodies.Length;
             float dividedMass = mass / count;
 
-            totalMass = mass;
-            limbMass = dividedMass;
+            _totalMass = mass;
+            _individualLimbMass = dividedMass;
 
             foreach (var rb in rigidbodies)
             {
@@ -109,13 +103,11 @@ namespace NuiN.NExtensions
 
         public void EnableRagdoll()
         {
-            if (ragdolling) return;
+            if (IsRagdolling) return;
             InitializeRagdoll();
 
             foreach (var limb in _limbs)
             {
-                if (usesTriggers) limb.col.isTrigger = false;
-
                 limb.rb.isKinematic = false;
             }
         }
@@ -126,8 +118,6 @@ namespace NuiN.NExtensions
 
             foreach (var limb in _limbs)
             {
-                if (usesTriggers) limb.col.isTrigger = false;
-
                 limb.rb.isKinematic = false;
                 limb.rb.AddForce(direction * force, ForceMode.Impulse);
             }
@@ -135,47 +125,30 @@ namespace NuiN.NExtensions
 
         public void DisableRagdoll()
         {
-            ragdolling = false;
+            IsRagdolling = false;
 
-            foreach(var ragdollInterface in _ragdollInterfaces) ragdollInterface?.RagdollDisabled();
+            OnRagdollDisabled.Invoke();
 
             ToggleAnimator(true);
             foreach (var limb in _limbs)
             {
-                if (usesTriggers) limb.col.isTrigger = true;
-
                 if(limb.rb != null) limb.rb.isKinematic = true;
             }
         }
 
         void ToggleAnimator(bool state)
         {
-            if (_animator == null) return;
-            _animator.enabled = state;
+            if (animator == null) return;
+            animator.enabled = state;
         }
 
         void InitializeRagdoll()
         {
-            ragdolling = true;
-            foreach(var ragdollInterface in _ragdollInterfaces) ragdollInterface?.RagdollEnabled();
+            IsRagdolling = true;
+            
+            OnRagdollEnabled.Invoke();
+            
             ToggleAnimator(false);
-            StartCoroutine(UnRagdollAfterDuration());
-        }
-
-        IEnumerator UnRagdollAfterDuration()
-        {
-            yield return new WaitForSeconds(ragdollTime);
-            if (destroyAfterRagdollTime)
-            {
-                Destroy(gameObject);
-                yield break;
-            }
-            DisableRagdoll();
-        }
-
-        public bool AffectedByLayer(GameObject obj)
-        {
-            return affectedBy.ContainsLayer(obj);
         }
     }
 }
