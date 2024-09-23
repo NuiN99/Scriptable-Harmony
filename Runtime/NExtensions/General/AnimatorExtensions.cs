@@ -20,7 +20,7 @@ namespace NuiN.NExtensions
         public static float CurrentStateDuration(this Animator animator, int layerIndex = 0)
         {
             // update the animator to make sure current state is correct
-            animator.Update(Time.deltaTime);
+            animator.Update(0f);
             return animator.GetCurrentAnimatorStateInfo(layerIndex).length;
         }
         
@@ -35,7 +35,7 @@ namespace NuiN.NExtensions
         public static Coroutine OnChangeState(this Animator animator, MonoBehaviour monoBehaviour, Action action, int layerIndex = 0)
         {
             // update the animator to make sure current state is correct
-            animator.Update(Time.deltaTime);
+            animator.Update(0f);
             
             AnimatorStateInfo initialState = animator.GetCurrentAnimatorStateInfo(layerIndex);
             
