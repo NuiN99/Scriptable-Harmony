@@ -15,15 +15,16 @@ namespace NuiN.NExtensions
         float maxDuration;
         
         [SerializeField, Tooltip("Makes the timer return completed on the first call")]
-        bool startCompleted = true;
+        bool startCompleted;
 
         public override float Duration { get => _duration; protected set => _duration = value; }
         protected override bool StartCompleted { get => startCompleted; set => startCompleted = value; }
 
-        public RandomTimer(float minDuration, float maxDuration)
+        public RandomTimer(float minDuration, float maxDuration, bool startCompleted = false)
         {
             this.minDuration = minDuration;
             this.maxDuration = maxDuration;
+            this.startCompleted = startCompleted;
         }
 
         protected override void Setup()
