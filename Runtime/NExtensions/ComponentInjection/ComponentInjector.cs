@@ -1,7 +1,10 @@
 ﻿#if UNITY_EDITOR
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -18,15 +21,16 @@ namespace NuiN.NExtensions.Editor
             return paths;
         }
         
-        static void InjectComponentsInScene()
+        static async void InjectComponentsInScene()
         {
             foreach (MonoBehaviour monoBehaviourInstance in Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
             {
                 InjectComponents(monoBehaviourInstance);
+                await Task.Yield();
             }
         }
         
-        static void InjectComponentsInPrefabs()
+        static async void InjectComponentsInPrefabs()
         {
             string[] allPrefabs = AssetDatabase.FindAssets("t:Prefab", new[] {"Assets"});
 
@@ -36,10 +40,13 @@ namespace NuiN.NExtensions.Editor
                 GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
 
                 MonoBehaviour[] monoBehaviours = prefab.GetComponentsInChildren<MonoBehaviour>(true);
+                
+                await Task.Yield();
 
                 foreach (MonoBehaviour monoBehaviourInstance in monoBehaviours)
                 {
                     InjectComponents(monoBehaviourInstance);
+                    await Task.Yield();
                 }
             }
         }
