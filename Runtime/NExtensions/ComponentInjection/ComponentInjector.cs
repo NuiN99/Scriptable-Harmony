@@ -46,6 +46,8 @@ namespace NuiN.NExtensions.Editor
         
         static void InjectComponents(Component monoBehaviourInstance)
         {
+            if (monoBehaviourInstance == null) return;
+            
             Type type = monoBehaviourInstance.GetType();
             if (type.GetCustomAttributes(typeof(InjectComponentAttribute), true).Length > 0)
             {
