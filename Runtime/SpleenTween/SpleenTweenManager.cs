@@ -11,7 +11,7 @@ namespace NuiN.SpleenTween
     {
         public int ActiveTweensCount => _activeTweens.Count;
 
-        readonly List<Tween> _activeTweens = new();
+        readonly List<ITween> _activeTweens = new();
 
         public static float fixedDeltaTime;
 
@@ -48,8 +48,8 @@ namespace NuiN.SpleenTween
             }
         }
 
-        public void StartTween(Tween tween) => _activeTweens.Add(tween);
-        public void StopTween(Tween tween) 
+        public void StartTween(ITween tween) => _activeTweens.Add(tween);
+        public void StopTween(ITween tween) 
         {
             _activeTweens.Remove(tween);
         }
@@ -62,7 +62,7 @@ namespace NuiN.SpleenTween
 
             for(int i = _activeTweens.Count - 1; i >= 0; i--)
             {
-                Tween tween = _activeTweens[i];
+                ITween tween = _activeTweens[i];
 
                 if (tween.Identifier != identifier) continue;
 

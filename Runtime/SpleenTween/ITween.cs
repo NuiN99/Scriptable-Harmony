@@ -3,7 +3,7 @@ namespace NuiN.SpleenTween
     using System;
     using UnityEngine;
     
-    public interface Tween
+    public interface ITween
     {
         /// <summary>
         ///  Gets called every frame to calculate and update the values of the tween
@@ -11,36 +11,36 @@ namespace NuiN.SpleenTween
         /// <returns>True if valid, False if stopped or complete</returns>
         bool Run();
 
-        Tween OnStart(Action onStart);
-        Tween OnUpdate<TU>(Action<TU> onUpdate);
-        Tween OnComplete(Action onComplete);
-        Tween OnStop(Action onStop);
-        Tween SetEase(Ease ease);
-        Tween SetEase(AnimationCurve animationCurve);
-        Tween SetEase(TweenSettings settings);
-        Tween SetLoop(Loop loopType, int cycles = -1);
-        Tween SetDelay(float delay, bool startDelay = true);
-        Tween SetDestroyOnLoad(bool destroy);
-        Tween Stop();
-        Tween StopIfNull(GameObject target);
-        Tween StopIf(Func<bool> stopCondition, bool invokeComplete = false);
+        ITween OnStart(Action onStart);
+        ITween OnUpdate<TU>(Action<TU> onUpdate);
+        ITween OnComplete(Action onComplete);
+        ITween OnStop(Action onStop);
+        ITween SetEase(Ease ease);
+        ITween SetEase(AnimationCurve animationCurve);
+        ITween SetEase(TweenSettings settings);
+        ITween SetLoop(Loop loopType, int cycles = -1);
+        ITween SetDelay(float delay, bool startDelay = true);
+        ITween SetDestroyOnLoad(bool destroy);
+        ITween Stop();
+        ITween StopIfNull(GameObject target);
+        ITween StopIf(Func<bool> stopCondition, bool invokeComplete = false);
 
-        Tween Pause();
-        Tween Play();
-        Tween Toggle();
+        ITween Pause();
+        ITween Play();
+        ITween Toggle();
 
-        Tween SetPlaybackSpeed(float targetSpeed);
-        Tween SetTimeScaleIndependant(bool option);
+        ITween SetPlaybackSpeed(float targetSpeed);
+        ITween SetTimeScaleIndependant(bool option);
 
         /// <summary>
         /// Tweens the playback speed from the current playback speed
         /// </summary>
-        Tween SetPlaybackSpeed(float targetSpeed, float smoothTime);
+        ITween SetPlaybackSpeed(float targetSpeed, float smoothTime);
 
         /// <summary>
         /// Tweens the playback speed from the specified value
         /// </summary>
-        Tween SetPlaybackSpeed(float startSpeed, float targetSpeed, float smoothTime);
+        ITween SetPlaybackSpeed(float startSpeed, float targetSpeed, float smoothTime);
         
         GameObject Identifier { get; }
         object CurrentValue { get; }

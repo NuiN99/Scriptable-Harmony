@@ -3,7 +3,7 @@ namespace NuiN.SpleenTween
     using System;
     using UnityEngine;
     
-    public class TweenInstance<T> : Tween
+    public class TweenInstance<T> : ITween
     {
         T _currentValue;
         T _from;
@@ -89,7 +89,7 @@ namespace NuiN.SpleenTween
             _nullCheck = nullCheck;
         }
 
-        bool Tween.Run()
+        bool ITween.Run()
         {
             if (Paused || NullTarget() || StopConditionMet()) return false;
 
@@ -180,17 +180,17 @@ namespace NuiN.SpleenTween
 
         #region Method Chains
 
-        Tween Tween.OnComplete(Action onComplete)
+        ITween ITween.OnComplete(Action onComplete)
         {
             _onComplete += onComplete;
             return this;
         }
-        Tween Tween.OnStart(Action onStart)
+        ITween ITween.OnStart(Action onStart)
         {
             _onStart += onStart;
             return this;
         }
-        public Tween OnUpdate<TU>(Action<TU> onUpdate)
+        public ITween OnUpdate<TU>(Action<TU> onUpdate)
         {
             if (typeof(T) != typeof(TU))
             {
@@ -202,20 +202,20 @@ namespace NuiN.SpleenTween
             return this;
         }
 
-        Tween Tween.SetEase(Ease ease)
+        ITween ITween.SetEase(Ease ease)
         {
             EaseType = ease;
             return this;
         }
 
-        Tween Tween.SetEase(AnimationCurve animationCurve)
+        ITween ITween.SetEase(AnimationCurve animationCurve)
         {
             EaseType = Ease.Custom;
             _customEase = animationCurve;
             return this;
         }
 
-        Tween Tween.SetEase(TweenSettings settings)
+        ITween ITween.SetEase(TweenSettings settings)
         {
             EaseType = settings.Ease;
             if (settings.Ease == Ease.Custom)  _customEase = settings.CustomEase;
@@ -223,7 +223,7 @@ namespace NuiN.SpleenTween
             return this;
         }
 
-        Tween Tween.SetLoop(Loop loopType, int cycles)
+        ITween ITween.SetLoop(Loop loopType, int cycles)
         {
             if (cycles == 0)
                 SpleenTween.StopTween(this);
@@ -235,67 +235,67 @@ namespace NuiN.SpleenTween
             return this;
         }
 
-        Tween Tween.SetDelay(float delay, bool startDelay)
+        ITween ITween.SetDelay(float delay, bool startDelay)
         {
             Delay = delay;
             if (startDelay) DelayCycle(delay);
             return this;
         }
 
-        Tween Tween.SetDestroyOnLoad(bool destroy)
+        ITween ITween.SetDestroyOnLoad(bool destroy)
         {
             DontDestroyOnLoad = destroy;
             return this;
         }
 
-        Tween Tween.Stop()
+        ITween ITween.Stop()
         {
             SpleenTween.StopTween(this);
             return this;
         }
         
-        Tween Tween.StopIfNull(GameObject target)
+        ITween ITween.StopIfNull(GameObject target)
         {
             _nullCheck += () => target == null;
             return this;
         }
 
-        Tween Tween.StopIf(Func<bool> stopCondition, bool invokeComplete)
+        ITween ITween.StopIf(Func<bool> stopCondition, bool invokeComplete)
         {
             _invokeCompleteAfterStopped = invokeComplete;
             _stopCondition += stopCondition;
             return this;
         }
 
-        Tween Tween.OnStop(Action onStop)
+        ITween ITween.OnStop(Action onStop)
         {
             _onStop += onStop;
             return this;
         }
 
-        Tween Tween.Pause()
+        ITween ITween.Pause()
         {
             Paused = true;
             return this;
         }
-        Tween Tween.Play()
+        ITween ITween.Play()
         {
             Paused = false;
             return this;
         }
-        Tween Tween.Toggle()
+        ITween ITween.Toggle()
         {
             Paused = !Paused;
             return this;
         }
 
-        public Tween SetPlaybackSpeed(float targetSpeed)
+        public ITween SetPlaybackSpeed(float targetSpeed)
         {
             PlaybackSpeed = targetSpeed;
             return this;
         }
         
-        Tween Tween.SetPlaybackSpeed(float targetSpeed, float smoothTime)
+        ITween ITween.SetPlaybackSpeed(float targetSpeed, float smoothTime)
         {
             SpleenTween.Value(PlaybackSpeed, targetSpeed, smoothTime, (val) => 
             {
@@ -303,7 +303,7 @@ namespace NuiN.SpleenTween
             });
             return this;
         }
-        Tween Tween.SetPlaybackSpeed(float startSpeed, float targetSpeed, float smoothTime)
+        ITween ITween.SetPlaybackSpeed(float startSpeed, float targetSpeed, float smoothTime)
         {
             SpleenTween.Value(startSpeed, targetSpeed, smoothTime, (val) =>
             {
@@ -312,7 +312,7 @@ namespace NuiN.SpleenTween
             return this;
         }
         
-        Tween Tween.SetTimeScaleIndependant(bool option)
+        ITween ITween.SetTimeScaleIndependant(bool option)
         {
             TimeScaleIndependant = option;
             return this;
