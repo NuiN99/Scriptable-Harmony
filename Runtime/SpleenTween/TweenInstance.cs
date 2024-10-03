@@ -226,7 +226,7 @@ namespace NuiN.SpleenTween
         Tween Tween.SetLoop(Loop loopType, int cycles)
         {
             if (cycles == 0)
-                Spleen.StopTween(this);
+                SpleenTween.StopTween(this);
 
             LoopType = loopType;
 
@@ -250,7 +250,7 @@ namespace NuiN.SpleenTween
 
         Tween Tween.Stop()
         {
-            Spleen.StopTween(this);
+            SpleenTween.StopTween(this);
             return this;
         }
         
@@ -297,7 +297,7 @@ namespace NuiN.SpleenTween
         
         Tween Tween.SetPlaybackSpeed(float targetSpeed, float smoothTime)
         {
-            Spleen.Value(PlaybackSpeed, targetSpeed, smoothTime, (val) => 
+            SpleenTween.Value(PlaybackSpeed, targetSpeed, smoothTime, (val) => 
             {
                 if(!Paused) PlaybackSpeed = val;
             });
@@ -305,7 +305,7 @@ namespace NuiN.SpleenTween
         }
         Tween Tween.SetPlaybackSpeed(float startSpeed, float targetSpeed, float smoothTime)
         {
-            Spleen.Value(startSpeed, targetSpeed, smoothTime, (val) =>
+            SpleenTween.Value(startSpeed, targetSpeed, smoothTime, (val) =>
             {
                 if (!Paused) PlaybackSpeed = val;
             });

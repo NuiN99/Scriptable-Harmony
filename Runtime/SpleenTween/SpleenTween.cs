@@ -9,7 +9,7 @@ namespace NuiN.SpleenTween
     /// <summary>
     /// Call the functions in this to start a tween
     /// </summary>
-    public static class Spleen
+    public static class SpleenTween
     {
         public static void AddTween(Tween tween) => SpleenTweenManager.instance.StartTween(tween);
         public static void StopTween(Tween tween) => SpleenTweenManager.instance.StopTween(tween);
