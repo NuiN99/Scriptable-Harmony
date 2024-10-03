@@ -38,6 +38,8 @@ namespace NuiN.NExtensions.Editor
             {
                 string path = AssetDatabase.GUIDToAssetPath(prefabGuid);
                 GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                
+                if(prefab == null) continue;
 
                 MonoBehaviour[] monoBehaviours = prefab.GetComponentsInChildren<MonoBehaviour>(true);
                 
