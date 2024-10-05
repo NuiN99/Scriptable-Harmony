@@ -27,7 +27,6 @@ namespace NuiN.NExtensions
             
             if (startCompleted && !_hasCompletedOnce)
             {
-                Debug.Log("hi");
                 _hasCompletedOnce = true;
                 _startTime = -Duration;
             }
