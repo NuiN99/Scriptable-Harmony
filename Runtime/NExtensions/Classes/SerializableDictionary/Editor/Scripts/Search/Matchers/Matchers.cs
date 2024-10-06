@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System.Collections.Generic;
 
 namespace NuiN.NExtensions.Editor
@@ -26,3 +28,5 @@ namespace NuiN.NExtensions.Editor
         }
     }
 }
+
+#endif

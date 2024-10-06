@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 using UnityEditor.AnimatedValues;
 using UnityEngine.Events;
@@ -77,3 +79,5 @@ namespace NuiN.NExtensions.Editor
         }
     }
 }
+
+#endif

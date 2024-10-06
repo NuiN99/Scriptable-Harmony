@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System;
 using UnityEditor;
 
@@ -19,3 +21,4 @@ namespace NuiN.NExtensions.Editor
         }
     }
 }
+#endif

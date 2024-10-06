@@ -52,7 +52,7 @@ namespace NuiN.NExtensions
 #if UNITY_EDITOR
             LookupTable.RecalculateOccurences();
 #else
-            _serializedList.Clear();
+            serializedList.Clear();
 #endif
         }
 

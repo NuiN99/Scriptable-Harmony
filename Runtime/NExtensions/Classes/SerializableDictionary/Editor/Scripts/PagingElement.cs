@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+
+using UnityEditor;
 using UnityEngine;
 
 namespace NuiN.NExtensions.Editor
@@ -64,3 +66,4 @@ namespace NuiN.NExtensions.Editor
         }
     }
 }
+#endif

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+
+using UnityEngine;
 
 namespace NuiN.NExtensions.Editor
 {
@@ -32,3 +34,4 @@ namespace NuiN.NExtensions.Editor
         }
     }
 }
+#endif
