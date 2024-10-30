@@ -17,7 +17,7 @@ namespace NuiN.NExtensions
         bool _hasCompletedOnce;
         float _startTime;
 
-        public TimerBase(bool startCompleted)
+        public TimerBase(bool startCompleted = false)
         {
             this.startCompleted = startCompleted;
         }

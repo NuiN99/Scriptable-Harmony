@@ -9,7 +9,7 @@ public class TimerRandom : TimerBase
     [SerializeField] float min;
     [SerializeField] float max;
 
-    public TimerRandom(float min, float max, bool startCompleted) : base(startCompleted)
+    public TimerRandom(float min, float max, bool startCompleted = false) : base(startCompleted)
     {
         this.min = min;
         this.max = max;
