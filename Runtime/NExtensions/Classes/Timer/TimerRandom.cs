@@ -9,6 +9,13 @@ public class TimerRandom : TimerBase
     [SerializeField] float min;
     [SerializeField] float max;
 
+    public TimerRandom(float min, float max, bool startCompleted) : base(startCompleted)
+    {
+        this.min = min;
+        this.max = max;
+        _duration = Random.Range(min, max);
+    }
+
     public override float Duration
     {
         get => _duration;
