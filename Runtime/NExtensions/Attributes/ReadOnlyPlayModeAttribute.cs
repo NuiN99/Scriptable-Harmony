@@ -39,7 +39,7 @@ namespace NuiN.NExtensions
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return Application.isPlaying ? EditorGUI.GetPropertyHeight(property, label, true) : 0;
+            return !Application.isPlaying ? EditorGUI.GetPropertyHeight(property, label, true) : 0;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
