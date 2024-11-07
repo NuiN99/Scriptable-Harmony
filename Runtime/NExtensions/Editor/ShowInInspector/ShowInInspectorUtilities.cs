@@ -156,39 +156,85 @@ namespace NuiN.NExtensions
 
         }
 
-        static BaseData[] GetProperties(System.Object obj)
+        public static BaseData[] GetProperties(object obj)
         {
             List<PropertyData> properties = new List<PropertyData>();
+            Type type = obj.GetType();
 
-            PropertyInfo[] typeInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-
-            foreach (PropertyInfo info in typeInfos)
+            while (type != null)
             {
-                Attribute[] attributes = Attribute.GetCustomAttributes(info, typeof(ShowInInspectorAttribute));
-                if (!(attributes.Length > 0))
-                    continue;
+                PropertyInfo[] typeInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                
+                foreach (PropertyInfo info in infos)
+                {
+                    Attribute[] attributes = Attribute.GetCustomAttributes(info, typeof(ShowInInspectorAttribute));
+                    if (attributes.Length > 0)
+                    {
+                        PropertyData data = new PropertyData(obj, info);
+                        properties.Add(data);
+                    }
+                }
 
-                PropertyData data = new PropertyData(obj, info);
-                properties.Add(data);
+                if (type.IsGenericType)
+                {
+                    foreach (var genericArgument in type.GetGenericArguments())
+                    {
+                        PropertyInfo[] genericProperties = genericArgument.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                        foreach (PropertyInfo genericProperty in genericProperties)
+                        {
+                            Attribute[] genericAttributes = Attribute.GetCustomAttributes(genericProperty, typeof(ShowInInspectorAttribute));
+                            if (genericAttributes.Length > 0)
+                            {
+                                PropertyData data = new PropertyData(obj, genericProperty);
+                                properties.Add(data);
+                            }
+                        }
+                    }
+                }
+
+                type = type.BaseType;
             }
 
             return properties.ToArray();
-
         }
 
-        static BaseData[] GetFields(System.Object obj)
+        public static BaseData[] GetFields(object obj)
         {
             List<FieldData> fields = new List<FieldData>();
-            FieldInfo[] infos = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            Type type = obj.GetType();
 
-            foreach (FieldInfo info in infos)
+            while (type != null)
             {
-                Attribute[] attributes = Attribute.GetCustomAttributes(info, typeof(ShowInInspectorAttribute));
-                if (!(attributes.Length > 0))
-                    continue;
+                FieldInfo[] infos = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                
+                foreach (FieldInfo info in infos)
+                {
+                    Attribute[] attributes = Attribute.GetCustomAttributes(info, typeof(ShowInInspectorAttribute));
+                    if (attributes.Length > 0)
+                    {
+                        FieldData data = new FieldData(obj, info);
+                        fields.Add(data);
+                    }
+                }
 
-                FieldData data = new FieldData(obj, info);
-                fields.Add(data);
+                if (type.IsGenericType)
+                {
+                    foreach (var genericArgument in type.GetGenericArguments())
+                    {
+                        FieldInfo[] genericFields = genericArgument.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                        foreach (FieldInfo genericField in genericFields)
+                        {
+                            Attribute[] genericAttributes = Attribute.GetCustomAttributes(genericField, typeof(ShowInInspectorAttribute));
+                            if (genericAttributes.Length > 0)
+                            {
+                                FieldData data = new FieldData(obj, genericField);
+                                fields.Add(data);
+                            }
+                        }
+                    }
+                }
+
+                type = type.BaseType;
             }
 
             return fields.ToArray();
