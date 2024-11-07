@@ -28,13 +28,13 @@ namespace NuiN.NExtensions
 				if (attribute == null || (attribute.onlyShowInPlayMode && !Application.isPlaying)) continue;
 				if (GUILayout.Button(buttonLabel)) method.Invoke(script, attribute?.parameters);
 			}
-			
-			base.OnInspectorGUI();
 
 			if (Application.isPlaying)
 			{
 				this.DrawShowInInspector();
 			}
+			
+			base.OnInspectorGUI();
 		}
 	}
 }
