@@ -163,7 +163,7 @@ namespace NuiN.NExtensions
 
             while (type != null)
             {
-                PropertyInfo[] typeInfos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                PropertyInfo[] infos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
                 
                 foreach (PropertyInfo info in infos)
                 {
@@ -179,7 +179,7 @@ namespace NuiN.NExtensions
                 {
                     foreach (var genericArgument in type.GetGenericArguments())
                     {
-                        PropertyInfo[] genericProperties = genericArgument.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                        PropertyInfo[] genericProperties = genericArgument.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
                         foreach (PropertyInfo genericProperty in genericProperties)
                         {
                             Attribute[] genericAttributes = Attribute.GetCustomAttributes(genericProperty, typeof(ShowInInspectorAttribute));
