@@ -62,7 +62,6 @@ namespace NuiN.NExtensions
             foreach (BaseData field in showInInspectorDatas)
             {
                 EditorGUILayout.BeginHorizontal(emptyOptions);
-                EditorGUI.BeginDisabledGroup(true);
 
                 switch (field.InspectorType)
                 {
@@ -148,7 +147,6 @@ namespace NuiN.NExtensions
                         break;
                 }
 
-                EditorGUI.EndDisabledGroup();
                 EditorGUILayout.EndHorizontal();
             }
 
