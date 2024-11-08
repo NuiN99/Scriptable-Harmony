@@ -161,7 +161,7 @@ namespace NuiN.NExtensions
 
             while (type != null)
             {
-                PropertyInfo[] infos = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                PropertyInfo[] infos = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
                 
                 foreach (PropertyInfo info in infos)
                 {
