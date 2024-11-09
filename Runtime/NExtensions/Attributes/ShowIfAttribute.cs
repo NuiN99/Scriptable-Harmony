@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,7 +33,7 @@ namespace NuiN.NExtensions
         {
             ShowIfAttribute attr = (ShowIfAttribute)attribute;
             
-            bool enabled = GetConditionalHideAttributeResult(attr, property) == attr.showIfTrue;        
+            bool enabled = GetConditionalHideAttributeResult(attr, property);        
 
             if (enabled)
             {
@@ -42,7 +44,7 @@ namespace NuiN.NExtensions
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             ShowIfAttribute attr = (ShowIfAttribute)attribute;
-            bool enabled = GetConditionalHideAttributeResult(attr, property) == attr.showIfTrue;
+            bool enabled = GetConditionalHideAttributeResult(attr, property);
 
             if (enabled)
             {
@@ -54,23 +56,52 @@ namespace NuiN.NExtensions
 
         static bool GetConditionalHideAttributeResult(ShowIfAttribute attr, SerializedProperty property)
         {
-            SerializedProperty sourcePropertyValue;
+            string propertyPath = property.propertyPath;
+            string conditionPath = propertyPath.Replace(property.name, attr.conditionalSourceField);
+            SerializedProperty sourcePropertyValue = property.serializedObject.FindProperty(conditionPath) ?? property.serializedObject.FindProperty(attr.conditionalSourceField);
 
-            if (!property.isArray)
+            if (sourcePropertyValue == null)
             {
-                string propertyPath = property.propertyPath;
-                string conditionPath = propertyPath.Replace(property.name, attr.conditionalSourceField);
-                sourcePropertyValue = property.serializedObject.FindProperty(conditionPath) ?? property.serializedObject.FindProperty(attr.conditionalSourceField);
+                object targetObject = property.serializedObject.targetObject;
+                Type targetType = targetObject.GetType();
+        
+                FieldInfo field = targetType.GetField(attr.conditionalSourceField, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (field != null)
+                {
+                    object fieldValue = field.GetValue(targetObject);
+                    return CheckFieldValue(attr, fieldValue);
+                }
+
+                PropertyInfo propertyInfo = targetType.GetProperty(attr.conditionalSourceField, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (propertyInfo != null)
+                {
+                    object propValue = propertyInfo.GetValue(targetObject);
+                    return CheckFieldValue(attr, propValue);
+                }
+
+                Debug.LogError($"Field or property '{attr.conditionalSourceField}' not found on object of type '{targetType}'.");
+                return true;
             }
-            else
-            {
-                sourcePropertyValue = property.serializedObject.FindProperty(attr.conditionalSourceField);
-            }
-            
-            return sourcePropertyValue == null || CheckPropertyType(attr,sourcePropertyValue);
+
+            return CheckPropertyType(attr, sourcePropertyValue);
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
+        static bool CheckFieldValue(ShowIfAttribute attr, object fieldValue)
+        {
+            if (fieldValue is bool boolValue)
+            {
+                return boolValue == attr.showIfTrue;
+            }
+
+            if (fieldValue is Enum enumValue)
+            {
+                return Convert.ToInt32(enumValue) == attr.enumIndex;
+            }
+
+            Debug.LogError($"Unsupported data type '{fieldValue?.GetType()}' for conditional hiding.");
+            return true;
+        }
+
         static bool CheckPropertyType(ShowIfAttribute attr, SerializedProperty sourcePropertyValue)
         {
             switch (sourcePropertyValue.propertyType)
@@ -78,7 +109,7 @@ namespace NuiN.NExtensions
                 case SerializedPropertyType.Boolean:
                     return sourcePropertyValue.boolValue;                
                 case SerializedPropertyType.Enum:
-                    return sourcePropertyValue.enumValueIndex != attr.enumIndex;
+                    return sourcePropertyValue.enumValueIndex == attr.enumIndex;
                 default:
                     Debug.LogError("Data type of the property used for conditional hiding [" + sourcePropertyValue.propertyType + "] is currently not supported");
                     return true;
