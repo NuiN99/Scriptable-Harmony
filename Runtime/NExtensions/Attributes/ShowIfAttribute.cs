@@ -26,7 +26,7 @@ namespace NuiN.NExtensions
     }
 
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(ShowIfAttribute))]
+    [CustomPropertyDrawer(typeof(ShowIfAttribute), true)]
     internal class ConditionalHidePropertyDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -65,14 +65,14 @@ namespace NuiN.NExtensions
                 object targetObject = property.serializedObject.targetObject;
                 Type targetType = targetObject.GetType();
         
-                FieldInfo field = targetType.GetField(attr.conditionalSourceField, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                FieldInfo field = targetType.GetField(attr.conditionalSourceField, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 if (field != null)
                 {
                     object fieldValue = field.GetValue(targetObject);
                     return CheckFieldValue(attr, fieldValue);
                 }
 
-                PropertyInfo propertyInfo = targetType.GetProperty(attr.conditionalSourceField, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                PropertyInfo propertyInfo = targetType.GetProperty(attr.conditionalSourceField, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 if (propertyInfo != null)
                 {
                     object propValue = propertyInfo.GetValue(targetObject);
