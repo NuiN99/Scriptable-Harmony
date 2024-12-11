@@ -149,10 +149,16 @@ namespace NuiN.NExtensions
             int value = PlayerPrefs.HasKey(key) ? PlayerPrefs.GetInt(key) : currentValue;
             return value == 1;
         }
+
         public static void SetPrefsBool(bool value, string key)
         {
             PlayerPrefs.SetInt(key, value ? 1 : 0);
             PlayerPrefs.Save();
+        }
+
+        public static LayerMask StringToLayerMask(string layerName)
+        {
+            return 1 << LayerMask.NameToLayer(layerName);
         }
     }
 }
