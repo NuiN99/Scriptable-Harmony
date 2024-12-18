@@ -8,7 +8,7 @@ namespace NuiN.NExtensions
 {
     public static class GeneralUtils
     {
-        public static T GetClosest<T>(Vector3 point, IEnumerable<T> objects, Func<bool, T> condition = null) where T : MonoBehaviour
+        public static T GetClosest<T>(Vector3 point, IEnumerable<T> objects, Func<T, bool> condition = null) where T : MonoBehaviour
         {
             T closestObj = null;
             float closestDist = float.MaxValue;
@@ -34,7 +34,7 @@ namespace NuiN.NExtensions
             return closestObj;
         }
         
-        public static Transform GetClosest(Vector3 point, IEnumerable<Transform> objects, Func<bool, Transform> condition = null)
+        public static Transform GetClosest(Vector3 point, IEnumerable<Transform> objects, Func<Transform, bool> condition = null)
         {
             Transform closestObj = null;
             float closestDist = float.MaxValue;
@@ -60,7 +60,7 @@ namespace NuiN.NExtensions
             return closestObj;
         }
 
-        public static GameObject GetClosest(Vector3 point, IEnumerable<GameObject> objects, Func<bool, GameObject> condition = null)
+        public static GameObject GetClosest(Vector3 point, IEnumerable<GameObject> objects, Func<GameObject, bool> condition = null)
         {
             GameObject closestObj = null;
             float closestDist = float.MaxValue;
@@ -86,7 +86,7 @@ namespace NuiN.NExtensions
             return closestObj;
         }
 
-        public static Collider GetClosest(Vector3 point, IEnumerable<Collider> objects, Func<bool, Collider> condition = null)
+        public static Collider GetClosest(Vector3 point, IEnumerable<Collider> objects, Func<Collider, bool> condition = null)
         {
             Collider closestObj = null;
             float closestDist = float.MaxValue;
@@ -112,7 +112,7 @@ namespace NuiN.NExtensions
             return closestObj;
         }
 
-        public static Rigidbody GetClosest(Vector3 point, IEnumerable<Rigidbody> objects, Func<bool, Rigidbody> condition = null)
+        public static Rigidbody GetClosest(Vector3 point, IEnumerable<Rigidbody> objects, Func<Rigidbody, bool> condition = null)
         {
             Rigidbody closestObj = null;
             float closestDist = float.MaxValue;
