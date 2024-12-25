@@ -58,13 +58,7 @@ namespace NuiN.NExtensions.Editor
             if (monoBehaviourInstance == null) return;
             
             Type type = monoBehaviourInstance.GetType();
-            if (type.GetCustomAttributes(typeof(InjectComponentAttribute), true).Length > 0)
-            {
-                return;
-            }
-            
             FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
             InjectFields(fields, monoBehaviourInstance);
         }
 
