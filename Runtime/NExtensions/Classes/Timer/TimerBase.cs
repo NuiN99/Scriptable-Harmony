@@ -34,7 +34,7 @@ namespace NuiN.NExtensions
             if (startCompleted && !_hasCompletedOnce)
             {
                 _hasCompletedOnce = true;
-                _startTime = -Duration;
+                _startTime = float.MinValue;
             }
         }
     }
