@@ -34,8 +34,13 @@ namespace NuiN.NExtensions
             if (startCompleted && !_hasCompletedOnce)
             {
                 _hasCompletedOnce = true;
-                _startTime = float.MinValue;
+                CompleteTimer();
             }
+        }
+
+        public void CompleteTimer()
+        {
+            _startTime = float.MinValue;
         }
     }
 }
