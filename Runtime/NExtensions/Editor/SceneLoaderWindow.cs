@@ -46,30 +46,15 @@ namespace NuiN.NExtensions.Editor
 
         static IEnumerable<(string name, string path)> GetSceneNames()
         {
-            if (Application.isPlaying)
+            var scenes = new List<(string name, string path)>();
+            for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
             {
-                var scenes = new List<(string name, string path)>();
-                for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
-                {
-                    string path = SceneUtility.GetScenePathByBuildIndex(i);
-                    string name = Path.GetFileNameWithoutExtension(path);
-                    scenes.Add((name, path));
-                }
-
-                return scenes;
-            }
-            
-            string[] sceneGuids = AssetDatabase.FindAssets("t:Scene", new[] { "Assets" });
-
-            List<(string name, string path)> sceneNames = new();
-            foreach (string sceneGuid in sceneGuids)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(sceneGuid);
+                string path = SceneUtility.GetScenePathByBuildIndex(i);
                 string name = Path.GetFileNameWithoutExtension(path);
-                sceneNames.Add((name, path));
+                scenes.Add((name, path));
             }
 
-            return sceneNames;
+            return scenes;
         }
 
         static void LoadScene(string sceneName, string scenePath)
