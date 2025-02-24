@@ -222,33 +222,40 @@ namespace NuiN.CommandConsole
             CommandConsoleEvents.InvokeClose();
         }
 
-        /// <summary> Replicate CTRL+Backspace functionality on Windows </summary>
+        /// <summary> Simulate CTRL + Backspace </summary>
         public void DeleteTextBlock(TMP_InputField inputField)
         {
             if (!model.IsConsoleEnabled) return;
-            
+    
             string text = inputField.text;
             int caretPosition = inputField.caretPosition;
-
-            bool willDeleteStartWord = true;
-            for (int i = 0; i < inputField.caretPosition; i++)
-            {
-                if (inputField.text[i].ToString() == " ") willDeleteStartWord = false;
-            }
-            
+    
             if (caretPosition > 0 && caretPosition <= text.Length)
             {
                 int startIndex = caretPosition - 1;
-                while (startIndex > 0 && !char.IsWhiteSpace(text[startIndex - 1])) startIndex--;
+
+                while (startIndex > 0 && char.IsWhiteSpace(text[startIndex]))
+                {
+                    startIndex--;
+                }
+
+                while (startIndex > 0 && !char.IsWhiteSpace(text[startIndex - 1]))
+                {
+                    startIndex--;
+                }
+
+                bool hasTrailingSpace = startIndex > 0 && char.IsWhiteSpace(text[startIndex - 1]);
 
                 string newText = text.Remove(startIndex, caretPosition - startIndex);
+        
+                if (hasTrailingSpace)
+                {
+                    newText = newText.Insert(startIndex, " ");
+                }
 
                 inputField.text = newText;
-                inputField.caretPosition = startIndex;
+                inputField.caretPosition = startIndex + (hasTrailingSpace ? 1 : 0);
             }
-
-            if (willDeleteStartWord) StartCoroutine(SetCaretPosition(inputField, 0));
-            else inputField.text += " ";
         }
         
         /// <summary> Hack to properly set caret position </summary>

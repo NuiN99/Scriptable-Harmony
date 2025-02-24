@@ -32,7 +32,7 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 383747724129207143}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -419,7 +419,6 @@ GameObject:
   - component: {fileID: 5857229326638930349}
   - component: {fileID: 1327527421078044486}
   - component: {fileID: 8347998385611194026}
-  - component: {fileID: 2839002907839785471}
   m_Layer: 5
   m_Name: Clear_Button
   m_TagString: Untagged
@@ -529,19 +528,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &2839002907839785471
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167095968982356668}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae785250b3a9eb24c95a90dcfbdc18c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rectTransform: {fileID: 7330231021316958308}
 --- !u!1 &1196161048827984329
 GameObject:
   m_ObjectHideFlags: 0
@@ -1120,6 +1106,7 @@ GameObject:
   - component: {fileID: 3923056828221169567}
   - component: {fileID: 5057441173806280606}
   - component: {fileID: 44962409518431609}
+  - component: {fileID: 6655538569896132884}
   m_Layer: 5
   m_Name: AutoCompleteScrollView
   m_TagString: Untagged
@@ -1215,6 +1202,18 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &6655538569896132884
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5002831785722268970}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &5209068591848347874
 GameObject:
   m_ObjectHideFlags: 0
