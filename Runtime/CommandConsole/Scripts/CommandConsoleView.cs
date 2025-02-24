@@ -69,8 +69,8 @@ namespace NuiN.CommandConsole
         void FillAutoCompletedTextHandler(InputAction.CallbackContext context) => presenter.FillAutoCompletedText(textInput);
         void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);
         void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
-        void PopulateAutoCompleteOptionsHandler(string text) => presenter.UpdateAutoCompleteText(inputPlaceholderText, textInput);
-        void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.UpdateAutoCompleteText(inputPlaceholderText, textInput, true);
+        void PopulateAutoCompleteOptionsHandler(string text) => presenter.UpdatePlaceholderText(inputPlaceholderText, textInput);
+        void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.UpdatePlaceholderText(inputPlaceholderText, textInput, true);
         void InputDeselectedHandler(string text)
         {
             if (!Input.GetKey(KeyCode.Escape)) return;

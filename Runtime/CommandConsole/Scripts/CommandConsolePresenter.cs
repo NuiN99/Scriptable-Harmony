@@ -368,7 +368,7 @@ namespace NuiN.CommandConsole
             model.SetSavedCollapseMessagesValue();
         }
 
-        public void UpdateAutoCompleteText(TMP_Text placeholderText, TMP_InputField input, bool ignoreStringCheck = false)
+        public void UpdatePlaceholderText(TMP_Text placeholderText, TMP_InputField input, bool ignoreStringCheck = false)
         {
             model.SelectedCommand = CommandKey.empty;
             placeholderText.SetText(string.Empty);
@@ -435,7 +435,8 @@ namespace NuiN.CommandConsole
         
         public void FillAutoCompletedText(TMP_InputField inputField)
         {
-            if (model.IsConsoleEnabled)
+            bool isTypingParams = inputField.text.Split(" ", 2).Length == 1;
+            if (model.IsConsoleEnabled && isTypingParams)
             {
                 inputField.text = model.SelectedCommand.name;
                 StartCoroutine(SetCaretPosition(inputField, inputField.text.Length));
@@ -462,7 +463,7 @@ namespace NuiN.CommandConsole
             InvokeCommand(textInput);
             SetScrollRectPosition(messagesScrollRect, 0);
             
-            UpdateAutoCompleteText(inputPlaceholderText, textInput);
+            UpdatePlaceholderText(inputPlaceholderText, textInput);
         }
     }
 }
