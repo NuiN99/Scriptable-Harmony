@@ -23,8 +23,11 @@ namespace NuiN.CommandConsole
         
         [ConsoleCommand("log")]
         static void LogCommand(string message) => Debug.Log(message);
-
-        [ConsoleCommand("stupid")]
-        static void StupidCommand(string str, int num, float dec) => Debug.Log("you are stupid...");
+        
+        [ConsoleCommand("error")]
+        static void LogErrorCommand(string message) => Debug.LogError(message);
+        
+        [ConsoleCommand("warn")]
+        static void LogWarningCommand(string message) => Debug.LogWarning(message);
     }
 }

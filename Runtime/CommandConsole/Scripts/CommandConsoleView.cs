@@ -15,7 +15,6 @@ namespace NuiN.CommandConsole
         [SerializeField] InputActionProperty autoCompleteInputAction;
         [SerializeField] InputActionProperty commandHistoryUpInputAction;
         [SerializeField] InputActionProperty commandHistoryDownInputAction;
-        [SerializeField] InputActionProperty closeConsoleInputAction;
         
         [Header("Dependencies")]
         [SerializeField, InjectComponent] CommandConsolePresenter presenter;
@@ -24,6 +23,7 @@ namespace NuiN.CommandConsole
         [SerializeField] ScrollRect messagesScrollRect;
         [SerializeField] TMP_InputField textInput;
         [SerializeField] TMP_Text inputPlaceholderText;
+        [SerializeField] Button closeButton;
         [SerializeField] Button clearButton;
         [SerializeField] Toggle collapseMessagesToggle;
 
@@ -36,9 +36,10 @@ namespace NuiN.CommandConsole
             textInput.onEndEdit.AddListener(InputDeselectedHandler);
             
             clearButton.onClick.AddListener(ClearMessagesHandler);
+            closeButton.onClick.AddListener(ToggleConsoleHandler);
             collapseMessagesToggle.onValueChanged.AddListener(CollapseToggleValueChangedHandler);
             
-            toggleConsoleInputAction.action.performed += ToggleConsoleHandler;
+            toggleConsoleInputAction.action.performed += ToggleConsoleInputHandler;
             deleteLastWordInputAction.action.performed += DeleteTextBlockHandler;
             autoCompleteInputAction.action.performed += FillAutoCompletedTextHandler;
             
@@ -53,10 +54,11 @@ namespace NuiN.CommandConsole
             
             textInput.onEndEdit.RemoveListener(InputDeselectedHandler);
             
+            closeButton.onClick.RemoveListener(ToggleConsoleHandler);
             clearButton.onClick.RemoveListener(ClearMessagesHandler);
             collapseMessagesToggle.onValueChanged.RemoveListener(CollapseToggleValueChangedHandler);
             
-            toggleConsoleInputAction.action.performed -= ToggleConsoleHandler;
+            toggleConsoleInputAction.action.performed -= ToggleConsoleInputHandler;
             deleteLastWordInputAction.action.performed -= DeleteTextBlockHandler;
             autoCompleteInputAction.action.performed -= FillAutoCompletedTextHandler;
             
@@ -64,7 +66,8 @@ namespace NuiN.CommandConsole
         }
         
         void InvokeCommandHandler(string command) => presenter.SubmitCommand(textInput, inputPlaceholderText, messagesScrollRect, panelRoot);
-        void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject, textInput);
+        void ToggleConsoleInputHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject, textInput);
+        void ToggleConsoleHandler() => presenter.ToggleConsole(panelRoot.gameObject, textInput);
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
         void FillAutoCompletedTextHandler(InputAction.CallbackContext context) => presenter.FillAutoCompletedText(textInput);
         void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);

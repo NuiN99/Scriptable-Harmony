@@ -395,7 +395,7 @@ namespace NuiN.CommandConsole
                     parameters += $" {param.Name}";
                 }
 
-                const string colorStart = "<color=#00FFF8>";
+                const string colorStart = "<color=#CC7744>";
                 const string colorEnd = "</color>";
 
                 string placeHolderString = $"{key.name}";
@@ -462,7 +462,6 @@ namespace NuiN.CommandConsole
         {
             InvokeCommand(textInput);
             SetScrollRectPosition(messagesScrollRect, 0);
-            
             UpdatePlaceholderText(inputPlaceholderText, textInput);
         }
     }
