@@ -44,7 +44,7 @@ namespace NuiN.CommandConsole
                 int hash = 17;
                 hash = hash * 31 + obj.name.GetHashCode();
 
-                foreach (var type in obj.parameterTypes)
+                foreach (Type type in obj.parameterTypes)
                 {
                     hash = hash * 31 + (type != null ? type.GetHashCode() : 0);
                 }
@@ -58,11 +58,6 @@ namespace NuiN.CommandConsole
         public bool Equals(CommandKey other)
         {
             return name == other.name;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is CommandKey other && Equals(other);
         }
 
         public int CompareTo(CommandKey other)

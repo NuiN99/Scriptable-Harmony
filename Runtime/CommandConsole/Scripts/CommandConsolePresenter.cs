@@ -361,7 +361,7 @@ namespace NuiN.CommandConsole
             model.SetSavedCollapseMessagesValue();
         }
 
-        public void PopulateAutoCompleteOptions(Transform root, TMP_Text prefab, TMP_Text placeholderText, string inputText, bool ignoreStringCheck = false)
+        public void PopulateAutoCompleteOptions(Transform root, TMP_Text prefab, TMP_Text placeholderText, TMP_InputField input, bool ignoreStringCheck = false)
         {
             ClearAutoCompleteOptions();
 
@@ -372,12 +372,11 @@ namespace NuiN.CommandConsole
             {
                 string commandName = key.name;
 
-                string inputCommandName = inputText.Split(new[] { ' ' }, 2)[0];
+                string inputCommandName = input.text.Split(new[] { ' ' }, 2)[0];
 
-                if (inputText.Trim() != string.Empty 
-                    && !commandName.ToLower().StartsWith(inputCommandName.ToLower())
-                    || (inputText.Length > commandName.Length && !key.HasParameters)
-                    || (commandName != inputCommandName && inputText.Contains(" ")))
+                if (!commandName.ToLower().StartsWith(inputCommandName.ToLower())
+                    || (input.text.Length > commandName.Length && !key.HasParameters)
+                    || (commandName != inputCommandName && input.text.Contains(" ")))
                 {
                     continue;
                 }
@@ -406,7 +405,7 @@ namespace NuiN.CommandConsole
                 // todo: implement autocomplete UI with selectable options 
             }
             
-            if (inputText == string.Empty)
+            if (input.text == string.Empty)
             {
                 placeholderText.SetText(string.Empty);
             }
@@ -460,7 +459,7 @@ namespace NuiN.CommandConsole
             InvokeCommand(textInput);
             SetScrollRectPosition(messagesScrollRect, 0);
             
-            PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
+            PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput);
         }
     }
 }

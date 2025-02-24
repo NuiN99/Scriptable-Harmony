@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace NuiN.CommandConsole
 {
-    public readonly struct MessageKey : IEqualityComparer<MessageKey>
+    public readonly struct MessageKey : IEqualityComparer<MessageKey>, IEquatable<MessageKey>
     {
         public readonly string message;
         public readonly LogType logType;
@@ -35,5 +36,10 @@ namespace NuiN.CommandConsole
         }
         
         public override int GetHashCode() => GetHashCode(this);
+
+        public bool Equals(MessageKey other)
+        {
+            return message == other.message && logType == other.logType;
+        }
     }
 }
