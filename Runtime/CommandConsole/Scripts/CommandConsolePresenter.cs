@@ -379,7 +379,8 @@ namespace NuiN.CommandConsole
             {
                 string commandName = key.name;
 
-                string inputCommandName = input.text.Split(new[] { ' ' }, 2)[0];
+                string[] splitInputString = input.text.Split(new[] { ' ' }, 2);
+                string inputCommandName = splitInputString[0];
 
                 if (!commandName.ToLower().StartsWith(inputCommandName.ToLower())
                     || (input.text.Length > commandName.Length && !key.HasParameters)
@@ -387,16 +388,13 @@ namespace NuiN.CommandConsole
                 {
                     continue;
                 }
-                
-                model.SelectedCommand = key;
 
+                ParameterInfo[] methodParams = methodInfo.GetParameters();
+                
                 string parameters = string.Empty;
-                foreach (var param in methodInfo.GetParameters())
+                foreach (ParameterInfo param in methodParams)
                 {
                     parameters += $" {param.Name}";
-                        
-                    // include parameter type
-                    //parameters += GetTypeName(param.ParameterType);
                 }
 
                 TMP_Text option = Instantiate(prefab, root);
@@ -404,12 +402,36 @@ namespace NuiN.CommandConsole
                 const string colorStart = "<color=#00FFF8>";
                 const string colorEnd = "</color>";
                 option.text = key.name + colorStart + parameters + colorEnd;
-            
-                model.AutoCompleteOptions.Add(option);
-                    
-                placeholderText.SetText(model.SelectedCommand.name);
 
-                // todo: implement autocomplete UI with selectable options 
+                string placeHolderString = $"{key.name}";
+                string combinedParamsString = splitInputString.Length > 1 ? splitInputString[1] : string.Empty;
+                
+                if (key.HasParameters && splitInputString.Length > 1 && combinedParamsString.Trim() != string.Empty)
+                {
+                    string[] inputParameters = combinedParamsString.Split(' ');
+
+                    int inputParamsCount = inputParameters.Length;
+                    placeHolderString += " " + combinedParamsString;
+                    if (inputParameters.Last().Trim() == string.Empty)
+                    {
+                        inputParamsCount--;
+                        
+                        placeHolderString = placeHolderString.Remove(input.caretPosition-1, 1);
+                    }
+                    for (int i = inputParamsCount; i < methodParams.Length; i++)
+                    {
+                        placeHolderString += $" {methodParams[i].Name}";
+                    }
+                }
+                else
+                {
+                    placeHolderString += colorStart + parameters + colorEnd;
+                }
+                
+                placeholderText.SetText(placeHolderString);
+
+                model.AutoCompleteOptions.Add(option);
+                model.SelectedCommand = key;
             }
             
             if (input.text == string.Empty)
@@ -455,14 +477,6 @@ namespace NuiN.CommandConsole
 
         public void SubmitCommand(TMP_InputField textInput, TMP_Text inputPlaceholderText, ScrollRect messagesScrollRect, Transform autoCompleteRoot, TMP_Text autoCompleteOptionPrefab, RectTransform panelRoot)
         {
-            string inputtedCommand = textInput.text.Split(new[] { ' ' }, 2)[0];
-            if (!model.SelectedCommand.Equals(CommandKey.empty) && inputtedCommand != inputPlaceholderText.text)
-            {
-                FillAutoCompletedText(textInput);
-                textInput.ActivateInputField();
-                return;
-            }
-            
             InvokeCommand(textInput);
             SetScrollRectPosition(messagesScrollRect, 0);
             

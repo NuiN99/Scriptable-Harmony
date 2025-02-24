@@ -7,21 +7,24 @@ namespace NuiN.CommandConsole
     public static class DefaultCommands
     {
         [ConsoleCommand("reload-scene")]
-        public static void ReloadSceneCommand() => GeneralUtils.ReloadScene();
+        static void ReloadSceneCommand() => GeneralUtils.ReloadScene();
         
         [ConsoleCommand("load-scene")]
-        public static void LoadSceneCommand(int sceneIndex) => SceneManager.LoadScene(sceneIndex);
+        static void LoadSceneCommand(int sceneIndex) => SceneManager.LoadScene(sceneIndex);
 
         [ConsoleCommand("timescale")]
-        public static void TimeScaleCommand(float value) => Time.timeScale = value;
+        static void TimeScaleCommand(float value) => Time.timeScale = value;
         
         [ConsoleCommand("framerate")]
-        public static void FrameRateCommand(int value) => Application.targetFrameRate = value;
+        static void FrameRateCommand(int value) => Application.targetFrameRate = value;
         
         [ConsoleCommand("quit")]
-        public static void QuitCommand() => Application.Quit();
+        static void QuitCommand() => Application.Quit();
         
         [ConsoleCommand("log")]
-        public static void LogCommand(string message) => Debug.Log(message);
+        static void LogCommand(string message) => Debug.Log(message);
+
+        [ConsoleCommand("stupid")]
+        static void StupidCommand(string str, int num, float dec) => Debug.Log("you are stupid...");
     }
 }
