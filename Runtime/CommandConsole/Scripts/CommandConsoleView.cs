@@ -22,8 +22,6 @@ namespace NuiN.CommandConsole
         [SerializeField] RectTransform panelRoot;
         [SerializeField] Transform messagesRoot;
         [SerializeField] ScrollRect messagesScrollRect;
-        [SerializeField] Transform autoCompleteRoot;
-        [SerializeField] TMP_Text autoCompleteOptionPrefab;
         [SerializeField] TMP_InputField textInput;
         [SerializeField] TMP_Text inputPlaceholderText;
         [SerializeField] Button clearButton;
@@ -34,7 +32,6 @@ namespace NuiN.CommandConsole
             textInput.onSubmit.AddListener(InvokeCommandHandler);
             textInput.onValueChanged.AddListener(PopulateAutoCompleteOptionsHandler);
             textInput.onSelect.AddListener(PopulateAutoCompleteOptionsOnSelectHandler);
-            textInput.onDeselect.AddListener(ClearAutoCompleteOptionsHandler);
             
             textInput.onEndEdit.AddListener(InputDeselectedHandler);
             
@@ -53,7 +50,6 @@ namespace NuiN.CommandConsole
             textInput.onSubmit.RemoveListener(InvokeCommandHandler);
             textInput.onValueChanged.RemoveListener(PopulateAutoCompleteOptionsHandler);
             textInput.onSelect.RemoveListener(PopulateAutoCompleteOptionsOnSelectHandler);
-            textInput.onDeselect.RemoveListener(ClearAutoCompleteOptionsHandler);
             
             textInput.onEndEdit.RemoveListener(InputDeselectedHandler);
             
@@ -67,15 +63,14 @@ namespace NuiN.CommandConsole
             Application.logMessageReceived -= LogMessageRecievedHandler;
         }
         
-        void InvokeCommandHandler(string command) => presenter.SubmitCommand(textInput, inputPlaceholderText, messagesScrollRect, autoCompleteRoot, autoCompleteOptionPrefab, panelRoot);
+        void InvokeCommandHandler(string command) => presenter.SubmitCommand(textInput, inputPlaceholderText, messagesScrollRect, panelRoot);
         void ToggleConsoleHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject, textInput);
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
         void FillAutoCompletedTextHandler(InputAction.CallbackContext context) => presenter.FillAutoCompletedText(textInput);
         void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);
         void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
-        void PopulateAutoCompleteOptionsHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput);
-        void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput, true);
-        void ClearAutoCompleteOptionsHandler(string text) => presenter.ClearAutoCompleteOptions();
+        void PopulateAutoCompleteOptionsHandler(string text) => presenter.UpdateAutoCompleteText(inputPlaceholderText, textInput);
+        void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.UpdateAutoCompleteText(inputPlaceholderText, textInput, true);
         void InputDeselectedHandler(string text)
         {
             if (!Input.GetKey(KeyCode.Escape)) return;

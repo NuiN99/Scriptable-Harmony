@@ -368,10 +368,8 @@ namespace NuiN.CommandConsole
             model.SetSavedCollapseMessagesValue();
         }
 
-        public void PopulateAutoCompleteOptions(Transform root, TMP_Text prefab, TMP_Text placeholderText, TMP_InputField input, bool ignoreStringCheck = false)
+        public void UpdateAutoCompleteText(TMP_Text placeholderText, TMP_InputField input, bool ignoreStringCheck = false)
         {
-            ClearAutoCompleteOptions();
-
             model.SelectedCommand = CommandKey.empty;
             placeholderText.SetText(string.Empty);
             
@@ -397,15 +395,12 @@ namespace NuiN.CommandConsole
                     parameters += $" {param.Name}";
                 }
 
-                TMP_Text option = Instantiate(prefab, root);
-
                 const string colorStart = "<color=#00FFF8>";
                 const string colorEnd = "</color>";
-                option.text = key.name + colorStart + parameters + colorEnd;
 
                 string placeHolderString = $"{key.name}";
                 string combinedParamsString = splitInputString.Length > 1 ? splitInputString[1] : string.Empty;
-                
+
                 if (key.HasParameters && splitInputString.Length > 1 && combinedParamsString.Trim() != string.Empty)
                 {
                     string[] inputParameters = combinedParamsString.Split(' ');
@@ -415,12 +410,11 @@ namespace NuiN.CommandConsole
                     if (inputParameters.Last().Trim() == string.Empty)
                     {
                         inputParamsCount--;
-                        
                         placeHolderString = placeHolderString.Remove(input.caretPosition-1, 1);
                     }
                     for (int i = inputParamsCount; i < methodParams.Length; i++)
                     {
-                        placeHolderString += $" {methodParams[i].Name}";
+                        placeHolderString += $" {colorStart}{methodParams[i].Name}{colorEnd}";
                     }
                 }
                 else
@@ -430,24 +424,12 @@ namespace NuiN.CommandConsole
                 
                 placeholderText.SetText(placeHolderString);
 
-                model.AutoCompleteOptions.Add(option);
                 model.SelectedCommand = key;
             }
             
             if (input.text == string.Empty)
             {
                 placeholderText.SetText(string.Empty);
-            }
-        }
-
-        public void ClearAutoCompleteOptions()
-        {
-            List<TMP_Text> autoCompleteOptions = model.AutoCompleteOptions;
-            for (int i = autoCompleteOptions.Count-1; i >= 0; i--)
-            {
-                var oldOption = autoCompleteOptions[i];
-                Destroy(oldOption.gameObject);
-                autoCompleteOptions.Remove(oldOption);
             }
         }
         
@@ -475,12 +457,12 @@ namespace NuiN.CommandConsole
             model.Logs.Clear();
         }
 
-        public void SubmitCommand(TMP_InputField textInput, TMP_Text inputPlaceholderText, ScrollRect messagesScrollRect, Transform autoCompleteRoot, TMP_Text autoCompleteOptionPrefab, RectTransform panelRoot)
+        public void SubmitCommand(TMP_InputField textInput, TMP_Text inputPlaceholderText, ScrollRect messagesScrollRect, RectTransform panelRoot)
         {
             InvokeCommand(textInput);
             SetScrollRectPosition(messagesScrollRect, 0);
             
-            PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput);
+            UpdateAutoCompleteText(inputPlaceholderText, textInput);
         }
     }
 }
