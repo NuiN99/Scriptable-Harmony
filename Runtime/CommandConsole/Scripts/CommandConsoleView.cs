@@ -26,8 +26,6 @@ namespace NuiN.CommandConsole
         [SerializeField] TMP_Text autoCompleteOptionPrefab;
         [SerializeField] TMP_InputField textInput;
         [SerializeField] TMP_Text inputPlaceholderText;
-        [SerializeField] HoldButton scaleButton;
-        [SerializeField] HoldButton moveButton;
         [SerializeField] Button clearButton;
         [SerializeField] Toggle collapseMessagesToggle;
 
@@ -39,9 +37,6 @@ namespace NuiN.CommandConsole
             textInput.onDeselect.AddListener(ClearAutoCompleteOptionsHandler);
             
             textInput.onEndEdit.AddListener(InputDeselectedHandler);
-            
-            moveButton.OnRelease += presenter.ResetInitialPositionValues;
-            scaleButton.OnRelease += presenter.ResetInitialSizeValues;
             
             clearButton.onClick.AddListener(ClearMessagesHandler);
             collapseMessagesToggle.onValueChanged.AddListener(CollapseToggleValueChangedHandler);
@@ -61,9 +56,6 @@ namespace NuiN.CommandConsole
             textInput.onDeselect.RemoveListener(ClearAutoCompleteOptionsHandler);
             
             textInput.onEndEdit.RemoveListener(InputDeselectedHandler);
-            
-            moveButton.OnRelease -= presenter.ResetInitialPositionValues;
-            scaleButton.OnRelease -= presenter.ResetInitialSizeValues;
             
             clearButton.onClick.RemoveListener(ClearMessagesHandler);
             collapseMessagesToggle.onValueChanged.RemoveListener(CollapseToggleValueChangedHandler);
@@ -102,12 +94,6 @@ namespace NuiN.CommandConsole
             autoCompleteInputAction.action.Enable();
             
             panelRoot.gameObject.SetActive(false);
-        }
-
-        void Update()
-        {
-            if (scaleButton.Pressed) presenter.UpdateSize(panelRoot, scaleButton.PressOffset);
-            if (moveButton.Pressed) presenter.UpdatePosition(panelRoot);
         }
     }
 }

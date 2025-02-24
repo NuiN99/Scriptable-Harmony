@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace NuiN.CommandConsole
 {
-    public readonly struct CommandKey : IEqualityComparer<CommandKey>
+    public readonly struct CommandKey : IEqualityComparer<CommandKey>, IEquatable<CommandKey>, IComparable<CommandKey>
     {
         public static CommandKey empty = new(string.Empty, new List<ParameterInfo>());
         public bool HasParameters => parameterTypes.Count > 0;
@@ -54,5 +54,20 @@ namespace NuiN.CommandConsole
         }
         
         public override int GetHashCode() => GetHashCode(this);
+
+        public bool Equals(CommandKey other)
+        {
+            return name == other.name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is CommandKey other && Equals(other);
+        }
+
+        public int CompareTo(CommandKey other)
+        {
+            return string.Compare(name, other.name, StringComparison.Ordinal);
+        }
     }
 }

@@ -20,5 +20,8 @@ namespace NuiN.CommandConsole
         
         [ConsoleCommand("quit")]
         public static void QuitCommand() => Application.Quit();
+        
+        [ConsoleCommand("log")]
+        public static void LogCommand(string message) => Debug.Log(message);
     }
 }

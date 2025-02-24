@@ -20,11 +20,6 @@ namespace NuiN.CommandConsole
 
         public void LoadSavedValues(RectTransform root, Toggle collapseMessagesToggle)
         {
-            model.ConsolePosition = root.position;
-            model.ConsoleSize = root.sizeDelta;
-            root.position = model.GetSavedPosition();
-            root.sizeDelta = model.GetSavedSize();
-
             collapseMessagesToggle.isOn = model.GetSavedCollapseMessagesValue();
         }
         
@@ -55,7 +50,11 @@ namespace NuiN.CommandConsole
                 }
             }
             
-            IOrderedEnumerable<KeyValuePair<CommandKey, MethodInfo>> sortedCommands = from entry in  model.RegisteredCommands orderby entry.Key.name descending select entry;
+            IOrderedEnumerable<KeyValuePair<CommandKey, MethodInfo>> sortedCommands = 
+                from entry in model.RegisteredCommands 
+                orderby entry.Key.name descending 
+                select entry;
+            
             model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>(sortedCommands);
         }
         
@@ -193,52 +192,6 @@ namespace NuiN.CommandConsole
             }
 
             return true;
-        }
-
-        public void UpdateSize(RectTransform rectTransform, Vector2 pressOffset)
-        {
-            // prevent scaling outside of screen
-            Vector2 mousePosition = (Vector2)Input.mousePosition - pressOffset;
-            mousePosition.x = Mathf.Clamp(mousePosition.x, 0, Screen.width);
-            mousePosition.y = Mathf.Clamp(mousePosition.y, 0, Screen.height);
-            
-            if (model.InitialScalePos == Vector2.zero) model.InitialScalePos = rectTransform.position;
-            if (model.InitialScale != Vector2.zero)  model.InitialScale = rectTransform.sizeDelta;
-
-            Vector2 newSize =  (model.InitialScale + (mousePosition - model.InitialScalePos));
-            newSize.x = Mathf.Clamp(newSize.x, model.MinSize.x, model.MaxScale.x);
-            newSize.y = Mathf.Clamp(newSize.y, model.MinSize.y, model.MaxScale.y);
-                    
-            rectTransform.sizeDelta = newSize;
-            model.ConsoleSize = newSize;
-        }
-
-        public void UpdatePosition(RectTransform rectTransform)
-        {
-            if (model.InitialMovePos == Vector2.zero) model.InitialMovePos = Input.mousePosition - rectTransform.position;
-            
-            Vector2 newPosition = (Vector2)Input.mousePosition - model.InitialMovePos;
-            Vector2 maxPosition = new(Screen.width - rectTransform.sizeDelta.x, Screen.height - rectTransform.sizeDelta.y);
-            newPosition.x = Mathf.Clamp(newPosition.x, 0, maxPosition.x);
-            newPosition.y = Mathf.Clamp(newPosition.y, 0, maxPosition.y);
-
-            rectTransform.position = newPosition;
-            model.ConsolePosition = newPosition;
-        }
-
-        public void ResetInitialSizeValues()
-        {
-            model.InitialScalePos = Vector2.zero;
-            model.InitialScale = Vector2.zero;
-            
-            model.SetSavedScale();
-        }
-
-        public void ResetInitialPositionValues()
-        {
-            model.InitialMovePos = Vector2.zero;
-            
-            model.SetSavedPosition();
         }
 
         public void ToggleConsole(GameObject console, TMP_InputField inputField)
@@ -420,7 +373,14 @@ namespace NuiN.CommandConsole
                 string commandName = key.name;
 
                 string inputCommandName = inputText.Split(new[] { ' ' }, 2)[0];
-                if (!commandName.ToLower().StartsWith(inputCommandName.ToLower()) || (inputText.Length > commandName.Length && !key.HasParameters)) continue;
+
+                if (inputText.Trim() != string.Empty 
+                    && !commandName.ToLower().StartsWith(inputCommandName.ToLower())
+                    || (inputText.Length > commandName.Length && !key.HasParameters)
+                    || (commandName != inputCommandName && inputText.Contains(" ")))
+                {
+                    continue;
+                }
                 
                 model.SelectedCommand = key;
 
@@ -501,8 +461,6 @@ namespace NuiN.CommandConsole
             SetScrollRectPosition(messagesScrollRect, 0);
             
             PopulateAutoCompleteOptions(autoCompleteRoot, autoCompleteOptionPrefab, inputPlaceholderText, textInput.text);
-
-            DisableConsole(panelRoot.gameObject, textInput);
         }
     }
 }
