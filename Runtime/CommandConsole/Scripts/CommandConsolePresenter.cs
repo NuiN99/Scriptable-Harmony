@@ -328,6 +328,7 @@ namespace NuiN.CommandConsole
             if(type == typeof(float) && float.TryParse(arg, out float floatVal)) return floatVal;
             if(type == typeof(int) && int.TryParse(arg, out int intVal)) return intVal;
             if(type == typeof(bool) && bool.TryParse(arg, out bool boolVal)) return boolVal;
+            if (type.IsEnum && Enum.TryParse(type, arg, true, out object enumVal)) return enumVal;
             
             // split the arg by commas. example valid vector3 arg: "3.2,1.5"
             string[] commaSplitValues = arg.Split(",");
