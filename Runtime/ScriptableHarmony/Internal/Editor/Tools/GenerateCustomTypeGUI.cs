@@ -42,7 +42,7 @@ namespace NuiN.ScriptableHarmony
         static bool isComponent;
 
         // TODO remove this functionality when created all commons
-        const bool IS_COMMON = true;
+        const bool IS_COMMON = false;
         
         Vector2 _scrollPosition;
 
