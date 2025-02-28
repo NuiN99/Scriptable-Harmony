@@ -51,7 +51,7 @@ namespace NuiN.SpleenTween
                     case Loop.Rewind:
                         float backwardsLerp = 1 - LerpProgress;
                         float lerpBasedOnDirection = Direction == 0 ? backwardsLerp : LerpProgress;
-                        return EaseType != Ease.Custom ? SpleenExt.GetEase(lerpBasedOnDirection, EaseType) : _customEase.Evaluate(LerpProgress);
+                        return EaseType != Ease.Custom ? SpleenExt.GetEase(lerpBasedOnDirection, EaseType) : _customEase.Evaluate(lerpBasedOnDirection);
                     case Loop.Yoyo:
                         float backwardsEase = 1 - easeVal;
                         return Direction == 0 ? backwardsEase : easeVal;
