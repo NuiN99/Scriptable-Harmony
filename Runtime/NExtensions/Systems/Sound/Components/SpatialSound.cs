@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace NuiN.ScriptableHarmony.Sound
+namespace NuiN.NExtensions
 {
     public class SpatialSound : MonoBehaviour
     {

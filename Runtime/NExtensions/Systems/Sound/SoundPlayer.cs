@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace NuiN.ScriptableHarmony.Sound
+namespace NuiN.NExtensions
 {
     public static class SoundPlayer
     {

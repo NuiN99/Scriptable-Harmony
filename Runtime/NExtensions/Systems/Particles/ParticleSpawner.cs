@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using NuiN.NExtensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-namespace NuiN.ScriptableHarmony.Particles
+namespace NuiN.NExtensions
 {
     public static class ParticleSpawner
     {

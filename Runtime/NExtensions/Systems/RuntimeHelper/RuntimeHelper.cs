@@ -6,6 +6,7 @@ namespace NuiN.NExtensions
 {
     public static class RuntimeHelper
     {
+        public static bool IsGamePlaying => RuntimeHelperInstance.MonoInstance != null;
         public static void SubOnLoad(Action action) => RuntimeHelperInstance.OnGameLoaded += action;
         public static void UnSubOnLoad(Action action) => RuntimeHelperInstance.OnGameLoaded -= action;
         

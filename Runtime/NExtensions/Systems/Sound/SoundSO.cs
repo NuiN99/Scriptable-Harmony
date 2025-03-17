@@ -8,7 +8,7 @@ using UnityEngine.Audio;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-namespace NuiN.ScriptableHarmony.Sound
+namespace NuiN.NExtensions
 {
     public class SoundSO : ScriptableObject
     {

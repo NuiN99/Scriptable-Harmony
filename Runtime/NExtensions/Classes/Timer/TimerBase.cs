@@ -20,7 +20,12 @@ namespace NuiN.NExtensions
         public TimerBase(bool startCompleted = false)
         {
             this.startCompleted = startCompleted;
-            Restart();
+
+            // this avoids calling Time.time in serialized constructor which throws an error
+            if (RuntimeHelper.IsGamePlaying)
+            {
+                Restart();
+            }
         }
         
         protected virtual void Initialize() { }
