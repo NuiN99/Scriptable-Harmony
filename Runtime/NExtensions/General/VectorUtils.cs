@@ -15,6 +15,9 @@ namespace NuiN.NExtensions
             float radians = Mathf.Deg2Rad * angle;
             return new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
         }
+
+        public static Vector3 Uniform(float value)
+            => Vector3.one * value;
     }
 }
 
