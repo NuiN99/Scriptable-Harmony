@@ -10,7 +10,7 @@ namespace NuiN.NExtensions.Editor
 {
     internal class SceneLoaderWindow : EditorWindow
     {
-        [MenuItem("Window/Scene Loader", priority = -100)]
+        [MenuItem("Tools/Scene Loader")]
         public static void ShowWindow()
         {
             GetWindow<SceneLoaderWindow>("Scene Loader");

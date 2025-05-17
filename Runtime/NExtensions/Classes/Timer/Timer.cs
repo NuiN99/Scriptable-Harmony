@@ -1,9 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace NuiN.NExtensions
 {
-    [Serializable]
     public class Timer : TimerBase
     {
         public Timer(float duration, bool startCompleted = false) : base(startCompleted)

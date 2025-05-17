@@ -42,7 +42,7 @@ namespace NuiN.NExtensions
         const string TAG_TEMPLATE = "public static readonly string {VARIABLENAME} = \"{NAME}\";";
         const string SCENE_TEMPLATE = "public static readonly string {VARIABLENAME} = \"{NAME}\";";
 
-        [MenuItem("Window/Bake Strings", priority = -100)]
+        [MenuItem("Tools/Bake Strings")]
         static void BakeStrings()
         {
             GetAllScenes();

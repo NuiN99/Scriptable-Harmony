@@ -1,31 +1,30 @@
-﻿using System;
-using NuiN.NExtensions;
-using UnityEngine;
-using Random = UnityEngine.Random;
+﻿using Random = UnityEngine.Random;
 
-[Serializable]
-public class TimerRandom : TimerBase
+namespace NuiN.NExtensions
 {
-    [SerializeField] float min;
-    [SerializeField] float max;
-
-    public TimerRandom(float min, float max, bool startCompleted = false) : base(startCompleted)
+    public class TimerRandom : TimerBase
     {
-        this.min = min;
-        this.max = max;
-        _duration = Random.Range(min, max);
-    }
+        float _min;
+        float _max;
 
-    public override float Duration
-    {
-        get => _duration;
-        protected set => _duration = value;
-    }
+        public TimerRandom(float min, float max, bool startCompleted = false) : base(startCompleted)
+        {
+            _min = min;
+            _max = max;
+            _duration = Random.Range(min, max);
+        }
+
+        public override float Duration
+        {
+            get => _duration;
+            protected set => _duration = value;
+        }
     
-    float _duration;
+        float _duration;
         
-    protected override void Initialize()
-    {
-        _duration = Random.Range(min, max);
+        protected override void Initialize()
+        {
+            _duration = Random.Range(_min, _max);
+        }
     }
 }

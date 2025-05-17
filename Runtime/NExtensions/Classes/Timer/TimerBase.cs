@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace NuiN.NExtensions
 {
-    [Serializable]
     public abstract class TimerBase
     {
         public bool IsComplete => Time >= Duration;
@@ -12,7 +11,7 @@ namespace NuiN.NExtensions
 
         public abstract float Duration { get; protected set; }
 
-        [SerializeField] protected bool startCompleted;
+        protected readonly bool startCompleted;
 
         bool _hasCompletedOnce;
         float _startTime;
@@ -20,12 +19,6 @@ namespace NuiN.NExtensions
         public TimerBase(bool startCompleted = false)
         {
             this.startCompleted = startCompleted;
-
-            // this avoids calling Time.time in serialized constructor which throws an error
-            if (RuntimeHelper.IsGamePlaying)
-            {
-                Restart();
-            }
         }
         
         protected virtual void Initialize() { }
