@@ -19,6 +19,7 @@ namespace NuiN.NExtensions
         public TimerBase(bool startCompleted = false)
         {
             this.startCompleted = startCompleted;
+            Restart();
         }
         
         protected virtual void Initialize() { }

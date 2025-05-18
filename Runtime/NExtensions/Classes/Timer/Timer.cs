@@ -6,15 +6,15 @@ namespace NuiN.NExtensions
     {
         public Timer(float duration, bool startCompleted = false) : base(startCompleted)
         {
-            this.duration = duration;
+            _duration = _duration;
         }
 
         public override float Duration
         {
-            get => duration;
-            protected set => duration = value;
+            get => _duration;
+            protected set => _duration = value;
         }
         
-        [SerializeField] float duration;
+        float _duration;
     }
 }
