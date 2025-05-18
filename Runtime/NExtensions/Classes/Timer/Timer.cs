@@ -6,7 +6,7 @@ namespace NuiN.NExtensions
     {
         public Timer(float duration, bool startCompleted = false) : base(startCompleted)
         {
-            _duration = _duration;
+            _duration = duration;
         }
 
         public override float Duration
