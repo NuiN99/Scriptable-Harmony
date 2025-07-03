@@ -7,12 +7,12 @@ namespace NuiN.NExtensions
         [ShowInInspector] public Vector3 Velocity { get; private set; }
         Vector3 _position;
         Vector3 _previousPosition;
-    
-        void FixedUpdate()
+
+        void Update()
         {
             _previousPosition = _position;
             _position = transform.position;
-            Velocity = (_position - _previousPosition) / Time.fixedDeltaTime;
+            Velocity = (_position - _previousPosition) / Time.deltaTime;
         }
     }
 }
