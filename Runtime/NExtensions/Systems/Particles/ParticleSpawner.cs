@@ -59,7 +59,7 @@ namespace NuiN.NExtensions
             
             particleSystem.transform.SetPositionAndRotation(position, rot);
             particleSystem.transform.localScale = prefab.transform.localScale * scaleMultiplier;
-            particleSystem.transform.SetParent(parent);
+            particleSystem.transform.SetParent(parent, worldPositionStays: true);
             
             if (lifetime == null)
             {
