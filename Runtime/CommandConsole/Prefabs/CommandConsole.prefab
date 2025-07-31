@@ -1628,6 +1628,7 @@ GameObject:
   - component: {fileID: 3357455274895004069}
   - component: {fileID: 4055046384483889819}
   - component: {fileID: 5804208480455147153}
+  - component: {fileID: 1906567706978070985}
   m_Layer: 5
   m_Name: CommandConsole
   m_TagString: Untagged
@@ -1667,26 +1668,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c0b60c4e01ff184daa40b44bca83cb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toggleConsoleInputAction:
-    m_UseReference: 0
-    m_Action:
-      m_Name: Toggle Console Input
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: c3c4ccaf-f311-4927-9f3d-53e155b23ee0
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings:
-      - m_Name: 
-        m_Id: 3b6c1ae3-6936-443d-b61a-a6c4e011eb3c
-        m_Path: <Keyboard>/backquote
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Toggle Console Input
-        m_Flags: 0
-      m_Flags: 0
-    m_Reference: {fileID: 0}
   deleteLastWordInputAction:
     m_UseReference: 0
     m_Action:
@@ -1797,9 +1778,9 @@ MonoBehaviour:
   messagesScrollRect: {fileID: 5411095952765419471}
   textInput: {fileID: 5001937306338619255}
   inputPlaceholderText: {fileID: 5515748529780861285}
-  closeButton: {fileID: 1585278457605207159}
-  clearButton: {fileID: 8347998385611194026}
-  collapseMessagesToggle: {fileID: 625954993444625407}
+  logColor: {r: 1, g: 1, b: 1, a: 1}
+  warnColor: {r: 0.9056604, g: 0.55558085, b: 0.08116765, a: 1}
+  errorColor: {r: 0.745283, g: 0.20741367, b: 0.20741367, a: 1}
 --- !u!114 &450594053277002934
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1889,6 +1870,39 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1906567706978070985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7920275022072907459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f026f280ec1b9d0479d3766c313731f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  commandConsoleView: {fileID: 4969507209175089793}
+  toggleConsole:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Toggle Console
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 212b96e1-b7c1-4a72-8618-bc00d33733fd
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: ac6bccdf-173c-46c9-a256-3007250a6799
+        m_Path: <Keyboard>/backquote
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Toggle Console
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
 --- !u!1 &8264736084974583981
 GameObject:
   m_ObjectHideFlags: 0
