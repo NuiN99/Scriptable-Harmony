@@ -1,4 +1,3 @@
-using System;
 using NuiN.NExtensions;
 using TMPro;
 using UnityEngine;
@@ -10,9 +9,8 @@ namespace NuiN.CommandConsole
 {
     public class CommandConsoleView : MonoBehaviour
     {
-        public bool IsOpen => presenter.IsOpen;
-        
         [Header("Input")]
+        [SerializeField] InputActionProperty toggleConsoleInputAction;
         [SerializeField] InputActionProperty deleteLastWordInputAction;
         [SerializeField] InputActionProperty autoCompleteInputAction;
         [SerializeField] InputActionProperty commandHistoryUpInputAction;
@@ -25,11 +23,9 @@ namespace NuiN.CommandConsole
         [SerializeField] ScrollRect messagesScrollRect;
         [SerializeField] TMP_InputField textInput;
         [SerializeField] TMP_Text inputPlaceholderText;
-
-        [Header("Visuals")] 
-        [SerializeField] Color logColor;
-        [SerializeField] Color warnColor;
-        [SerializeField] Color errorColor;
+        [SerializeField] Button closeButton;
+        [SerializeField] Button clearButton;
+        [SerializeField] Toggle collapseMessagesToggle;
 
         void OnEnable()
         {
@@ -39,10 +35,15 @@ namespace NuiN.CommandConsole
             
             textInput.onEndEdit.AddListener(InputDeselectedHandler);
             
+            clearButton.onClick.AddListener(ClearMessagesHandler);
+            closeButton.onClick.AddListener(ToggleConsoleHandler);
+            collapseMessagesToggle.onValueChanged.AddListener(CollapseToggleValueChangedHandler);
+            
+            toggleConsoleInputAction.action.performed += ToggleConsoleInputHandler;
             deleteLastWordInputAction.action.performed += DeleteTextBlockHandler;
             autoCompleteInputAction.action.performed += FillAutoCompletedTextHandler;
-
-            presenter.OnCreateLog += OnCreateLog;
+            
+            Application.logMessageReceived += LogMessageRecievedHandler;
         }
 
         void OnDisable()
@@ -53,53 +54,40 @@ namespace NuiN.CommandConsole
             
             textInput.onEndEdit.RemoveListener(InputDeselectedHandler);
             
+            closeButton.onClick.RemoveListener(ToggleConsoleHandler);
+            clearButton.onClick.RemoveListener(ClearMessagesHandler);
+            collapseMessagesToggle.onValueChanged.RemoveListener(CollapseToggleValueChangedHandler);
+            
+            toggleConsoleInputAction.action.performed -= ToggleConsoleInputHandler;
             deleteLastWordInputAction.action.performed -= DeleteTextBlockHandler;
             autoCompleteInputAction.action.performed -= FillAutoCompletedTextHandler;
             
-            presenter.OnCreateLog -= OnCreateLog;
+            Application.logMessageReceived -= LogMessageRecievedHandler;
         }
         
         void InvokeCommandHandler(string command) => presenter.SubmitCommand(textInput, inputPlaceholderText, messagesScrollRect, panelRoot);
+        void ToggleConsoleInputHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject, textInput);
+        void ToggleConsoleHandler() => presenter.ToggleConsole(panelRoot.gameObject, textInput);
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
         void FillAutoCompletedTextHandler(InputAction.CallbackContext context) => presenter.FillAutoCompletedText(textInput);
+        void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);
+        void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
         void PopulateAutoCompleteOptionsHandler(string text) => presenter.UpdatePlaceholderText(inputPlaceholderText, textInput);
         void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.UpdatePlaceholderText(inputPlaceholderText, textInput, true);
-
-        void OnCreateLog(string message, LogType logType, CommandConsoleModel model)
-        {
-            MessageKey key = new MessageKey(message, logType);
-            ConsoleMessage consoleMessage = Instantiate(model.ConsoleMessagePrefab, messagesRoot);
-
-            Color color = logType switch
-            {
-                LogType.Log => logColor,
-                LogType.Warning => warnColor,
-                LogType.Error => errorColor,
-                
-                _ => logColor
-            };
-            
-            consoleMessage.Initialize(key, color);
-
-            model.Logs.Add(consoleMessage);
-        }
-        
         void InputDeselectedHandler(string text)
         {
             if (!Input.GetKey(KeyCode.Escape)) return;
             presenter.DisableConsole(panelRoot.gameObject, textInput);
         }
 
-        public void SetConsoleActive(bool isEnabled)
-        {
-            if (isEnabled) presenter.EnableConsole(panelRoot.gameObject, textInput);
-            else presenter.DisableConsole(panelRoot.gameObject, textInput);
-        }
+        void ClearMessagesHandler() => presenter.ClearMessages(messagesRoot);
 
         void Awake()
         {
             presenter.RegisterCommands();
+            presenter.LoadSavedValues(panelRoot, collapseMessagesToggle);
             
+            toggleConsoleInputAction.action.Enable();
             deleteLastWordInputAction.action.Enable();
             autoCompleteInputAction.action.Enable();
             

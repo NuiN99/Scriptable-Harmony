@@ -14,11 +14,14 @@ namespace NuiN.CommandConsole
 {
     public class CommandConsolePresenter : MonoBehaviour
     {
-        public bool IsOpen => model.IsConsoleEnabled;
-        
-        public event Action<string, LogType, CommandConsoleModel> OnCreateLog = delegate { };
+        const string INVALID_PARAMETER = "invalid!";
 
         [SerializeField, InjectComponent] CommandConsoleModel model;
+
+        public void LoadSavedValues(RectTransform root, Toggle collapseMessagesToggle)
+        {
+            collapseMessagesToggle.isOn = model.GetSavedCollapseMessagesValue();
+        }
         
         public void RegisterCommands()
         {
@@ -72,7 +75,7 @@ namespace NuiN.CommandConsole
             
             if (!model.RegisteredCommands.TryGetValue(model.SelectedCommand, out MethodInfo method))
             {
-                CreateLog("Command not found!", LogType.Warning);
+                Debug.LogWarning("Command not found!");
                 return;
             }
             
@@ -113,7 +116,7 @@ namespace NuiN.CommandConsole
                     
                     if (param == null)
                     {
-                        CreateLog("Invalid Parameter", LogType.Warning);
+                        Debug.LogWarning("Invalid Parameter");
                         return;
                     }
                     
@@ -145,7 +148,7 @@ namespace NuiN.CommandConsole
 
                     if (instances.Count <= 0)
                     {
-                        CreateLog("No instances found to run the command", LogType.Warning);
+                        Debug.LogWarning("No instances found to run the command");
                     }
 
                     foreach (MonoBehaviour instance in instances)
@@ -156,7 +159,6 @@ namespace NuiN.CommandConsole
             }
             catch (Exception err)
             {
-                CreateLog(err.Message, LogType.Error);
                 Debug.LogError(err.Message);
             }
         }
@@ -173,20 +175,19 @@ namespace NuiN.CommandConsole
                 
                 return;
             }
-            
-            CreateLog(returnValue.ToString(), LogType.Log);
+            Debug.Log(returnValue);
         }
         
         bool HasValidParameterCount(int inputCount, int minCount, int maxCount)
         {
             if (inputCount < minCount)
             {
-                CreateLog("Not enough parameters!", LogType.Warning);
+                Debug.LogWarning("Not enough parameters!");
                 return false;
             }
             if (inputCount > maxCount)
             {
-                CreateLog("Too many parameters!", LogType.Warning);
+                Debug.LogWarning("Too many parameters!");
                 return false;
             }
 
@@ -280,6 +281,47 @@ namespace NuiN.CommandConsole
             scrollRect.verticalNormalizedPosition = height;
         }
         
+        public void CreateAndInitializeNewLog(Transform messagesRoot, string message, string stackTrace, LogType logType)
+        {
+            // todo: object pool visible logs
+
+            MessageKey key = new MessageKey(message, logType);
+            bool containsKey = model.Logs.TryGetValue(key, out ConsoleMessage consoleMessage);
+            if (model.CollapseMessages && containsKey)
+            {
+                consoleMessage.IncrementMessageCount();
+                return;
+            }
+            
+            consoleMessage = Instantiate(model.ConsoleMessagePrefab, messagesRoot);
+            consoleMessage.Initialize(key);
+
+            if(!containsKey) model.Logs.Add(key, consoleMessage);
+        }
+
+        static string GetTypeName(Type type)
+        {
+            return type switch
+            {
+                not null when type == typeof(float) => "float",
+                not null when type == typeof(bool) => "bool",
+                not null when type == typeof(int) => "int",
+                not null when type == typeof(string) => "string",
+                not null when type == typeof(Vector3) => "Vector3",
+                not null when type == typeof(Vector2) => "Vector2",
+                not null when type == typeof(Vector2Int) => "Vector2Int",
+                not null when type == typeof(Vector3Int) => "Vector3Int",
+                not null when type == typeof(long) => "long",
+                not null when type == typeof(ulong) => "ulong",
+                not null when type == typeof(double) => "double",
+                not null when type == typeof(byte) => "byte",
+                not null when type == typeof(sbyte) => "sbyte",
+                not null when type == typeof(short) => "short",
+                not null when type == typeof(char) => "char",
+                _ => INVALID_PARAMETER
+            };
+        }
+        
         static object GetParsedArg(Type type, string arg)
         {
             if (type == typeof(string)) return arg;
@@ -319,6 +361,12 @@ namespace NuiN.CommandConsole
             if(type == typeof(short) && short.TryParse(arg, out short shortVal)) return shortVal;
 
             return null;
+        }
+
+        public void ToggleMessageCollapsing(bool value)
+        {
+            model.CollapseMessages = value;
+            model.SetSavedCollapseMessagesValue();
         }
 
         public void UpdatePlaceholderText(TMP_Text placeholderText, TMP_InputField input, bool ignoreStringCheck = false)
@@ -398,9 +446,9 @@ namespace NuiN.CommandConsole
 
         public void ClearMessages(Transform messagesRoot)
         {
-            foreach (ConsoleMessage log in model.Logs)
+            foreach (KeyValuePair<MessageKey, ConsoleMessage> log in model.Logs)
             {
-                if(log != null) Destroy(log.gameObject);
+                if(log.Value != null) Destroy(log.Value.gameObject);
             }
 
             foreach (Transform message in messagesRoot)
@@ -416,11 +464,6 @@ namespace NuiN.CommandConsole
             InvokeCommand(textInput);
             SetScrollRectPosition(messagesScrollRect, 0);
             UpdatePlaceholderText(inputPlaceholderText, textInput);
-        }
-        
-        public void CreateLog(string message, LogType logType)
-        {
-            OnCreateLog.Invoke(message, logType, model);
         }
     }
 }
