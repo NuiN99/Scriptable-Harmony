@@ -9,6 +9,8 @@ namespace NuiN.NExtensions
     /// <summary> Stack based Object Pool that allows objects to define when to release themselves back into the pool, without passing the pool around </summary>
     public class ObjectPool<T> : IDisposable where T : MonoBehaviour
     {
+        public Stack<T> Stack => _stack;
+
         Stack<T> _stack = new();
         Func<T> _create;
         Action<T> _onGet;
@@ -17,7 +19,7 @@ namespace NuiN.NExtensions
 
         bool _useContainer;
         Transform _container;
-        
+
         /// <param name="create"> How the object gets created, eg. () => Instantiate(prefab) </param>
         /// <param name="onGet"> When getting the object </param>
         /// <param name="onRelease"> When the object is released back into the pool </param>
@@ -46,16 +48,16 @@ namespace NuiN.NExtensions
                 obj.transform.SetParent(_container);
             }
         }
-    
+
         /// <summary> Get an object from the pool </summary>
         public T Get()
         {
             T obj = _stack.Count == 0 ? Create() : _stack.Pop();
-            
-            if(_autoEnableDisable) obj.gameObject.SetActive(true);
+
+            if (_autoEnableDisable) obj.gameObject.SetActive(true);
 
             _onGet?.Invoke(obj);
-            
+
             return obj;
         }
 
@@ -63,10 +65,10 @@ namespace NuiN.NExtensions
         public void Release(T obj)
         {
             _stack.Push(obj);
-            
-            if(_autoEnableDisable) obj.gameObject.SetActive(false);
-            if(_useContainer) obj.transform.SetParent(_container);
-        
+
+            if (_autoEnableDisable) obj.gameObject.SetActive(false);
+            if (_useContainer) obj.transform.SetParent(_container);
+
             _onRelease?.Invoke(obj);
         }
 
@@ -75,14 +77,14 @@ namespace NuiN.NExtensions
         {
             T obj = _create.Invoke();
 
-            if(_autoEnableDisable) obj.gameObject.SetActive(false);
-            if(_useContainer) obj.transform.SetParent(_container);
-            
+            if (_autoEnableDisable) obj.gameObject.SetActive(false);
+            if (_useContainer) obj.transform.SetParent(_container);
+
             _stack.Push(obj);
-            
-            if(obj is IPoolabeObject<T> poolable) 
+
+            if (obj is IPoolabeObject<T> poolable)
                 poolable.ReleaseToPool = Release;
-            
+
             return obj;
         }
 
@@ -93,7 +95,7 @@ namespace NuiN.NExtensions
             {
                 Object.Destroy(obj.gameObject);
             }
-            
+
             _stack.Clear();
         }
     }
