@@ -4,7 +4,7 @@ namespace NuiN.SpleenTween
 {
     using System;
     using UnityEngine;
-    
+
     public enum Axis { x, y, z };
 
     /// <summary>
@@ -17,7 +17,7 @@ namespace NuiN.SpleenTween
             return easing switch
             {
                 Ease.Linear => lerp,
-                
+
                 Ease.InSine => Easing.InSine(lerp),
                 Ease.OutSine => Easing.OutSine(lerp),
                 Ease.InOutSine => Easing.InOutSine(lerp),
@@ -29,7 +29,7 @@ namespace NuiN.SpleenTween
                 Ease.InCubic => Easing.InCubic(lerp),
                 Ease.OutCubic => Easing.OutCubic(lerp),
                 Ease.InOutCubic => Easing.InOutCubic(lerp),
-                
+
                 Ease.InCirc => Easing.InCirc(lerp),
                 Ease.OutCirc => Easing.OutCirc(lerp),
                 Ease.InOutCirc => Easing.InOutCirc(lerp),
@@ -45,7 +45,7 @@ namespace NuiN.SpleenTween
                 Ease.InBounce => Easing.InBounce(lerp),
                 Ease.OutBounce => Easing.OutBounce(lerp),
                 Ease.InOutBounce => Easing.InOutBounce(lerp),
-                
+
                 Ease.InQuart => lerp * lerp * lerp * lerp,
                 Ease.OutQuart => 1 - Mathf.Pow(1 - lerp, 4),
                 Ease.InOutQuart => lerp < 0.5 ? 8 * lerp * lerp * lerp * lerp : 1 - Mathf.Pow(-2 * lerp + 2, 4) / 2,
@@ -61,7 +61,7 @@ namespace NuiN.SpleenTween
                 _ => lerp
             };
         }
-        
+
         static void SetAxis(Axis axis, Vector3 inVal, float targetVal, Action<Vector3> setAxis)
         {
             Vector3 newVal = inVal;
@@ -95,7 +95,7 @@ namespace NuiN.SpleenTween
                 _ => throw new MissingMemberException("Axis somehow does not exist")
             };
         }
-        
+
         static void SetRotationAxis(Axis axis, Quaternion inVal, float targetVal, Action<Quaternion> setAxis)
         {
             Quaternion newVal = inVal;
@@ -139,6 +139,8 @@ namespace NuiN.SpleenTween
             (val) => target.transform.eulerAngles = val);
         public static void SetRotAxis(Axis axis, Transform target, float targetVal) => SetRotationAxis(axis, target.rotation, targetVal,
             (val) => target.rotation = val);
+        public static void SetLocalRotAxis(Axis axis, Transform target, float targetVal) => SetRotationAxis(axis, target.localRotation, targetVal,
+            (val) => target.localRotation = val);
 
         public static void SetRBPosAxis(Axis axis, Rigidbody target, float targetVal) => SetAxis(axis, target.position, targetVal, target.MovePosition);
         public static void SetRB2DPosAxis(Axis axis, Rigidbody2D target, float targetVal) => SetAxis(axis, target.position, targetVal, pos => target.MovePosition(pos));
@@ -166,7 +168,7 @@ namespace NuiN.SpleenTween
             {
                 return (T)(object)((Vector3)(object)a + (Vector3)(object)b);
             }
-            
+
             if (typeof(T) == typeof(Vector2))
             {
                 return (T)(object)((Vector2)(object)a + (Vector2)(object)b);
@@ -194,7 +196,7 @@ namespace NuiN.SpleenTween
             {
                 return (T)(object)((Vector3)(object)a - (Vector3)(object)b);
             }
-            
+
             if (typeof(T) == typeof(Vector2))
             {
                 return (T)(object)((Vector2)(object)a - (Vector2)(object)b);
@@ -222,12 +224,12 @@ namespace NuiN.SpleenTween
             {
                 return (T)(object)Vector3.LerpUnclamped((Vector3)(object)from, (Vector3)(object)to, lerpProgress);
             }
-            
+
             if (typeof(T) == typeof(Vector2))
             {
                 return (T)(object)Vector2.LerpUnclamped((Vector2)(object)from, (Vector2)(object)to, lerpProgress);
             }
-            
+
             if (typeof(T) == typeof(Quaternion))
             {
                 return (T)(object)Quaternion.SlerpUnclamped((Quaternion)(object)from, (Quaternion)(object)to, lerpProgress);
