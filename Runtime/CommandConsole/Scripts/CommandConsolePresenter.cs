@@ -14,6 +14,8 @@ namespace NuiN.CommandConsole
 {
     public class CommandConsolePresenter : MonoBehaviour
     {
+        public event Action<object, LogType> OnCommandLogRecieved = delegate { };
+        
         const string INVALID_PARAMETER = "invalid!";
 
         [SerializeField, InjectComponent] CommandConsoleModel model;
@@ -43,7 +45,7 @@ namespace NuiN.CommandConsole
                             CommandKey commandKey = new CommandKey(attribute.command, method.GetParameters());
                             if (!model.RegisteredCommands.TryAdd(commandKey, method))
                             {
-                                Debug.LogWarning($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]");
+                                OnCommandLogRecieved.Invoke($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]", LogType.Warning);
                             }
                         }
                     }
@@ -75,7 +77,7 @@ namespace NuiN.CommandConsole
             
             if (!model.RegisteredCommands.TryGetValue(model.SelectedCommand, out MethodInfo method))
             {
-                Debug.LogWarning("Command not found!");
+                OnCommandLogRecieved.Invoke($"Command not found!", LogType.Warning);
                 return;
             }
             
@@ -116,7 +118,7 @@ namespace NuiN.CommandConsole
                     
                     if (param == null)
                     {
-                        Debug.LogWarning("Invalid Parameter");
+                        OnCommandLogRecieved.Invoke($"Invalid Parameter", LogType.Warning);
                         return;
                     }
                     
@@ -148,7 +150,7 @@ namespace NuiN.CommandConsole
 
                     if (instances.Count <= 0)
                     {
-                        Debug.LogWarning("No instances found to run the command");
+                        OnCommandLogRecieved.Invoke($"No instances found to run the command", LogType.Warning);
                     }
 
                     foreach (MonoBehaviour instance in instances)
@@ -159,7 +161,7 @@ namespace NuiN.CommandConsole
             }
             catch (Exception err)
             {
-                Debug.LogError(err.Message);
+                OnCommandLogRecieved.Invoke(err.Message, LogType.Error);
             }
         }
 
@@ -175,19 +177,20 @@ namespace NuiN.CommandConsole
                 
                 return;
             }
-            Debug.Log(returnValue);
+            
+            OnCommandLogRecieved.Invoke(returnValue, LogType.Log);
         }
         
         bool HasValidParameterCount(int inputCount, int minCount, int maxCount)
         {
             if (inputCount < minCount)
             {
-                Debug.LogWarning("Not enough parameters!");
+                OnCommandLogRecieved.Invoke("Not enough parameters!", LogType.Warning);
                 return false;
             }
             if (inputCount > maxCount)
             {
-                Debug.LogWarning("Too many parameters!");
+                OnCommandLogRecieved.Invoke("Too many parameters!", LogType.Warning);
                 return false;
             }
 
@@ -281,7 +284,7 @@ namespace NuiN.CommandConsole
             scrollRect.verticalNormalizedPosition = height;
         }
         
-        public void CreateAndInitializeNewLog(Transform messagesRoot, string message, string stackTrace, LogType logType)
+        public void CreateAndInitializeNewLog(Transform messagesRoot, string message, LogType logType)
         {
             // todo: object pool visible logs
 

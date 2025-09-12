@@ -43,7 +43,7 @@ namespace NuiN.CommandConsole
             deleteLastWordInputAction.action.performed += DeleteTextBlockHandler;
             autoCompleteInputAction.action.performed += FillAutoCompletedTextHandler;
             
-            Application.logMessageReceived += LogMessageRecievedHandler;
+            presenter.OnCommandLogRecieved += MessageRecievedHandler;
         }
 
         void OnDisable()
@@ -62,7 +62,7 @@ namespace NuiN.CommandConsole
             deleteLastWordInputAction.action.performed -= DeleteTextBlockHandler;
             autoCompleteInputAction.action.performed -= FillAutoCompletedTextHandler;
             
-            Application.logMessageReceived -= LogMessageRecievedHandler;
+            presenter.OnCommandLogRecieved -= MessageRecievedHandler;
         }
         
         void InvokeCommandHandler(string command) => presenter.SubmitCommand(textInput, inputPlaceholderText, messagesScrollRect, panelRoot);
@@ -70,7 +70,7 @@ namespace NuiN.CommandConsole
         void ToggleConsoleHandler() => presenter.ToggleConsole(panelRoot.gameObject, textInput);
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
         void FillAutoCompletedTextHandler(InputAction.CallbackContext context) => presenter.FillAutoCompletedText(textInput);
-        void LogMessageRecievedHandler(string message, string stackTrace, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message, stackTrace, logType);
+        void MessageRecievedHandler(object message, LogType logType) => presenter.CreateAndInitializeNewLog(messagesRoot, message.ToString(), logType);
         void CollapseToggleValueChangedHandler(bool value) =>  presenter.ToggleMessageCollapsing(value);
         void PopulateAutoCompleteOptionsHandler(string text) => presenter.UpdatePlaceholderText(inputPlaceholderText, textInput);
         void PopulateAutoCompleteOptionsOnSelectHandler(string text) => presenter.UpdatePlaceholderText(inputPlaceholderText, textInput, true);
