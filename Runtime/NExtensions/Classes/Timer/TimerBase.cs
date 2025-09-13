@@ -41,5 +41,12 @@ namespace NuiN.NExtensions
         {
             _startTime = float.MinValue;
         }
+
+        public void SetTimerProgress(float lerp)
+        {
+            lerp = Mathf.Clamp01(lerp);
+            _startTime = UnityEngine.Time.time - lerp * Duration;
+            _hasCompletedOnce = _hasCompletedOnce && !(lerp >= 1f);
+        }
     }
 }
