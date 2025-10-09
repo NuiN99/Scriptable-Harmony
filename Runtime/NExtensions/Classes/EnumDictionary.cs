@@ -34,25 +34,33 @@ namespace NuiN.NExtensions
         }
     }
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(EnumDictionary<,>), true)]
     public class EnumDictionaryPropertyDrawer : PropertyDrawer
     {
-        bool _isExpanded;
-
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
+            string key = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
+            bool isExpanded = EditorPrefs.GetBool(key, false);
+
             // Draw foldout
-            _isExpanded = EditorGUI.Foldout(
+            bool newExpanded = EditorGUI.Foldout(
                 new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight),
-                _isExpanded,
+                isExpanded,
                 label,
                 true
             );
 
-            if (!_isExpanded)
+            // Save expansion state if changed
+            if (newExpanded != isExpanded)
+            {
+                EditorPrefs.SetBool(key, newExpanded);
+                isExpanded = newExpanded;
+            }
+
+            if (!isExpanded)
             {
                 EditorGUI.EndProperty();
                 return;
@@ -86,31 +94,26 @@ namespace NuiN.NExtensions
             var enumValues = Enum.GetValues(enumType);
             SyncEnumWithKeys(keysProperty, valuesProperty, enumValues);
 
-            // Draw each key-value pair side by side
+            // Draw each key-value pair
             float currentY = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             for (int i = 0; i < keysProperty.arraySize; i++)
             {
                 Rect rowRect = new Rect(position.x, currentY, position.width, EditorGUIUtility.singleLineHeight);
 
-                // Split row into two parts (key and value)
                 float keyWidth = position.width * 0.25f;
                 float valueWidth = position.width * 0.75f;
 
                 Rect keyRect = new Rect(rowRect.x, rowRect.y, keyWidth, rowRect.height);
                 Rect valueRect = new Rect(rowRect.x + keyWidth, rowRect.y, valueWidth, rowRect.height);
 
-                // Draw key (enum dropdown, non-editable)
-                GUI.enabled = false; // Disable editing of keys
+                GUI.enabled = false;
                 Enum enumValue = (Enum)Enum.ToObject(enumType, keysProperty.GetArrayElementAtIndex(i).intValue);
                 EditorGUI.EnumPopup(keyRect, enumValue);
                 GUI.enabled = true;
 
-                // Draw value
                 var valueProp = valuesProperty.GetArrayElementAtIndex(i);
                 if (valueProp != null)
-                {
                     EditorGUI.PropertyField(valueRect, valueProp, GUIContent.none, true);
-                }
 
                 currentY += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             }
@@ -121,27 +124,24 @@ namespace NuiN.NExtensions
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            if (!_isExpanded) return EditorGUIUtility.singleLineHeight;
+            string key = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
+            bool isExpanded = EditorPrefs.GetBool(key, false);
+
+            if (!isExpanded)
+                return EditorGUIUtility.singleLineHeight;
 
             var keysProperty = property.FindPropertyRelative("keys");
-            var valuesProperty = property.FindPropertyRelative("values");
-
-            if (keysProperty == null || valuesProperty == null) return EditorGUIUtility.singleLineHeight;
-
-            float totalHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing; // For the foldout
-
-            // Account for each row (key-value pair)
-            totalHeight += keysProperty.arraySize * (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
+            float totalHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            if (keysProperty != null)
+                totalHeight += keysProperty.arraySize * (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
 
             return totalHeight;
         }
 
         void SyncEnumWithKeys(SerializedProperty keysProperty, SerializedProperty valuesProperty, Array enumValues)
         {
-            // Clear the keys property
             keysProperty.ClearArray();
 
-            // Regenerate keys from enum values
             foreach (Enum enumValue in enumValues)
             {
                 int enumInt = Convert.ToInt32(enumValue);
@@ -149,11 +149,8 @@ namespace NuiN.NExtensions
                 keysProperty.GetArrayElementAtIndex(keysProperty.arraySize - 1).intValue = enumInt;
             }
 
-            // Trim or extend the values property to match the size of the keys
             while (valuesProperty.arraySize > keysProperty.arraySize)
-            {
                 valuesProperty.DeleteArrayElementAtIndex(valuesProperty.arraySize - 1);
-            }
 
             while (valuesProperty.arraySize < keysProperty.arraySize)
             {
