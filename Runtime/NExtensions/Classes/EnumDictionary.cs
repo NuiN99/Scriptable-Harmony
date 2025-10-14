@@ -40,6 +40,19 @@ namespace NuiN.NExtensions
         static readonly Dictionary<string, float[]> SRowHeights = new(); // per property key -> per-index flattened heights
         static readonly GUIContent SNone = GUIContent.none;
 
+        // Header styles (box visuals + centered text)
+        static readonly GUIStyle HeaderBox = new GUIStyle(EditorStyles.helpBox)
+        {
+            padding = new RectOffset(4, 4, 3, 3),
+            alignment = TextAnchor.MiddleLeft
+        };
+        static readonly GUIStyle HeaderText = new GUIStyle(EditorStyles.label)
+        {
+            alignment = TextAnchor.MiddleLeft,
+            clipping = TextClipping.Clip,
+            wordWrap = false
+        };
+
         struct EnumCache
         {
             public int[] values;     // int cast of enum values
@@ -54,16 +67,18 @@ namespace NuiN.NExtensions
             string controlPrefix = dictKey + "|";           // prefix for all control names in this drawer
             bool dictExpanded = GetExpanded(dictKey, false);
 
-            // Dictionary header (no arrow). Draw background + label. Toggle on MouseUp only.
+            // Dictionary header (no arrow). Draw background + centered label. Toggle on MouseUp only.
             var dictHeader = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
-            GUI.Box(dictHeader, GUIContent.none, EditorStyles.helpBox);
-            var dictLabel = new Rect(dictHeader.x + 6f, dictHeader.y + 2f, dictHeader.width - 12f, dictHeader.height);
-            EditorGUI.LabelField(dictLabel, label);
+            GUI.Box(dictHeader, GUIContent.none, HeaderBox);
+
+            float lh = EditorGUIUtility.singleLineHeight;
+            float dictTextY = dictHeader.y + Mathf.Max(0f, (dictHeader.height - lh) * 0.5f);
+            var dictLabel = new Rect(dictHeader.x + 6f, dictTextY, dictHeader.width - 12f, lh);
+            EditorGUI.LabelField(dictLabel, label, HeaderText);
 
             var e = Event.current;
             if (e.type == EventType.MouseUp && e.button == 0 && dictHeader.Contains(e.mousePosition))
             {
-                // Clear focus BEFORE layout changes to prevent caret jumping
                 GUIUtility.keyboardControl = 0;
                 GUIUtility.hotControl = 0;
 
@@ -94,7 +109,6 @@ namespace NuiN.NExtensions
                 return;
             }
 
-            // Sync keys quickly by size, no clear/reinsert churn
             if (keysProperty.arraySize != enumCache.values.Length)
                 SyncEnumWithKeys(keysProperty, valuesProperty, enumCache.values);
 
@@ -102,14 +116,12 @@ namespace NuiN.NExtensions
             int indentLevel = EditorGUI.indentLevel + 1;
             float indentOffset = indentLevel * INDENT_PER_LEVEL;
 
-            // Ensure heights cache exists and sized
             float[] rowHeights = GetOrResizeRowHeights(dictKey, valuesProperty.arraySize);
 
             for (int i = 0; i < keysProperty.arraySize; i++)
             {
                 var valueProp = valuesProperty.GetArrayElementAtIndex(i);
 
-                // Use cached flattened height; compute lazily when zero
                 float valueHeight = rowHeights[i];
                 if (Mathf.Approximately(valueHeight, 0f))
                 {
@@ -130,25 +142,21 @@ namespace NuiN.NExtensions
                         float gap = EditorGUIUtility.standardVerticalSpacing;
                         float combinedH = EditorGUIUtility.singleLineHeight + gap + valueHeight + EditorGUIUtility.standardVerticalSpacing;
 
-                        // One continuous background box
                         var combinedRect = new Rect(rowHeader.x, rowHeader.y, rowHeader.width, combinedH);
-                        GUI.Box(combinedRect, GUIContent.none, EditorStyles.helpBox);
+                        GUI.Box(combinedRect, GUIContent.none, HeaderBox);
 
-                        // Header text over same background
-                        var headerLabel = new Rect(rowHeader.x + 6f, rowHeader.y + 2f, rowHeader.width - 12f, rowHeader.height);
-                        EditorGUI.LabelField(headerLabel, enumCache.labels[i]);
+                        float textY = rowHeader.y + Mathf.Max(0f, (rowHeader.height - lh) * 0.5f);
+                        var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
+                        EditorGUI.LabelField(headerLabel, enumCache.labels[i], HeaderText);
 
-                        // Toggle collapse on MouseUp; clear focus before collapsing
                         if (e.type == EventType.MouseUp && e.button == 0 && rowHeader.Contains(e.mousePosition))
                         {
                             GUIUtility.keyboardControl = 0;
                             GUIUtility.hotControl = 0;
-
                             SetExpanded(rowKey, false);
                             e.Use();
                         }
 
-                        // Value content inside the same box
                         var valueRect = new Rect(rowHeader.x + 6f, rowHeader.y + EditorGUIUtility.singleLineHeight + gap, rowHeader.width - 12f, valueHeight);
                         DrawFlattened(valueRect, valueProp, controlPrefix);
 
@@ -156,16 +164,15 @@ namespace NuiN.NExtensions
                     }
                     else
                     {
-                        // Collapsed: draw one header box and label; toggle on MouseUp (no focus steal)
-                        GUI.Box(rowHeader, GUIContent.none, EditorStyles.helpBox);
-                        var headerLabel = new Rect(rowHeader.x + 6f, rowHeader.y + 2f, rowHeader.width - 12f, rowHeader.height);
-                        EditorGUI.LabelField(headerLabel, enumCache.labels[i]);
+                        GUI.Box(rowHeader, GUIContent.none, HeaderBox);
+                        float textY = rowHeader.y + Mathf.Max(0f, (rowHeader.height - lh) * 0.5f);
+                        var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
+                        EditorGUI.LabelField(headerLabel, enumCache.labels[i], HeaderText);
 
                         if (e.type == EventType.MouseUp && e.button == 0 && rowHeader.Contains(e.mousePosition))
                         {
                             GUIUtility.keyboardControl = 0;
                             GUIUtility.hotControl = 0;
-
                             SetExpanded(rowKey, true);
                             e.Use();
                         }
@@ -175,16 +182,17 @@ namespace NuiN.NExtensions
                 }
                 else
                 {
-                    // Single-line: key label left, value field right
                     float keyWidth = position.width * SPLIT_KEY_WIDTH_RATIO;
                     float valueWidth = position.width - keyWidth;
 
                     var keyRect = new Rect(position.x + indentOffset, y, keyWidth - indentOffset, EditorGUIUtility.singleLineHeight);
                     var valRect = new Rect(position.x + indentOffset + keyWidth, y, valueWidth, EditorGUIUtility.singleLineHeight);
 
-                    EditorGUI.LabelField(keyRect, enumCache.labels[i]);
+                    // Center key label vertically relative to line height
+                    float textY = keyRect.y + Mathf.Max(0f, (keyRect.height - lh) * 0.5f);
+                    var keyTextRect = new Rect(keyRect.x, textY, keyRect.width, lh);
+                    EditorGUI.LabelField(keyTextRect, enumCache.labels[i], HeaderText);
 
-                    // Stable, prefixed control name for focus
                     GUI.SetNextControlName(controlPrefix + valueProp.propertyPath);
                     EditorGUI.PropertyField(valRect, valueProp, SNone, true);
 
@@ -192,7 +200,6 @@ namespace NuiN.NExtensions
                 }
             }
 
-            // Optional: allow Escape to clear focus quickly
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 GUIUtility.keyboardControl = 0;
