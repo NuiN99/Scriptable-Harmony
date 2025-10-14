@@ -21,42 +21,46 @@ namespace NuiN.NExtensions
             set
             {
                 int index = keys.IndexOf(key);
-                if (index >= 0)
-                {
-                    values[index] = value;
-                }
-                else
-                {
-                    keys.Add(key);
-                    values.Add(value);
-                }
+                if (index >= 0) values[index] = value;
+                else { keys.Add(key); values.Add(value); }
             }
         }
     }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(EnumDictionary<,>), true)]
     public class EnumDictionaryPropertyDrawer : PropertyDrawer
     {
         const float INDENT_PER_LEVEL = 15f;
         const float SPLIT_KEY_WIDTH_RATIO = 0.25f;
 
+        // Session caches
+        static readonly Dictionary<Type, EnumCache> SEnumCache = new();
+        static readonly Dictionary<string, bool> SHeaderExpanded = new();
+        static readonly Dictionary<string, float[]> SRowHeights = new(); // per property key -> per-index flattened heights
+        static readonly GUIContent SNone = GUIContent.none;
+
+        struct EnumCache
+        {
+            public int[] values;     // int cast of enum values
+            public string[] labels;  // ToString cached (or nicified)
+        }
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            // Persisted expansion for the whole dictionary (no Foldout used)
-            string dictKey = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
-            bool dictExpanded = EditorPrefs.GetBool(dictKey, false);
+            string dictKey = GetDictKey(property);
+            bool dictExpanded = GetExpanded(dictKey, defaultValue: false);
 
-            // Draw dictionary header as a full-width button (no arrow)
             var dictHeader = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
             using (new EditorGUI.IndentLevelScope(0))
             {
                 if (GUI.Button(dictHeader, label.text, EditorStyles.helpBox))
                 {
                     dictExpanded = !dictExpanded;
-                    EditorPrefs.SetBool(dictKey, dictExpanded);
+                    SetExpanded(dictKey, dictExpanded);
+                    // No immediate repaint-costly EditorPrefs call
                 }
             }
 
@@ -66,7 +70,13 @@ namespace NuiN.NExtensions
                 return;
             }
 
-            EditorGUI.indentLevel++;
+            var enumType = GetEnumType();
+            if (enumType == null)
+            {
+                EditorGUI.EndProperty();
+                return;
+            }
+            EnumCache enumCache = GetOrBuildEnumCache(enumType);
 
             var keysProperty = property.FindPropertyRelative("keys");
             var valuesProperty = property.FindPropertyRelative("values");
@@ -76,176 +86,197 @@ namespace NuiN.NExtensions
                 return;
             }
 
-            // Resolve generic arguments
-            Type[] genericArguments = fieldInfo.FieldType.GetGenericArguments();
-            if (genericArguments.Length < 2)
-            {
-                EditorGUI.EndProperty();
-                return;
-            }
-
-            var enumType = genericArguments[0];
-            if (!enumType.IsEnum)
-            {
-                EditorGUI.EndProperty();
-                return;
-            }
-
-            // Keep keys synced to enum members
-            var enumValues = Enum.GetValues(enumType);
-            SyncEnumWithKeys(keysProperty, valuesProperty, enumValues);
+            // Sync keys once per repaint cheaply by count check
+            if (keysProperty.arraySize != enumCache.values.Length)
+                SyncEnumWithKeys(keysProperty, valuesProperty, enumCache.values);
 
             float y = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            float indentOffset = EditorGUI.indentLevel * INDENT_PER_LEVEL;
+            int indentLevel = EditorGUI.indentLevel + 1;
+            float indentOffset = indentLevel * INDENT_PER_LEVEL;
+
+            // Ensure heights cache exists and sized
+            float[] rowHeights = GetOrResizeRowHeights(dictKey, valuesProperty.arraySize);
 
             for (int i = 0; i < keysProperty.arraySize; i++)
             {
                 var valueProp = valuesProperty.GetArrayElementAtIndex(i);
-                // Compute expanded content height for this value, using flattened drawing rules
-                float valueHeight = GetFlattenedHeight(valueProp);
-                bool multiline = valueHeight > EditorGUIUtility.singleLineHeight * 1.1f;
 
-                Enum enumValue = (Enum)Enum.ToObject(enumType, keysProperty.GetArrayElementAtIndex(i).intValue);
+                // Use cached flattened height; compute lazily when zero
+                float valueHeight = rowHeights[i];
+                if (Mathf.Approximately(valueHeight, 0f))
+                {
+                    valueHeight = GetFlattenedHeight(valueProp);
+                    rowHeights[i] = valueHeight;
+                }
+                bool multiline = valueHeight > EditorGUIUtility.singleLineHeight * 1.1f;
 
                 if (multiline)
                 {
-                    string rowKey = $"{dictKey}_row_{i}";
-                    bool rowExpanded = EditorPrefs.GetBool(rowKey, false);
+                    string rowKey = dictKey + "_row_" + i;
+                    bool rowExpanded = GetExpanded(rowKey, defaultValue: false);
 
-                    // Header rect
                     var rowHeader = new Rect(position.x + indentOffset, y, position.width - indentOffset, EditorGUIUtility.singleLineHeight);
 
-                    // If expanded, compute combined rect for header + value and draw one background
                     if (rowExpanded)
                     {
-                        // Space below header before content
                         float gap = EditorGUIUtility.standardVerticalSpacing;
-
-                        // Total height: header + gap + value + bottom gap
                         float combinedH = EditorGUIUtility.singleLineHeight + gap + valueHeight + EditorGUIUtility.standardVerticalSpacing;
 
-                        // One continuous background
                         var combinedRect = new Rect(rowHeader.x, rowHeader.y, rowHeader.width, combinedH);
-                        GUI.Box(combinedRect, GUIContent.none, EditorStyles.helpBox); // Cohesive single box [web:39]
+                        GUI.Box(combinedRect, SNone, EditorStyles.helpBox);
 
-                        // Draw header as a label-like button on top of the same background
+                        // Header label only, over same background
                         var headerLabel = new Rect(rowHeader.x + 6f, rowHeader.y + 2f, rowHeader.width - 12f, rowHeader.height);
-                        if (GUI.Button(headerLabel, enumValue.ToString(), GUIStyle.none)) // no separate box so it blends [web:19]
+                        if (GUI.Button(headerLabel, enumCache.labels[i], GUIStyle.none))
                         {
-                            EditorPrefs.SetBool(rowKey, false);
+                            SetExpanded(rowKey, false);
                         }
 
-                        // Draw value content inside the same box, with padding
-                        var valueRect = new Rect(
-                            rowHeader.x + 6f,
-                            rowHeader.y + EditorGUIUtility.singleLineHeight + gap,
-                            rowHeader.width - 12f,
-                            valueHeight
-                        );
+                        // Value content
+                        var valueRect = new Rect(rowHeader.x + 6f, rowHeader.y + EditorGUIUtility.singleLineHeight + gap, rowHeader.width - 12f, valueHeight);
                         DrawFlattened(valueRect, valueProp);
 
-                        // Advance Y by the combined area
                         y += combinedH;
                     }
                     else
                     {
-                        // Collapsed state: draw a single header box only
-                        if (GUI.Button(rowHeader, enumValue.ToString(), EditorStyles.helpBox)) // header-only box [web:39]
+                        if (GUI.Button(rowHeader, enumCache.labels[i], EditorStyles.helpBox))
                         {
-                            rowExpanded = !rowExpanded;
-                            EditorPrefs.SetBool(rowKey, rowExpanded);
+                            SetExpanded(rowKey, true);
                         }
-
                         y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
                 }
                 else
                 {
-                    // Single-line row: key label left, value right
                     float keyWidth = position.width * SPLIT_KEY_WIDTH_RATIO;
                     float valueWidth = position.width - keyWidth;
 
                     var keyRect = new Rect(position.x + indentOffset, y, keyWidth - indentOffset, EditorGUIUtility.singleLineHeight);
                     var valRect = new Rect(position.x + indentOffset + keyWidth, y, valueWidth, EditorGUIUtility.singleLineHeight);
 
-                    EditorGUI.LabelField(keyRect, enumValue.ToString());
-                    EditorGUI.PropertyField(valRect, valueProp, GUIContent.none, true);
+                    EditorGUI.LabelField(keyRect, enumCache.labels[i]);
+                    EditorGUI.PropertyField(valRect, valueProp, SNone, true);
 
                     y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 }
             }
 
-            EditorGUI.indentLevel--;
             EditorGUI.EndProperty();
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            // Same key used in OnGUI
-            string dictKey = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
-            bool dictExpanded = EditorPrefs.GetBool(dictKey, false);
+            string dictKey = GetDictKey(property);
+            bool dictExpanded = GetExpanded(dictKey, defaultValue: false);
 
-            // Header always occupies one line
             float total = EditorGUIUtility.singleLineHeight;
-
             if (!dictExpanded)
                 return total;
 
             total += EditorGUIUtility.standardVerticalSpacing;
 
-            var keysProperty = property.FindPropertyRelative("keys");
             var valuesProperty = property.FindPropertyRelative("values");
-            if (keysProperty == null || valuesProperty == null)
+            if (valuesProperty == null)
                 return total;
+
+            float[] rowHeights = GetOrResizeRowHeights(dictKey, valuesProperty.arraySize);
 
             for (int i = 0; i < valuesProperty.arraySize; i++)
             {
-                var valueProp = valuesProperty.GetArrayElementAtIndex(i);
-
-                // Height used for layout logic (flattened)
-                float vHeight = GetFlattenedHeight(valueProp);
+                float vHeight = rowHeights[i];
+                if (Mathf.Approximately(vHeight, 0f))
+                {
+                    vHeight = GetFlattenedHeight(valuesProperty.GetArrayElementAtIndex(i));
+                    rowHeights[i] = vHeight;
+                }
                 bool multiline = vHeight > EditorGUIUtility.singleLineHeight * 1.1f;
 
                 if (multiline)
                 {
-                    // Row header (full-width clickable)
                     total += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
-                    // Use the SAME per-row expansion key as OnGUI
-                    string rowKey = $"{dictKey}_row_{i}";
-                    bool rowExpanded = EditorPrefs.GetBool(rowKey, false);
-                    if (rowExpanded)
-                    {
+                    string rowKey = dictKey + "_row_" + i;
+                    if (GetExpanded(rowKey, defaultValue: false))
                         total += vHeight + EditorGUIUtility.standardVerticalSpacing;
-                    }
                 }
                 else
                 {
-                    // Single-line row
                     total += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 }
             }
 
             return total;
         }
-        
-        // Draw complex properties flattened (no nested foldouts)
+
+        // Cached enum info
+        Type GetEnumType()
+        {
+            var args = fieldInfo.FieldType.GetGenericArguments();
+            if (args.Length >= 1 && args[0].IsEnum) return args[0];
+            return null;
+        }
+
+        EnumCache GetOrBuildEnumCache(Type enumType)
+        {
+            if (!SEnumCache.TryGetValue(enumType, out var cache))
+            {
+                Array valuesArr = Enum.GetValues(enumType);
+                int len = valuesArr.Length;
+                var vals = new int[len];
+                var labels = new string[len];
+                for (int i = 0; i < len; i++)
+                {
+                    // Cast once, cache once
+                    vals[i] = (int)Convert.ChangeType(valuesArr.GetValue(i), typeof(int));
+                    labels[i] = ObjectNames.NicifyVariableName(valuesArr.GetValue(i).ToString());
+                }
+                cache = new EnumCache { values = vals, labels = labels };
+                SEnumCache[enumType] = cache;
+            }
+            return cache;
+        }
+
+        // Expansion state (session cache, optionally sync to EditorPrefs on change)
+        static bool GetExpanded(string key, bool defaultValue)
+        {
+            if (SHeaderExpanded.TryGetValue(key, out bool v)) return v;
+            // Lazy load once from EditorPrefs (avoid hitting every frame)
+            v = EditorPrefs.GetBool(key, defaultValue);
+            SHeaderExpanded[key] = v;
+            return v;
+        }
+        static void SetExpanded(string key, bool value)
+        {
+            if (!SHeaderExpanded.TryGetValue(key, out var cur) || cur != value)
+            {
+                SHeaderExpanded[key] = value;
+                EditorPrefs.SetBool(key, value); // write only on change
+            }
+        }
+
+        static float[] GetOrResizeRowHeights(string dictKey, int count)
+        {
+            if (!SRowHeights.TryGetValue(dictKey, out var arr) || arr == null || arr.Length != count)
+            {
+                arr = new float[count]; // zeros => lazy compute
+                SRowHeights[dictKey] = arr;
+            }
+            return arr;
+        }
+
+        // Flattened draw and height (unchanged but non-alloc)
         static void DrawFlattened(Rect rect, SerializedProperty prop)
         {
-            if (prop == null)
-                return;
+            if (prop == null) return;
 
-            // Primitive or non-generic: draw as-is
             if (prop.propertyType != SerializedPropertyType.Generic)
             {
-                EditorGUI.PropertyField(rect, prop, GUIContent.none, true);
+                EditorGUI.PropertyField(rect, prop, SNone, true);
                 return;
             }
 
-            // Box background
-            GUI.Box(rect, GUIContent.none, EditorStyles.helpBox);
+            GUI.Box(rect, SNone, EditorStyles.helpBox);
 
-            // Iterate children without drawing the root as a foldout
             var iter = prop.Copy();
             var end = iter.GetEndProperty();
 
@@ -253,62 +284,59 @@ namespace NuiN.NExtensions
             float y = rect.y + 4f;
             float w = rect.width - 12f;
 
-            bool enterChildren = true;
-            while (iter.NextVisible(enterChildren) && !SerializedProperty.EqualContents(iter, end))
+            bool enter = true;
+            while (iter.NextVisible(enter) && !SerializedProperty.EqualContents(iter, end))
             {
-                enterChildren = false;
-                float h = EditorGUI.GetPropertyHeight(iter, GUIContent.none, false);
-                var r = new Rect(x, y, w, h);
-                EditorGUI.PropertyField(r, iter, false); // includeChildren: false prevents nested foldouts
+                enter = false;
+                float h = EditorGUI.GetPropertyHeight(iter, SNone, false);
+                EditorGUI.PropertyField(new Rect(x, y, w, h), iter, false);
                 y += h + EditorGUIUtility.standardVerticalSpacing;
             }
         }
-        
-        // Height calculation matching DrawFlattened
+
         static float GetFlattenedHeight(SerializedProperty prop)
         {
-            if (prop == null)
-                return EditorGUIUtility.singleLineHeight;
+            if (prop == null) return EditorGUIUtility.singleLineHeight;
 
             if (prop.propertyType != SerializedPropertyType.Generic)
-                return EditorGUI.GetPropertyHeight(prop, GUIContent.none, true);
+                return EditorGUI.GetPropertyHeight(prop, SNone, true);
 
-            float total = 4f; // top padding inside box
-
+            float total = 4f;
             var iter = prop.Copy();
             var end = iter.GetEndProperty();
-            bool enterChildren = true;
-            while (iter.NextVisible(enterChildren) && !SerializedProperty.EqualContents(iter, end))
+            bool enter = true;
+            while (iter.NextVisible(enter) && !SerializedProperty.EqualContents(iter, end))
             {
-                enterChildren = false;
-                total += EditorGUI.GetPropertyHeight(iter, GUIContent.none, false)
-                         + EditorGUIUtility.standardVerticalSpacing;
+                enter = false;
+                total += EditorGUI.GetPropertyHeight(iter, SNone, false)
+                      + EditorGUIUtility.standardVerticalSpacing;
             }
-
-            total += 4f; // bottom padding
-            // Add helpBox chrome
-            return total + 2f; // slight extra for border
+            total += 4f;
+            return total + 2f;
         }
 
-        void SyncEnumWithKeys(SerializedProperty keysProperty, SerializedProperty valuesProperty, Array enumValues)
+        static void SyncEnumWithKeys(SerializedProperty keysProperty, SerializedProperty valuesProperty, int[] enumInts)
         {
-            keysProperty.ClearArray();
+            // Only rewrite if mismatch; avoid ClearArray (causes allocations and lost references)
+            if (keysProperty.arraySize != enumInts.Length)
+                keysProperty.arraySize = enumInts.Length;
 
-            foreach (Enum enumValue in enumValues)
+            for (int i = 0; i < enumInts.Length; i++)
             {
-                int enumInt = Convert.ToInt32(enumValue);
-                keysProperty.InsertArrayElementAtIndex(keysProperty.arraySize);
-                keysProperty.GetArrayElementAtIndex(keysProperty.arraySize - 1).intValue = enumInt;
+                var elem = keysProperty.GetArrayElementAtIndex(i);
+                if (elem.intValue != enumInts[i]) elem.intValue = enumInts[i];
             }
 
-            while (valuesProperty.arraySize > keysProperty.arraySize)
-                valuesProperty.DeleteArrayElementAtIndex(valuesProperty.arraySize - 1);
+            // Keep values array sized, but do not Reset() which can be expensive; Unity initializes defaults
+            if (valuesProperty.arraySize > enumInts.Length)
+                valuesProperty.arraySize = enumInts.Length;
+            else if (valuesProperty.arraySize < enumInts.Length)
+                valuesProperty.arraySize = enumInts.Length;
+        }
 
-            while (valuesProperty.arraySize < keysProperty.arraySize)
-            {
-                valuesProperty.InsertArrayElementAtIndex(valuesProperty.arraySize);
-                valuesProperty.GetArrayElementAtIndex(valuesProperty.arraySize - 1).Reset();
-            }
+        static string GetDictKey(SerializedProperty property)
+        {
+            return property.serializedObject.targetObject.GetInstanceID() + "_" + property.propertyPath;
         }
     }
 #endif
