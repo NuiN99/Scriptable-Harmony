@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine;
 namespace NuiN.NExtensions
 {
     [Serializable]
-    public class EnumDictionary<TEnum, TValue> where TEnum : Enum
+    public class EnumDictionary<TEnum, TValue> : IEnumerable<KeyValuePair<TEnum, TValue>> where TEnum : Enum
     {
         [SerializeField] List<TEnum> keys = new();
         [SerializeField] List<TValue> values = new();
@@ -25,6 +26,19 @@ namespace NuiN.NExtensions
                 else { keys.Add(key); values.Add(value); }
             }
         }
+
+        public int Count => Mathf.Min(keys.Count, values.Count);
+        public IReadOnlyList<TEnum> Keys => keys;
+        public IReadOnlyList<TValue> Values => values;
+
+        public IEnumerator<KeyValuePair<TEnum, TValue>> GetEnumerator()
+        {
+            int n = Mathf.Min(keys.Count, values.Count);
+            for (int i = 0; i < n; i++)
+                yield return new KeyValuePair<TEnum, TValue>(keys[i], values[i]);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
 #if UNITY_EDITOR
