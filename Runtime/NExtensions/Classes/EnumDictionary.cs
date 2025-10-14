@@ -109,24 +109,54 @@ namespace NuiN.NExtensions
 
                 if (multiline)
                 {
-                    // Per-row expansion persisted; header is a full-width button
                     string rowKey = $"{dictKey}_row_{i}";
                     bool rowExpanded = EditorPrefs.GetBool(rowKey, false);
 
+                    // Header rect
                     var rowHeader = new Rect(position.x + indentOffset, y, position.width - indentOffset, EditorGUIUtility.singleLineHeight);
-                    if (GUI.Button(rowHeader, enumValue.ToString(), EditorStyles.helpBox))
-                    {
-                        rowExpanded = !rowExpanded;
-                        EditorPrefs.SetBool(rowKey, rowExpanded);
-                    }
 
-                    y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
+                    // If expanded, compute combined rect for header + value and draw one background
                     if (rowExpanded)
                     {
-                        var valueRect = new Rect(position.x + indentOffset, y, position.width - indentOffset, valueHeight);
+                        // Space below header before content
+                        float gap = EditorGUIUtility.standardVerticalSpacing;
+
+                        // Total height: header + gap + value + bottom gap
+                        float combinedH = EditorGUIUtility.singleLineHeight + gap + valueHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                        // One continuous background
+                        var combinedRect = new Rect(rowHeader.x, rowHeader.y, rowHeader.width, combinedH);
+                        GUI.Box(combinedRect, GUIContent.none, EditorStyles.helpBox); // Cohesive single box [web:39]
+
+                        // Draw header as a label-like button on top of the same background
+                        var headerLabel = new Rect(rowHeader.x + 6f, rowHeader.y + 2f, rowHeader.width - 12f, rowHeader.height);
+                        if (GUI.Button(headerLabel, enumValue.ToString(), GUIStyle.none)) // no separate box so it blends [web:19]
+                        {
+                            EditorPrefs.SetBool(rowKey, false);
+                        }
+
+                        // Draw value content inside the same box, with padding
+                        var valueRect = new Rect(
+                            rowHeader.x + 6f,
+                            rowHeader.y + EditorGUIUtility.singleLineHeight + gap,
+                            rowHeader.width - 12f,
+                            valueHeight
+                        );
                         DrawFlattened(valueRect, valueProp);
-                        y += valueHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                        // Advance Y by the combined area
+                        y += combinedH;
+                    }
+                    else
+                    {
+                        // Collapsed state: draw a single header box only
+                        if (GUI.Button(rowHeader, enumValue.ToString(), EditorStyles.helpBox)) // header-only box [web:39]
+                        {
+                            rowExpanded = !rowExpanded;
+                            EditorPrefs.SetBool(rowKey, rowExpanded);
+                        }
+
+                        y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
                 }
                 else
