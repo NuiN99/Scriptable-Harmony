@@ -45,7 +45,6 @@ namespace NuiN.NExtensions
             string key = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
             bool isExpanded = EditorPrefs.GetBool(key, false);
 
-            // Draw foldout
             bool newExpanded = EditorGUI.Foldout(
                 new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight),
                 isExpanded,
@@ -53,7 +52,6 @@ namespace NuiN.NExtensions
                 true
             );
 
-            // Save expansion state if changed
             if (newExpanded != isExpanded)
             {
                 EditorPrefs.SetBool(key, newExpanded);
@@ -94,28 +92,30 @@ namespace NuiN.NExtensions
             var enumValues = Enum.GetValues(enumType);
             SyncEnumWithKeys(keysProperty, valuesProperty, enumValues);
 
-            // Draw each key-value pair
             float currentY = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
             for (int i = 0; i < keysProperty.arraySize; i++)
             {
-                Rect rowRect = new Rect(position.x, currentY, position.width, EditorGUIUtility.singleLineHeight);
+                var valueProp = valuesProperty.GetArrayElementAtIndex(i);
+                float valueHeight = EditorGUI.GetPropertyHeight(valueProp, GUIContent.none, true);
+
+                Rect rowRect = new Rect(position.x, currentY, position.width, valueHeight);
 
                 float keyWidth = position.width * 0.25f;
                 float valueWidth = position.width * 0.75f;
 
-                Rect keyRect = new Rect(rowRect.x, rowRect.y, keyWidth, rowRect.height);
-                Rect valueRect = new Rect(rowRect.x + keyWidth, rowRect.y, valueWidth, rowRect.height);
+                Rect keyRect = new Rect(rowRect.x, rowRect.y, keyWidth, EditorGUIUtility.singleLineHeight);
+                Rect valueRect = new Rect(rowRect.x + keyWidth, rowRect.y, valueWidth, valueHeight);
 
                 GUI.enabled = false;
                 Enum enumValue = (Enum)Enum.ToObject(enumType, keysProperty.GetArrayElementAtIndex(i).intValue);
                 EditorGUI.EnumPopup(keyRect, enumValue);
                 GUI.enabled = true;
 
-                var valueProp = valuesProperty.GetArrayElementAtIndex(i);
                 if (valueProp != null)
                     EditorGUI.PropertyField(valueRect, valueProp, GUIContent.none, true);
 
-                currentY += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                currentY += valueHeight + EditorGUIUtility.standardVerticalSpacing;
             }
 
             EditorGUI.indentLevel--;
@@ -131,9 +131,19 @@ namespace NuiN.NExtensions
                 return EditorGUIUtility.singleLineHeight;
 
             var keysProperty = property.FindPropertyRelative("keys");
+            var valuesProperty = property.FindPropertyRelative("values");
+
             float totalHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            if (keysProperty != null)
-                totalHeight += keysProperty.arraySize * (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
+
+            if (keysProperty != null && valuesProperty != null)
+            {
+                for (int i = 0; i < valuesProperty.arraySize; i++)
+                {
+                    var valueProp = valuesProperty.GetArrayElementAtIndex(i);
+                    totalHeight += EditorGUI.GetPropertyHeight(valueProp, GUIContent.none, true)
+                                   + EditorGUIUtility.standardVerticalSpacing;
+                }
+            }
 
             return totalHeight;
         }
