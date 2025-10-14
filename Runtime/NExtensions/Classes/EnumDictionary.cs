@@ -36,14 +36,14 @@ namespace NuiN.NExtensions
 
         // Session caches
         static readonly Dictionary<Type, EnumCache> SEnumCache = new();
-        static readonly Dictionary<string, bool> SHeaderExpanded = new();
+        static readonly Dictionary<string, bool> SExpanded = new(); // holds both header and rows
         static readonly Dictionary<string, float[]> SRowHeights = new(); // per property key -> per-index flattened heights
         static readonly GUIContent SNone = GUIContent.none;
 
         struct EnumCache
         {
             public int[] values;     // int cast of enum values
-            public string[] labels;  // ToString cached (or nicified)
+            public string[] labels;  // Nicified names
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -53,14 +53,22 @@ namespace NuiN.NExtensions
             string dictKey = GetDictKey(property);
             bool dictExpanded = GetExpanded(dictKey, defaultValue: false);
 
+            // Dictionary header (no arrow). Use MouseUp so we don't steal focus on MouseDown.
             var dictHeader = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
-            using (new EditorGUI.IndentLevelScope(0))
+            GUI.Box(dictHeader, GUIContent.none, EditorStyles.helpBox);
+            var dictLabel = new Rect(dictHeader.x + 6f, dictHeader.y + 2f, dictHeader.width - 12f, dictHeader.height);
+            EditorGUI.LabelField(dictLabel, label);
+
+            var e = Event.current;
+            if (e.type == EventType.MouseUp && e.button == 0 && dictHeader.Contains(e.mousePosition))
             {
-                if (GUI.Button(dictHeader, label.text, EditorStyles.helpBox))
+                dictExpanded = !dictExpanded;
+                SetExpanded(dictKey, dictExpanded);
+                e.Use();
+                if (!dictExpanded)
                 {
-                    dictExpanded = !dictExpanded;
-                    SetExpanded(dictKey, dictExpanded);
-                    // No immediate repaint-costly EditorPrefs call
+                    GUIUtility.keyboardControl = 0;
+                    GUIUtility.hotControl = 0;
                 }
             }
 
@@ -86,7 +94,7 @@ namespace NuiN.NExtensions
                 return;
             }
 
-            // Sync keys once per repaint cheaply by count check
+            // Sync keys quickly by size, no clear/reinsert churn
             if (keysProperty.arraySize != enumCache.values.Length)
                 SyncEnumWithKeys(keysProperty, valuesProperty, enumCache.values);
 
@@ -122,17 +130,24 @@ namespace NuiN.NExtensions
                         float gap = EditorGUIUtility.standardVerticalSpacing;
                         float combinedH = EditorGUIUtility.singleLineHeight + gap + valueHeight + EditorGUIUtility.standardVerticalSpacing;
 
+                        // One continuous background box
                         var combinedRect = new Rect(rowHeader.x, rowHeader.y, rowHeader.width, combinedH);
-                        GUI.Box(combinedRect, SNone, EditorStyles.helpBox);
+                        GUI.Box(combinedRect, GUIContent.none, EditorStyles.helpBox);
 
-                        // Header label only, over same background
+                        // Header text over same background; do not use Button (prevents focus grab)
                         var headerLabel = new Rect(rowHeader.x + 6f, rowHeader.y + 2f, rowHeader.width - 12f, rowHeader.height);
-                        if (GUI.Button(headerLabel, enumCache.labels[i], GUIStyle.none))
+                        EditorGUI.LabelField(headerLabel, enumCache.labels[i]);
+
+                        // Toggle collapse on MouseUp only
+                        if (e.type == EventType.MouseUp && e.button == 0 && rowHeader.Contains(e.mousePosition))
                         {
                             SetExpanded(rowKey, false);
+                            e.Use();
+                            GUIUtility.keyboardControl = 0;
+                            GUIUtility.hotControl = 0;
                         }
 
-                        // Value content
+                        // Value content inside the same box
                         var valueRect = new Rect(rowHeader.x + 6f, rowHeader.y + EditorGUIUtility.singleLineHeight + gap, rowHeader.width - 12f, valueHeight);
                         DrawFlattened(valueRect, valueProp);
 
@@ -140,15 +155,23 @@ namespace NuiN.NExtensions
                     }
                     else
                     {
-                        if (GUI.Button(rowHeader, enumCache.labels[i], EditorStyles.helpBox))
+                        // Collapsed: draw one header box and label; toggle on MouseUp (no focus steal)
+                        GUI.Box(rowHeader, GUIContent.none, EditorStyles.helpBox);
+                        var headerLabel = new Rect(rowHeader.x + 6f, rowHeader.y + 2f, rowHeader.width - 12f, rowHeader.height);
+                        EditorGUI.LabelField(headerLabel, enumCache.labels[i]);
+
+                        if (e.type == EventType.MouseUp && e.button == 0 && rowHeader.Contains(e.mousePosition))
                         {
                             SetExpanded(rowKey, true);
+                            e.Use();
                         }
+
                         y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
                 }
                 else
                 {
+                    // Single-line: key label left, value field right
                     float keyWidth = position.width * SPLIT_KEY_WIDTH_RATIO;
                     float valueWidth = position.width - keyWidth;
 
@@ -156,10 +179,21 @@ namespace NuiN.NExtensions
                     var valRect = new Rect(position.x + indentOffset + keyWidth, y, valueWidth, EditorGUIUtility.singleLineHeight);
 
                     EditorGUI.LabelField(keyRect, enumCache.labels[i]);
+
+                    // Stable control name for focus
+                    GUI.SetNextControlName(valueProp.propertyPath);
                     EditorGUI.PropertyField(valRect, valueProp, SNone, true);
 
                     y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 }
+            }
+
+            // Optional: allow Escape to clear focus
+            if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
+            {
+                GUIUtility.keyboardControl = 0;
+                GUIUtility.hotControl = 0;
+                Event.current.Use();
             }
 
             EditorGUI.EndProperty();
@@ -226,7 +260,6 @@ namespace NuiN.NExtensions
                 var labels = new string[len];
                 for (int i = 0; i < len; i++)
                 {
-                    // Cast once, cache once
                     vals[i] = (int)Convert.ChangeType(valuesArr.GetValue(i), typeof(int));
                     labels[i] = ObjectNames.NicifyVariableName(valuesArr.GetValue(i).ToString());
                 }
@@ -236,20 +269,19 @@ namespace NuiN.NExtensions
             return cache;
         }
 
-        // Expansion state (session cache, optionally sync to EditorPrefs on change)
+        // Expansion state (session cache + EditorPrefs on change)
         static bool GetExpanded(string key, bool defaultValue)
         {
-            if (SHeaderExpanded.TryGetValue(key, out bool v)) return v;
-            // Lazy load once from EditorPrefs (avoid hitting every frame)
+            if (SExpanded.TryGetValue(key, out bool v)) return v;
             v = EditorPrefs.GetBool(key, defaultValue);
-            SHeaderExpanded[key] = v;
+            SExpanded[key] = v;
             return v;
         }
         static void SetExpanded(string key, bool value)
         {
-            if (!SHeaderExpanded.TryGetValue(key, out var cur) || cur != value)
+            if (!SExpanded.TryGetValue(key, out var cur) || cur != value)
             {
-                SHeaderExpanded[key] = value;
+                SExpanded[key] = value;
                 EditorPrefs.SetBool(key, value); // write only on change
             }
         }
@@ -264,13 +296,14 @@ namespace NuiN.NExtensions
             return arr;
         }
 
-        // Flattened draw and height (unchanged but non-alloc)
+        // Draw complex properties flattened, with stable control names
         static void DrawFlattened(Rect rect, SerializedProperty prop)
         {
             if (prop == null) return;
 
             if (prop.propertyType != SerializedPropertyType.Generic)
             {
+                GUI.SetNextControlName(prop.propertyPath);
                 EditorGUI.PropertyField(rect, prop, SNone, true);
                 return;
             }
@@ -289,7 +322,9 @@ namespace NuiN.NExtensions
             {
                 enter = false;
                 float h = EditorGUI.GetPropertyHeight(iter, SNone, false);
-                EditorGUI.PropertyField(new Rect(x, y, w, h), iter, false);
+                var r = new Rect(x, y, w, h);
+                GUI.SetNextControlName(iter.propertyPath); // stable focus per field
+                EditorGUI.PropertyField(r, iter, false);
                 y += h + EditorGUIUtility.standardVerticalSpacing;
             }
         }
@@ -317,7 +352,6 @@ namespace NuiN.NExtensions
 
         static void SyncEnumWithKeys(SerializedProperty keysProperty, SerializedProperty valuesProperty, int[] enumInts)
         {
-            // Only rewrite if mismatch; avoid ClearArray (causes allocations and lost references)
             if (keysProperty.arraySize != enumInts.Length)
                 keysProperty.arraySize = enumInts.Length;
 
@@ -327,10 +361,8 @@ namespace NuiN.NExtensions
                 if (elem.intValue != enumInts[i]) elem.intValue = enumInts[i];
             }
 
-            // Keep values array sized, but do not Reset() which can be expensive; Unity initializes defaults
-            if (valuesProperty.arraySize > enumInts.Length)
-                valuesProperty.arraySize = enumInts.Length;
-            else if (valuesProperty.arraySize < enumInts.Length)
+            // Keep values sized; no Reset
+            if (valuesProperty.arraySize != enumInts.Length)
                 valuesProperty.arraySize = enumInts.Length;
         }
 
