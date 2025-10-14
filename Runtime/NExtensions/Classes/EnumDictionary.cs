@@ -38,27 +38,29 @@ namespace NuiN.NExtensions
     [CustomPropertyDrawer(typeof(EnumDictionary<,>), true)]
     public class EnumDictionaryPropertyDrawer : PropertyDrawer
     {
+        const float INDENT_PER_LEVEL = 15f;
+        const float SPLIT_KEY_WIDTH_RATIO = 0.25f;
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            string key = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
-            bool isExpanded = EditorPrefs.GetBool(key, false);
+            // Persisted expansion for the whole dictionary (no Foldout used)
+            string dictKey = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
+            bool dictExpanded = EditorPrefs.GetBool(dictKey, false);
 
-            bool newExpanded = EditorGUI.Foldout(
-                new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight),
-                isExpanded,
-                label,
-                true
-            );
-
-            if (newExpanded != isExpanded)
+            // Draw dictionary header as a full-width button (no arrow)
+            var dictHeader = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+            using (new EditorGUI.IndentLevelScope(0))
             {
-                EditorPrefs.SetBool(key, newExpanded);
-                isExpanded = newExpanded;
+                if (GUI.Button(dictHeader, label.text, EditorStyles.helpBox))
+                {
+                    dictExpanded = !dictExpanded;
+                    EditorPrefs.SetBool(dictKey, dictExpanded);
+                }
             }
 
-            if (!isExpanded)
+            if (!dictExpanded)
             {
                 EditorGUI.EndProperty();
                 return;
@@ -68,13 +70,13 @@ namespace NuiN.NExtensions
 
             var keysProperty = property.FindPropertyRelative("keys");
             var valuesProperty = property.FindPropertyRelative("values");
-
             if (keysProperty == null || valuesProperty == null)
             {
                 EditorGUI.EndProperty();
                 return;
             }
 
+            // Resolve generic arguments
             Type[] genericArguments = fieldInfo.FieldType.GetGenericArguments();
             if (genericArguments.Length < 2)
             {
@@ -89,33 +91,58 @@ namespace NuiN.NExtensions
                 return;
             }
 
+            // Keep keys synced to enum members
             var enumValues = Enum.GetValues(enumType);
             SyncEnumWithKeys(keysProperty, valuesProperty, enumValues);
 
-            float currentY = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            float y = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            float indentOffset = EditorGUI.indentLevel * INDENT_PER_LEVEL;
 
             for (int i = 0; i < keysProperty.arraySize; i++)
             {
                 var valueProp = valuesProperty.GetArrayElementAtIndex(i);
-                float valueHeight = EditorGUI.GetPropertyHeight(valueProp, GUIContent.none, true);
+                // Compute expanded content height for this value, using flattened drawing rules
+                float valueHeight = GetFlattenedHeight(valueProp);
+                bool multiline = valueHeight > EditorGUIUtility.singleLineHeight * 1.1f;
 
-                Rect rowRect = new Rect(position.x, currentY, position.width, valueHeight);
-
-                float keyWidth = position.width * 0.25f;
-                float valueWidth = position.width * 0.75f;
-
-                Rect keyRect = new Rect(rowRect.x, rowRect.y, keyWidth, EditorGUIUtility.singleLineHeight);
-                Rect valueRect = new Rect(rowRect.x + keyWidth, rowRect.y, valueWidth, valueHeight);
-
-                GUI.enabled = false;
                 Enum enumValue = (Enum)Enum.ToObject(enumType, keysProperty.GetArrayElementAtIndex(i).intValue);
-                EditorGUI.EnumPopup(keyRect, enumValue);
-                GUI.enabled = true;
 
-                if (valueProp != null)
-                    EditorGUI.PropertyField(valueRect, valueProp, GUIContent.none, true);
+                if (multiline)
+                {
+                    // Per-row expansion persisted; header is a full-width button
+                    string rowKey = $"{dictKey}_row_{i}";
+                    bool rowExpanded = EditorPrefs.GetBool(rowKey, false);
 
-                currentY += valueHeight + EditorGUIUtility.standardVerticalSpacing;
+                    var rowHeader = new Rect(position.x + indentOffset, y, position.width - indentOffset, EditorGUIUtility.singleLineHeight);
+                    if (GUI.Button(rowHeader, enumValue.ToString(), EditorStyles.helpBox))
+                    {
+                        rowExpanded = !rowExpanded;
+                        EditorPrefs.SetBool(rowKey, rowExpanded);
+                    }
+
+                    y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                    if (rowExpanded)
+                    {
+                        var valueRect = new Rect(position.x + indentOffset, y, position.width - indentOffset, valueHeight);
+                        DrawFlattened(valueRect, valueProp);
+                        y += valueHeight + EditorGUIUtility.standardVerticalSpacing;
+                    }
+                }
+                else
+                {
+                    // Single-line row: key label left, value right
+                    float keyWidth = position.width * SPLIT_KEY_WIDTH_RATIO;
+                    float valueWidth = position.width - keyWidth;
+
+                    var keyRect = new Rect(position.x + indentOffset, y, keyWidth - indentOffset, EditorGUIUtility.singleLineHeight);
+                    var valRect = new Rect(position.x + indentOffset + keyWidth, y, valueWidth, EditorGUIUtility.singleLineHeight);
+
+                    EditorGUI.LabelField(keyRect, enumValue.ToString());
+                    EditorGUI.PropertyField(valRect, valueProp, GUIContent.none, true);
+
+                    y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                }
             }
 
             EditorGUI.indentLevel--;
@@ -124,28 +151,113 @@ namespace NuiN.NExtensions
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            string key = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
-            bool isExpanded = EditorPrefs.GetBool(key, false);
+            // Same key used in OnGUI
+            string dictKey = $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}";
+            bool dictExpanded = EditorPrefs.GetBool(dictKey, false);
 
-            if (!isExpanded)
-                return EditorGUIUtility.singleLineHeight;
+            // Header always occupies one line
+            float total = EditorGUIUtility.singleLineHeight;
+
+            if (!dictExpanded)
+                return total;
+
+            total += EditorGUIUtility.standardVerticalSpacing;
 
             var keysProperty = property.FindPropertyRelative("keys");
             var valuesProperty = property.FindPropertyRelative("values");
+            if (keysProperty == null || valuesProperty == null)
+                return total;
 
-            float totalHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
-            if (keysProperty != null && valuesProperty != null)
+            for (int i = 0; i < valuesProperty.arraySize; i++)
             {
-                for (int i = 0; i < valuesProperty.arraySize; i++)
+                var valueProp = valuesProperty.GetArrayElementAtIndex(i);
+
+                // Height used for layout logic (flattened)
+                float vHeight = GetFlattenedHeight(valueProp);
+                bool multiline = vHeight > EditorGUIUtility.singleLineHeight * 1.1f;
+
+                if (multiline)
                 {
-                    var valueProp = valuesProperty.GetArrayElementAtIndex(i);
-                    totalHeight += EditorGUI.GetPropertyHeight(valueProp, GUIContent.none, true)
-                                   + EditorGUIUtility.standardVerticalSpacing;
+                    // Row header (full-width clickable)
+                    total += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                    // Use the SAME per-row expansion key as OnGUI
+                    string rowKey = $"{dictKey}_row_{i}";
+                    bool rowExpanded = EditorPrefs.GetBool(rowKey, false);
+                    if (rowExpanded)
+                    {
+                        total += vHeight + EditorGUIUtility.standardVerticalSpacing;
+                    }
+                }
+                else
+                {
+                    // Single-line row
+                    total += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 }
             }
 
-            return totalHeight;
+            return total;
+        }
+        
+        // Draw complex properties flattened (no nested foldouts)
+        static void DrawFlattened(Rect rect, SerializedProperty prop)
+        {
+            if (prop == null)
+                return;
+
+            // Primitive or non-generic: draw as-is
+            if (prop.propertyType != SerializedPropertyType.Generic)
+            {
+                EditorGUI.PropertyField(rect, prop, GUIContent.none, true);
+                return;
+            }
+
+            // Box background
+            GUI.Box(rect, GUIContent.none, EditorStyles.helpBox);
+
+            // Iterate children without drawing the root as a foldout
+            var iter = prop.Copy();
+            var end = iter.GetEndProperty();
+
+            float x = rect.x + 6f;
+            float y = rect.y + 4f;
+            float w = rect.width - 12f;
+
+            bool enterChildren = true;
+            while (iter.NextVisible(enterChildren) && !SerializedProperty.EqualContents(iter, end))
+            {
+                enterChildren = false;
+                float h = EditorGUI.GetPropertyHeight(iter, GUIContent.none, false);
+                var r = new Rect(x, y, w, h);
+                EditorGUI.PropertyField(r, iter, false); // includeChildren: false prevents nested foldouts
+                y += h + EditorGUIUtility.standardVerticalSpacing;
+            }
+        }
+        
+        // Height calculation matching DrawFlattened
+        static float GetFlattenedHeight(SerializedProperty prop)
+        {
+            if (prop == null)
+                return EditorGUIUtility.singleLineHeight;
+
+            if (prop.propertyType != SerializedPropertyType.Generic)
+                return EditorGUI.GetPropertyHeight(prop, GUIContent.none, true);
+
+            float total = 4f; // top padding inside box
+
+            var iter = prop.Copy();
+            var end = iter.GetEndProperty();
+            bool enterChildren = true;
+            while (iter.NextVisible(enterChildren) && !SerializedProperty.EqualContents(iter, end))
+            {
+                enterChildren = false;
+                total += EditorGUI.GetPropertyHeight(iter, GUIContent.none, false)
+                         + EditorGUIUtility.standardVerticalSpacing;
+            }
+
+            total += 4f; // bottom padding
+            // Add helpBox chrome
+            return total + 2f; // slight extra for border
         }
 
         void SyncEnumWithKeys(SerializedProperty keysProperty, SerializedProperty valuesProperty, Array enumValues)
