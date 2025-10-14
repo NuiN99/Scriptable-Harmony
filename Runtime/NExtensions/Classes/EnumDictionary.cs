@@ -36,11 +36,11 @@ namespace NuiN.NExtensions
 
         // Session caches
         static readonly Dictionary<Type, EnumCache> SEnumCache = new();
-        static readonly Dictionary<string, bool> SExpanded = new(); // holds both header and rows
-        static readonly Dictionary<string, float[]> SRowHeights = new(); // per property key -> per-index flattened heights
+        static readonly Dictionary<string, bool> SExpanded = new(); // header + rows
+        static readonly Dictionary<string, float[]> SRowHeights = new(); // per dictionary -> per-index value heights
         static readonly GUIContent SNone = GUIContent.none;
 
-        // Header styles (box visuals + centered text)
+        // Header visuals
         static readonly GUIStyle HeaderBox = new GUIStyle(EditorStyles.helpBox)
         {
             padding = new RectOffset(4, 4, 3, 3),
@@ -55,29 +55,58 @@ namespace NuiN.NExtensions
 
         struct EnumCache
         {
-            public int[] values;     // int cast of enum values
-            public string[] labels;  // Nicified names
+            public int[] values;
+            public string[] labels;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            string dictKey = GetDictKey(property);          // stable per-dictionary key
-            string controlPrefix = dictKey + "|";           // prefix for all control names in this drawer
+            string dictKey = GetDictKey(property);
+            string controlPrefix = dictKey + "|";
             bool dictExpanded = GetExpanded(dictKey, false);
 
-            // Dictionary header (no arrow). Draw background + centered label. Toggle on MouseUp only.
+            // Dictionary header
             var dictHeader = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
             GUI.Box(dictHeader, GUIContent.none, HeaderBox);
 
             float lh = EditorGUIUtility.singleLineHeight;
             float dictTextY = dictHeader.y + Mathf.Max(0f, (dictHeader.height - lh) * 0.5f);
-            var dictLabel = new Rect(dictHeader.x + 6f, dictTextY, dictHeader.width - 12f, lh);
-            EditorGUI.LabelField(dictLabel, label, HeaderText);
+            var dictLabelRect = new Rect(dictHeader.x + 6f, dictTextY, dictHeader.width - 12f, lh);
+            EditorGUI.LabelField(dictLabelRect, label, HeaderText);
 
             var e = Event.current;
-            if (e.type == EventType.MouseUp && e.button == 0 && dictHeader.Contains(e.mousePosition))
+            if (IsAltClick(e, dictHeader))
+            {
+                // Clear focus to prevent caret jump
+                GUIUtility.keyboardControl = 0;
+                GUIUtility.hotControl = 0;
+
+                // Decide mass action from current state
+                bool expandAll = !dictExpanded;
+
+                var valuesProp = property.FindPropertyRelative("values");
+                int rowCount = valuesProp?.arraySize ?? 0;
+
+                if (expandAll)
+                {
+                    // Open container and expand all rows
+                    dictExpanded = true;
+                    SetExpanded(dictKey, true);
+                    SetAllRowsExpanded(dictKey, rowCount, true);
+                }
+                else
+                {
+                    // Collapse all rows AND close the container
+                    SetAllRowsExpanded(dictKey, rowCount, false);
+                    dictExpanded = false;
+                    SetExpanded(dictKey, false);
+                }
+
+                e.Use();
+            }
+            else if (IsPlainClick(e, dictHeader))
             {
                 GUIUtility.keyboardControl = 0;
                 GUIUtility.hotControl = 0;
@@ -93,6 +122,7 @@ namespace NuiN.NExtensions
                 return;
             }
 
+            // Resolve enum cache
             var enumType = GetEnumType();
             if (enumType == null)
             {
@@ -149,10 +179,21 @@ namespace NuiN.NExtensions
                         var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
                         EditorGUI.LabelField(headerLabel, enumCache.labels[i], HeaderText);
 
-                        if (e.type == EventType.MouseUp && e.button == 0 && rowHeader.Contains(e.mousePosition))
+                        if (IsAltClick(e, rowHeader))
                         {
                             GUIUtility.keyboardControl = 0;
                             GUIUtility.hotControl = 0;
+
+                            // Collapse all rows
+                            int rowCount = valuesProperty.arraySize;
+                            SetAllRowsExpanded(dictKey, rowCount, false);
+                            e.Use();
+                        }
+                        else if (IsPlainClick(e, rowHeader))
+                        {
+                            GUIUtility.keyboardControl = 0;
+                            GUIUtility.hotControl = 0;
+
                             SetExpanded(rowKey, false);
                             e.Use();
                         }
@@ -169,10 +210,23 @@ namespace NuiN.NExtensions
                         var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
                         EditorGUI.LabelField(headerLabel, enumCache.labels[i], HeaderText);
 
-                        if (e.type == EventType.MouseUp && e.button == 0 && rowHeader.Contains(e.mousePosition))
+                        if (IsAltClick(e, rowHeader))
                         {
                             GUIUtility.keyboardControl = 0;
                             GUIUtility.hotControl = 0;
+
+                            // Expand all rows
+                            int rowCount = valuesProperty.arraySize;
+                            SetAllRowsExpanded(dictKey, rowCount, true);
+                            // Ensure dictionary stays open
+                            SetExpanded(dictKey, true);
+                            e.Use();
+                        }
+                        else if (IsPlainClick(e, rowHeader))
+                        {
+                            GUIUtility.keyboardControl = 0;
+                            GUIUtility.hotControl = 0;
+
                             SetExpanded(rowKey, true);
                             e.Use();
                         }
@@ -182,13 +236,13 @@ namespace NuiN.NExtensions
                 }
                 else
                 {
+                    // Single-line row
                     float keyWidth = position.width * SPLIT_KEY_WIDTH_RATIO;
                     float valueWidth = position.width - keyWidth;
 
                     var keyRect = new Rect(position.x + indentOffset, y, keyWidth - indentOffset, EditorGUIUtility.singleLineHeight);
                     var valRect = new Rect(position.x + indentOffset + keyWidth, y, valueWidth, EditorGUIUtility.singleLineHeight);
 
-                    // Center key label vertically relative to line height
                     float textY = keyRect.y + Mathf.Max(0f, (keyRect.height - lh) * 0.5f);
                     var keyTextRect = new Rect(keyRect.x, textY, keyRect.width, lh);
                     EditorGUI.LabelField(keyTextRect, enumCache.labels[i], HeaderText);
@@ -200,6 +254,7 @@ namespace NuiN.NExtensions
                 }
             }
 
+            // Optional: Escape clears focus
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 GUIUtility.keyboardControl = 0;
@@ -251,6 +306,26 @@ namespace NuiN.NExtensions
             }
 
             return total;
+        }
+
+        // Helpers for clicks
+        static bool IsAltClick(Event e, Rect r)
+        {
+            return e.type == EventType.MouseUp && e.button == 0 && r.Contains(e.mousePosition) &&
+                   (e.alt || e.modifiers == EventModifiers.Alt);
+        }
+        static bool IsPlainClick(Event e, Rect r)
+        {
+            return e.type == EventType.MouseUp && e.button == 0 && r.Contains(e.mousePosition) &&
+                   !e.alt && e.modifiers == EventModifiers.None;
+        }
+        static void SetAllRowsExpanded(string dictKey, int rowCount, bool expanded)
+        {
+            for (int i = 0; i < rowCount; i++)
+            {
+                string rowKey = dictKey + "_row_" + i;
+                SetExpanded(rowKey, expanded);
+            }
         }
 
         // Cached enum info
