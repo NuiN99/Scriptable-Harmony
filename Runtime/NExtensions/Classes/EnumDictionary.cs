@@ -31,7 +31,7 @@ namespace NuiN.NExtensions
     [CustomPropertyDrawer(typeof(EnumDictionary<,>), true)]
     public class EnumDictionaryPropertyDrawer : PropertyDrawer
     {
-        const float INDENT_PER_LEVEL = 15f;
+        const float INDENT_PER_LEVEL = 20f;
         const float SPLIT_KEY_WIDTH_RATIO = 0.25f;
 
         // Session caches
@@ -50,10 +50,11 @@ namespace NuiN.NExtensions
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            string dictKey = GetDictKey(property);
-            bool dictExpanded = GetExpanded(dictKey, defaultValue: false);
+            string dictKey = GetDictKey(property);          // stable per-dictionary key
+            string controlPrefix = dictKey + "|";           // prefix for all control names in this drawer
+            bool dictExpanded = GetExpanded(dictKey, false);
 
-            // Dictionary header (no arrow). Use MouseUp so we don't steal focus on MouseDown.
+            // Dictionary header (no arrow). Draw background + label. Toggle on MouseUp only.
             var dictHeader = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
             GUI.Box(dictHeader, GUIContent.none, EditorStyles.helpBox);
             var dictLabel = new Rect(dictHeader.x + 6f, dictHeader.y + 2f, dictHeader.width - 12f, dictHeader.height);
@@ -62,14 +63,13 @@ namespace NuiN.NExtensions
             var e = Event.current;
             if (e.type == EventType.MouseUp && e.button == 0 && dictHeader.Contains(e.mousePosition))
             {
+                // Clear focus BEFORE layout changes to prevent caret jumping
+                GUIUtility.keyboardControl = 0;
+                GUIUtility.hotControl = 0;
+
                 dictExpanded = !dictExpanded;
                 SetExpanded(dictKey, dictExpanded);
                 e.Use();
-                if (!dictExpanded)
-                {
-                    GUIUtility.keyboardControl = 0;
-                    GUIUtility.hotControl = 0;
-                }
             }
 
             if (!dictExpanded)
@@ -121,7 +121,7 @@ namespace NuiN.NExtensions
                 if (multiline)
                 {
                     string rowKey = dictKey + "_row_" + i;
-                    bool rowExpanded = GetExpanded(rowKey, defaultValue: false);
+                    bool rowExpanded = GetExpanded(rowKey, false);
 
                     var rowHeader = new Rect(position.x + indentOffset, y, position.width - indentOffset, EditorGUIUtility.singleLineHeight);
 
@@ -134,22 +134,23 @@ namespace NuiN.NExtensions
                         var combinedRect = new Rect(rowHeader.x, rowHeader.y, rowHeader.width, combinedH);
                         GUI.Box(combinedRect, GUIContent.none, EditorStyles.helpBox);
 
-                        // Header text over same background; do not use Button (prevents focus grab)
+                        // Header text over same background
                         var headerLabel = new Rect(rowHeader.x + 6f, rowHeader.y + 2f, rowHeader.width - 12f, rowHeader.height);
                         EditorGUI.LabelField(headerLabel, enumCache.labels[i]);
 
-                        // Toggle collapse on MouseUp only
+                        // Toggle collapse on MouseUp; clear focus before collapsing
                         if (e.type == EventType.MouseUp && e.button == 0 && rowHeader.Contains(e.mousePosition))
                         {
-                            SetExpanded(rowKey, false);
-                            e.Use();
                             GUIUtility.keyboardControl = 0;
                             GUIUtility.hotControl = 0;
+
+                            SetExpanded(rowKey, false);
+                            e.Use();
                         }
 
                         // Value content inside the same box
                         var valueRect = new Rect(rowHeader.x + 6f, rowHeader.y + EditorGUIUtility.singleLineHeight + gap, rowHeader.width - 12f, valueHeight);
-                        DrawFlattened(valueRect, valueProp);
+                        DrawFlattened(valueRect, valueProp, controlPrefix);
 
                         y += combinedH;
                     }
@@ -162,6 +163,9 @@ namespace NuiN.NExtensions
 
                         if (e.type == EventType.MouseUp && e.button == 0 && rowHeader.Contains(e.mousePosition))
                         {
+                            GUIUtility.keyboardControl = 0;
+                            GUIUtility.hotControl = 0;
+
                             SetExpanded(rowKey, true);
                             e.Use();
                         }
@@ -180,15 +184,15 @@ namespace NuiN.NExtensions
 
                     EditorGUI.LabelField(keyRect, enumCache.labels[i]);
 
-                    // Stable control name for focus
-                    GUI.SetNextControlName(valueProp.propertyPath);
+                    // Stable, prefixed control name for focus
+                    GUI.SetNextControlName(controlPrefix + valueProp.propertyPath);
                     EditorGUI.PropertyField(valRect, valueProp, SNone, true);
 
                     y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 }
             }
 
-            // Optional: allow Escape to clear focus
+            // Optional: allow Escape to clear focus quickly
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 GUIUtility.keyboardControl = 0;
@@ -202,7 +206,7 @@ namespace NuiN.NExtensions
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             string dictKey = GetDictKey(property);
-            bool dictExpanded = GetExpanded(dictKey, defaultValue: false);
+            bool dictExpanded = GetExpanded(dictKey, false);
 
             float total = EditorGUIUtility.singleLineHeight;
             if (!dictExpanded)
@@ -230,7 +234,7 @@ namespace NuiN.NExtensions
                 {
                     total += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     string rowKey = dictKey + "_row_" + i;
-                    if (GetExpanded(rowKey, defaultValue: false))
+                    if (GetExpanded(rowKey, false))
                         total += vHeight + EditorGUIUtility.standardVerticalSpacing;
                 }
                 else
@@ -297,13 +301,13 @@ namespace NuiN.NExtensions
         }
 
         // Draw complex properties flattened, with stable control names
-        static void DrawFlattened(Rect rect, SerializedProperty prop)
+        static void DrawFlattened(Rect rect, SerializedProperty prop, string controlPrefix)
         {
             if (prop == null) return;
 
             if (prop.propertyType != SerializedPropertyType.Generic)
             {
-                GUI.SetNextControlName(prop.propertyPath);
+                GUI.SetNextControlName(controlPrefix + prop.propertyPath);
                 EditorGUI.PropertyField(rect, prop, SNone, true);
                 return;
             }
@@ -323,8 +327,10 @@ namespace NuiN.NExtensions
                 enter = false;
                 float h = EditorGUI.GetPropertyHeight(iter, SNone, false);
                 var r = new Rect(x, y, w, h);
-                GUI.SetNextControlName(iter.propertyPath); // stable focus per field
+
+                GUI.SetNextControlName(controlPrefix + iter.propertyPath);
                 EditorGUI.PropertyField(r, iter, false);
+
                 y += h + EditorGUIUtility.standardVerticalSpacing;
             }
         }
@@ -361,7 +367,6 @@ namespace NuiN.NExtensions
                 if (elem.intValue != enumInts[i]) elem.intValue = enumInts[i];
             }
 
-            // Keep values sized; no Reset
             if (valuesProperty.arraySize != enumInts.Length)
                 valuesProperty.arraySize = enumInts.Length;
         }
