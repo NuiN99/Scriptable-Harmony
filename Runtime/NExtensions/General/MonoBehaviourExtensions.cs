@@ -22,6 +22,12 @@ namespace NuiN.NExtensions
         {
             return behaviour.StartCoroutine(DoAfterCoroutine(seconds, onComplete));
         }
+
+        // ReSharper disable Unity.PerformanceAnalysis
+        public static Coroutine DoAfterRealtime(this MonoBehaviour behaviour, float seconds, Action onComplete)
+        {
+            return behaviour.StartCoroutine(DoAfterRealtimeCoroutine(seconds, onComplete));
+        }
         
         // ReSharper disable Unity.PerformanceAnalysis
         public static Coroutine DoWhen(this MonoBehaviour behaviour, Func<bool> condition, Action onComplete)
@@ -41,6 +47,13 @@ namespace NuiN.NExtensions
             yield return new WaitForSeconds(seconds);
             onComplete?.Invoke();
         }
+
+        // ReSharper disable Unity.PerformanceAnalysis
+        static IEnumerator DoAfterRealtimeCoroutine(float seconds, Action onComplete)
+        {
+            yield return new WaitForSecondsRealtime(seconds);
+            onComplete?.Invoke();
+        }
         
         // ReSharper disable Unity.PerformanceAnalysis
         static IEnumerator DoWhenCoroutine(Func<bool> condition, Action onComplete)
@@ -48,12 +61,12 @@ namespace NuiN.NExtensions
             yield return new WaitUntil(condition);
             onComplete?.Invoke();
         }
-        
+
         // ReSharper disable Unity.PerformanceAnalysis
         static IEnumerator DoForCoroutine(float seconds, Action onUpdate, Action onComplete, Func<bool> stopIf, Action onStop)
         {
             bool nullCondition = stopIf == null;
-            
+
             float time = 0f;
             while (time < seconds)
             {
@@ -62,12 +75,12 @@ namespace NuiN.NExtensions
                     onStop?.Invoke();
                     yield break;
                 }
-                
+
                 time += Time.deltaTime;
                 onUpdate?.Invoke();
                 yield return null;
             }
-            
+
             onComplete?.Invoke();
         }
     }
