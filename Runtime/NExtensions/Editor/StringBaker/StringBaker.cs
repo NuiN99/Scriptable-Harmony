@@ -11,7 +11,7 @@ namespace NuiN.NExtensions.Editor
 {
     internal static class StringBaker
     {
-        const string SCRIPT_TEMPLATE = 
+        const string SCRIPT_TEMPLATE =
 @"using UnityEngine;
 namespace NuiN.NExtensions
 {
@@ -33,55 +33,44 @@ namespace NuiN.NExtensions
         }
     }
 }";
-
         const string SCRIPT_NAME = "Strings";
-        const string FOLDER_NAME = "BakedStrings";
-        
+        const string ROOT_FOLDER = "Assets/Scripts/BakedStrings";
+
         const string NEW_LINE = "\n            ";
         const string LAYER_TEMPLATE = "public static readonly int {VARIABLENAME} = LayerMask.NameToLayer(\"{NAME}\");";
         const string TAG_TEMPLATE = "public static readonly string {VARIABLENAME} = \"{NAME}\";";
         const string SCENE_TEMPLATE = "public static readonly string {VARIABLENAME} = \"{NAME}\";";
 
-        [MenuItem("Tools/Bake Strings")]
+        [MenuItem("Tools/SH/Bake Strings")]
         static void BakeStrings()
         {
-            GetAllScenes();
-            
-            const string filePathSOName = "DO NOT MODIFY";
+            string defaultPath = Path.Combine(ROOT_FOLDER, $"{SCRIPT_NAME}.cs").Replace("\\", "/");
+            string targetPath = defaultPath;
 
-            PathAnchorSO pathAnchorSO = Resources.Load<PathAnchorSO>(filePathSOName);
-            bool exists = pathAnchorSO != null;
+            string[] foundScripts = AssetDatabase.FindAssets($"{SCRIPT_NAME} t:Script");
 
-            if (!exists)
+            foreach (string guid in foundScripts)
             {
-                pathAnchorSO = ScriptableObject.CreateInstance<PathAnchorSO>();
-
-                string outerPath = SelectionPath.GetPath() + $"/{FOLDER_NAME}";
-                Directory.CreateDirectory(outerPath);
-                
-                string resourcesPath = outerPath + "/Resources";
-                Directory.CreateDirectory(resourcesPath);
-
-                string assetPath = $"{resourcesPath}/{filePathSOName}.asset";
-                string uniqueAssetPath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
-
-                AssetDatabase.CreateAsset(pathAnchorSO, uniqueAssetPath);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-                EditorUtility.FocusProjectWindow();
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid).Replace("\\", "/");
+                if (IsInBakedStringsFolder(assetPath))
+                {
+                    targetPath = assetPath;
+                    break;
+                }
             }
 
+            if (targetPath == defaultPath && !Directory.Exists(ROOT_FOLDER))
+                Directory.CreateDirectory(ROOT_FOLDER);
 
-            string folderPath = pathAnchorSO.GetPath();
-            string filePath = Path.Combine(folderPath, $"{SCRIPT_NAME}.cs");
-
-            using (StreamWriter writer = new StreamWriter(filePath))
-            {
-                writer.Write(GetScriptContents());
-            }
-
+            File.WriteAllText(targetPath, GetScriptContents());
             AssetDatabase.Refresh();
             EditorUtility.FocusProjectWindow();
+        }
+
+        static bool IsInBakedStringsFolder(string path)
+        {
+            path = path.Replace("\\", "/").ToLowerInvariant();
+            return path.Contains("/bakedstrings/");
         }
 
         static string GetScriptContents()
@@ -90,42 +79,53 @@ namespace NuiN.NExtensions
             string tagsContent = string.Empty;
             string scenesContent = string.Empty;
 
-            foreach (string layer in GetAllLayers()) layersContent += ReplacedStringTemplate(LAYER_TEMPLATE, layer);
-            foreach (string tag in GetAllTags()) tagsContent += ReplacedStringTemplate(TAG_TEMPLATE, tag);
-            foreach (string scene in GetAllScenes()) scenesContent += ReplacedStringTemplate(SCENE_TEMPLATE, scene);
-            
-            string contents = SCRIPT_TEMPLATE
+            layersContent = GetAllLayers().Aggregate(layersContent, (current, layer) => current + ReplacedStringTemplate(LAYER_TEMPLATE, layer));
+            tagsContent = GetAllTags().Aggregate(tagsContent, (current, tag) => current + ReplacedStringTemplate(TAG_TEMPLATE, tag));
+            scenesContent = GetAllScenes().Aggregate(scenesContent, (current, scene) => current + ReplacedStringTemplate(SCENE_TEMPLATE, scene));
+
+            return SCRIPT_TEMPLATE
                 .Replace("{SCRIPTNAME}", SCRIPT_NAME)
                 .Replace("{TAGS}", tagsContent)
                 .Replace("{LAYERS}", layersContent)
                 .Replace("{SCENES}", scenesContent);
+        }
 
-            return contents;
+        static string SafeVarName(string raw)
+        {
+            string cleaned = Regex.Replace(raw, "[^a-zA-Z0-9_]", "");
+            if (string.IsNullOrEmpty(cleaned))
+                cleaned = "_";
+            if (char.IsDigit(cleaned[0]))
+                cleaned = "_" + cleaned;
+            return cleaned;
         }
 
         static string ReplacedStringTemplate(string template, string name)
         {
-            string variableName = Regex.Replace(name, @"\s+", "");
-            string replaced = template
+            string variableName = SafeVarName(name);
+            return template
                 .Replace("{NAME}", name)
                 .Replace("{VARIABLENAME}", variableName)
                 + NEW_LINE;
-
-            return replaced;
         }
 
-        static IEnumerable<string> GetAllLayers() => Enumerable.Range(0, 32).Select(LayerMask.LayerToName).Where(layer => !string.IsNullOrEmpty(layer)).ToArray();
-        static IEnumerable<string> GetAllTags() => UnityEditorInternal.InternalEditorUtility.tags;
+        static IEnumerable<string> GetAllLayers() =>
+            Enumerable.Range(0, 32)
+                      .Select(LayerMask.LayerToName)
+                      .Where(layer => !string.IsNullOrEmpty(layer));
+
+        static IEnumerable<string> GetAllTags() =>
+            UnityEditorInternal.InternalEditorUtility.tags;
 
         static IEnumerable<string> GetAllScenes()
         {
             var scenes = new List<string>();
-            for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+            for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
             {
-                string sceneName = Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(i));
+                string sceneName = Path.GetFileNameWithoutExtension(
+                    SceneUtility.GetScenePathByBuildIndex(i));
                 scenes.Add(sceneName);
             }
-
             return scenes;
         }
     }

@@ -28,7 +28,7 @@ namespace NuiN.ScriptableHarmony.Editor
         GenerateCustomTypeGUI _generateTypeGUI;
         SHLoggerSettingsGUI _loggerSettingsGUI;
 
-        [MenuItem("Tools/ScriptableHarmony/Open Wizard")]
+        [MenuItem("Tools/SH/Open Wizard")]
         static void Open()
         {
             ScriptableHarmonyWizard window = GetWindow<ScriptableHarmonyWizard>("ScriptableHarmony Editor");
