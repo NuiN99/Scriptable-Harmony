@@ -11,26 +11,24 @@ using Object = UnityEngine.Object;
 
 namespace NuiN.NExtensions.Editor
 {
-    internal class ComponentInjector : AssetModificationProcessor
+    internal static class ComponentInjector
     {
-        // inject components when unity saves
-        static string[] OnWillSaveAssets(string[] paths)
+        [MenuItem("Tools/SH/Inject Components")]
+        static void InjectMenuItem()
         {
             InjectComponentsInScene();
             InjectComponentsInPrefabs();
-            return paths;
         }
         
-        static async void InjectComponentsInScene()
+        static void InjectComponentsInScene()
         {
             foreach (MonoBehaviour monoBehaviourInstance in Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
             {
                 InjectComponents(monoBehaviourInstance);
-                await Task.Yield();
             }
         }
         
-        static async void InjectComponentsInPrefabs()
+        static void InjectComponentsInPrefabs()
         {
             string[] allPrefabs = AssetDatabase.FindAssets("t:Prefab", new[] {"Assets"});
 
@@ -43,12 +41,9 @@ namespace NuiN.NExtensions.Editor
 
                 MonoBehaviour[] monoBehaviours = prefab.GetComponentsInChildren<MonoBehaviour>(true);
                 
-                await Task.Yield();
-
                 foreach (MonoBehaviour monoBehaviourInstance in monoBehaviours)
                 {
                     InjectComponents(monoBehaviourInstance);
-                    await Task.Yield();
                 }
             }
         }
