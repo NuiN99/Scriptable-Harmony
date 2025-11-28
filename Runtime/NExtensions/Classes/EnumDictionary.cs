@@ -53,6 +53,9 @@ namespace NuiN.NExtensions
         static readonly Dictionary<string, bool> SExpanded = new(); // header + rows
         static readonly Dictionary<string, float[]> SRowHeights = new(); // per dictionary -> per-index value heights
         static readonly GUIContent SNone = GUIContent.none;
+        
+        static readonly Color RowLight = new Color(1f, 1f, 1f); // light gray
+        static readonly Color RowDark  = new Color(0.7f, 0.7f, 0.7f); // darker gray
 
         // Header visuals
         static readonly GUIStyle HeaderBox = new GUIStyle(EditorStyles.helpBox)
@@ -65,6 +68,13 @@ namespace NuiN.NExtensions
             alignment = TextAnchor.MiddleLeft,
             clipping = TextClipping.Clip,
             wordWrap = false
+        };
+        static readonly GUIStyle LabelText = new GUIStyle(EditorStyles.label)
+        {
+            alignment = TextAnchor.MiddleLeft,
+            clipping = TextClipping.Clip,
+            wordWrap = false,
+            fontStyle = FontStyle.Bold
         };
 
         struct EnumCache
@@ -176,6 +186,9 @@ namespace NuiN.NExtensions
 
                 if (multiline)
                 {
+                    Color prev = GUI.backgroundColor;
+                    GUI.backgroundColor = (i % 2 == 0) ? RowLight : RowDark;
+                    
                     string rowKey = dictKey + "_row_" + i;
                     bool rowExpanded = GetExpanded(rowKey, false);
 
@@ -191,7 +204,7 @@ namespace NuiN.NExtensions
 
                         float textY = rowHeader.y + Mathf.Max(0f, (rowHeader.height - lh) * 0.5f);
                         var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
-                        EditorGUI.LabelField(headerLabel, enumCache.labels[i], HeaderText);
+                        EditorGUI.LabelField(headerLabel, enumCache.labels[i], LabelText);
 
                         if (IsAltClick(e, rowHeader))
                         {
@@ -247,15 +260,17 @@ namespace NuiN.NExtensions
 
                         y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
+                    
+                    GUI.backgroundColor = prev;
                 }
                 else
                 {
-                    // Single-line row
-                    float keyWidth = position.width * SPLIT_KEY_WIDTH_RATIO;
-                    float valueWidth = position.width - keyWidth;
+                    float available = position.width - indentOffset;
+                    float keyWidth = available * SPLIT_KEY_WIDTH_RATIO;
+                    float valueWidth = available - keyWidth;
 
-                    var keyRect = new Rect(position.x + indentOffset, y, keyWidth - indentOffset, EditorGUIUtility.singleLineHeight);
-                    var valRect = new Rect(position.x + indentOffset + keyWidth, y, valueWidth, EditorGUIUtility.singleLineHeight);
+                    var keyRect = new Rect(position.x + indentOffset, y, keyWidth, lh);
+                    var valRect = new Rect(position.x + indentOffset + keyWidth, y, valueWidth, lh);
 
                     float textY = keyRect.y + Mathf.Max(0f, (keyRect.height - lh) * 0.5f);
                     var keyTextRect = new Rect(keyRect.x, textY, keyRect.width, lh);
