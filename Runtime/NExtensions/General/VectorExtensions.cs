@@ -10,8 +10,8 @@ namespace NuiN.NExtensions
         public static Vector3 Add(this Vector3 v3, float x = 0, float y = 0, float z = 0) =>
              new Vector3(v3.x + x, v3.y + y, v3.z + z);
 
-        public static Vector3 Multiply(this Vector3 v3, float x = 0, float y = 0, float z = 0) =>
-             new Vector3(v3.x * x, v3.y * y, v3.z * z);
+        public static Vector3 Mult(this Vector3 v3, float? x = null, float? y = null, float? z = null) =>
+             new Vector3(x != null ? v3.x * x : v3.x, y != null ? v3.y * y : v3.y, z != null ? v3.z * z : v3.z);
         
         public static Vector2 With(this Vector2 v2, float? x = null, float? y = null) =>
             new Vector3(x ?? v2.x, y ?? v2.y);
@@ -19,8 +19,8 @@ namespace NuiN.NExtensions
         public static Vector2 Add(this Vector2 v2, float x = 0, float y = 0) =>
             new Vector3(v2.x + x, v2.y + y);
         
-        public static Vector2 Multiply(this Vector2 v2, float x = 0, float y = 0) =>
-             new Vector3(v2.x * x, v2.y * y);
+        public static Vector2 Mult(this Vector2 v2, float? x = null, float? y = null) =>
+             new Vector3(x != null ? v2.x * x : v2.x, y != null ? v2.y * y : v2.y);
 
         public static Transform Set(this Transform transform, float? x = null, float? y = null, float? z = null)
         {
