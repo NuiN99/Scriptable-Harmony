@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace NuiN.NExtensions
@@ -34,10 +35,10 @@ namespace NuiN.NExtensions
         [Header("Smoothing")]
         [SerializeField] SmoothingMode smoothingMode = SmoothingMode.None;
 
-        [SerializeField, Range(0f, 1f), ShowIf(nameof(smoothingMode), (int)SmoothingMode.Exponential)]
+        [SerializeField, ShowIf(nameof(smoothingMode), (int)SmoothingMode.Exponential)]
         float exponentialFactor = 0.2f;
 
-        [SerializeField, Min(1), ShowIf(nameof(smoothingMode), (int)SmoothingMode.RollingAverage)]
+        [SerializeField, ShowIf(nameof(smoothingMode), (int)SmoothingMode.RollingAverage)]
         int averageFrameCount = 5;
 
         Vector3 _position;
@@ -55,6 +56,12 @@ namespace NuiN.NExtensions
         void Awake()
         {
             InitializeAverageBuffer();
+        }
+
+        void OnValidate()
+        {
+            averageFrameCount = Mathf.Max(averageFrameCount, 0);
+            exponentialFactor = Mathf.Clamp01(exponentialFactor);
         }
 
         void Update()
