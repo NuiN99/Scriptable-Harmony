@@ -20,7 +20,7 @@ namespace NuiN.SpleenTween
         ITween SetEase(TweenSettings settings);
         ITween SetLoop(Loop loopType, int cycles = -1);
         ITween SetDelay(float delay, bool startDelay = true);
-        ITween SetDestroyOnLoad(bool destroy);
+        ITween SetDontDestroyOnLoad(bool destroyOnLoad);
         ITween Stop();
         ITween StopIfNull(GameObject target);
         ITween StopIf(Func<bool> stopCondition, bool invokeComplete = false);

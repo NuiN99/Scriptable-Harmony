@@ -242,9 +242,9 @@ namespace NuiN.SpleenTween
             return this;
         }
 
-        ITween ITween.SetDestroyOnLoad(bool destroy)
+        ITween ITween.SetDontDestroyOnLoad(bool destroyOnLoad)
         {
-            DontDestroyOnLoad = destroy;
+            DontDestroyOnLoad = destroyOnLoad;
             return this;
         }
 
