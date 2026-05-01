@@ -78,7 +78,7 @@ namespace NuiN.CommandConsole
         void InvokeCommandHandler(string command) => presenter.SubmitCommand(textInput, inputPlaceholderText, autocompleteOptionsText, messagesScrollRect, panelRoot);
         void ToggleConsoleInputHandler(InputAction.CallbackContext context) => ToggleConsole();
         void ToggleConsoleHandler() => ToggleConsole();
-        void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
+        void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput, inputPlaceholderText, autocompleteOptionsText);
         void FillAutoCompletedTextHandler(InputAction.CallbackContext context) => presenter.FillAutoCompletedText(textInput);
         void CycleAutocompleteUpHandler(InputAction.CallbackContext context) => presenter.CycleAutocompleteSelection(inputPlaceholderText, autocompleteOptionsText, textInput, -1);
         void CycleAutocompleteDownHandler(InputAction.CallbackContext context) => presenter.CycleAutocompleteSelection(inputPlaceholderText, autocompleteOptionsText, textInput, 1);

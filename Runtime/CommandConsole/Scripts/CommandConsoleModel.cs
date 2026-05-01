@@ -12,6 +12,7 @@ namespace NuiN.CommandConsole
         
         [field: SerializeField] public ConsoleMessage ConsoleMessagePrefab { get; private set; }
         public Dictionary<CommandKey, MethodInfo> RegisteredCommands { get; set; } = new();
+        public Dictionary<CommandKey, ConsoleCommandAttribute> RegisteredCommandAttributes { get; set; } = new();
         public Dictionary<MessageKey, ConsoleMessage> Logs { get; set; } = new();
         public List<CommandKey> AutocompleteOptions { get; set; } = new();
         public CommandKey SelectedCommand { get; set; }

@@ -28,6 +28,7 @@ namespace NuiN.CommandConsole
         public void RegisterCommands()
         {
             model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>();
+            model.RegisteredCommandAttributes = new Dictionary<CommandKey, ConsoleCommandAttribute>();
 
             List<Assembly> loadedAssemblies = AssemblyContainerSO.Instance.RegisteredAssemblies.Select(Assembly.Load).ToList();
                 
@@ -43,7 +44,11 @@ namespace NuiN.CommandConsole
                             if (!method.IsStatic && !typeof(MonoBehaviour).IsAssignableFrom(method.DeclaringType)) continue;
 
                             CommandKey commandKey = new CommandKey(attribute.command, method.GetParameters());
-                            if (!model.RegisteredCommands.TryAdd(commandKey, method))
+                            if (model.RegisteredCommands.TryAdd(commandKey, method))
+                            {
+                                model.RegisteredCommandAttributes.Add(commandKey, attribute);
+                            }
+                            else
                             {
                                 OnCommandLogRecieved.Invoke($"Command already declared for [{attribute.command}] in [{method.DeclaringType}]", LogType.Warning);
                             }
@@ -54,7 +59,7 @@ namespace NuiN.CommandConsole
             
             IOrderedEnumerable<KeyValuePair<CommandKey, MethodInfo>> sortedCommands = 
                 from entry in model.RegisteredCommands 
-                orderby entry.Key.name
+                orderby GetCommandHeader(entry.Key), entry.Key.name
                 select entry;
             
             model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>(sortedCommands);
@@ -262,6 +267,18 @@ namespace NuiN.CommandConsole
                 inputField.caretPosition = startIndex + (hasTrailingSpace ? 1 : 0);
             }
         }
+
+        public void DeleteTextBlock(TMP_InputField inputField, TMP_Text placeholderText, TMP_Text autocompleteOptionsText)
+        {
+            string previousText = inputField.text;
+            int previousCaretPosition = inputField.caretPosition;
+
+            DeleteTextBlock(inputField);
+
+            if (inputField.text == previousText && inputField.caretPosition == previousCaretPosition) return;
+
+            UpdatePlaceholderText(placeholderText, autocompleteOptionsText, inputField);
+        }
         
         /// <summary> Hack to properly set caret position </summary>
         static IEnumerator SetCaretPosition(TMP_InputField inputField, int index)
@@ -405,6 +422,16 @@ namespace NuiN.CommandConsole
             model.SelectedCommand = model.AutocompleteOptions[model.SelectedAutocompleteIndex];
         }
         
+        string GetCommandHeader(CommandKey key)
+        {
+            if (!model.RegisteredCommandAttributes.TryGetValue(key, out ConsoleCommandAttribute attribute))
+            {
+                return string.Empty;
+            }
+
+            return attribute.commandHeader ?? string.Empty;
+        }
+        
         void ResetAutocompleteSelection()
         {
             model.SelectedCommand = CommandKey.empty;
@@ -460,12 +487,14 @@ namespace NuiN.CommandConsole
             string autocompleteOptionsString = BuildAutocompleteOptionsString();
             autocompleteOptionsText.SetText(autocompleteOptionsString);
             
-            int visibleLines = Mathf.Min(model.AutocompleteOptions.Count, MAX_VISIBLE_AUTOCOMPLETE_OPTIONS);
+            int visibleLines = autocompleteOptionsString.Count(character => character == '\n') + 1;
             float height = visibleLines * (autocompleteOptionsText.fontSize + 6);
             
             RectTransform panelRect = autocompleteOptionsText.transform.parent as RectTransform;
             if (panelRect != null)
             {
+                float maxHeight = (MAX_VISIBLE_AUTOCOMPLETE_OPTIONS + 1) * (autocompleteOptionsText.fontSize + 6);
+                height = Mathf.Min(height, maxHeight);
                 panelRect.sizeDelta = new Vector2(panelRect.sizeDelta.x, height);
             }
 
@@ -541,10 +570,18 @@ namespace NuiN.CommandConsole
             int visibleOptions = Mathf.Min(model.AutocompleteOptions.Count, MAX_VISIBLE_AUTOCOMPLETE_OPTIONS);
             int startIndex = Mathf.Clamp(model.SelectedAutocompleteIndex - visibleOptions + 1, 0, Mathf.Max(0, model.AutocompleteOptions.Count - visibleOptions));
             int endIndex = Mathf.Min(startIndex + visibleOptions, model.AutocompleteOptions.Count);
+            string currentHeader = startIndex > 0 ? GetCommandHeader(model.AutocompleteOptions[startIndex - 1]) : null;
             
             for (int i = startIndex; i < endIndex; i++)
             {
                 CommandKey key = model.AutocompleteOptions[i];
+                string commandHeader = GetCommandHeader(key);
+                if (!string.IsNullOrEmpty(commandHeader) && commandHeader != currentHeader)
+                {
+                    optionLines.Add(GetCommandHeaderLine(commandHeader));
+                    currentHeader = commandHeader;
+                }
+                
                 if (i == model.SelectedAutocompleteIndex)
                 {
                     optionLines.Add($"<color=#CC7744>> {key.name}</color>");
@@ -555,6 +592,27 @@ namespace NuiN.CommandConsole
             }
 
             return string.Join("\n", optionLines);
+        }
+        
+        static string GetCommandHeaderLine(string commandHeader)
+        {
+            return $"<color=#{GetSeededHeaderColor(commandHeader)}>{commandHeader}</color>";
+        }
+        
+        static string GetSeededHeaderColor(string seed)
+        {
+            unchecked
+            {
+                int hash = 17;
+                foreach (char character in seed)
+                {
+                    hash = hash * 31 + character;
+                }
+
+                float hue = Mathf.Abs(hash % 360) / 360f;
+                Color color = Color.HSVToRGB(hue, 0.55f, 1f);
+                return ColorUtility.ToHtmlStringRGB(color);
+            }
         }
         
         public void FillAutoCompletedText(TMP_InputField inputField)

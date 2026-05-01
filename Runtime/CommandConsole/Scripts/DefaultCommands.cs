@@ -6,28 +6,28 @@ namespace NuiN.CommandConsole
 {
     public static class DefaultCommands
     {
-        [ConsoleCommand("reload-scene")]
+        [ConsoleCommand("reload-scene", header: "Default")]
         static void ReloadSceneCommand() => GeneralUtils.ReloadScene();
         
-        [ConsoleCommand("load-scene")]
+        [ConsoleCommand("load-scene", header: "Default")]
         static void LoadSceneCommand(int sceneIndex) => SceneManager.LoadScene(sceneIndex);
 
-        [ConsoleCommand("timescale")]
+        [ConsoleCommand("timescale", header: "Default")]
         static void TimeScaleCommand(float value) => Time.timeScale = value;
         
-        [ConsoleCommand("framerate")]
+        [ConsoleCommand("framerate", header: "Default")]
         static void FrameRateCommand(int value) => Application.targetFrameRate = value;
         
-        [ConsoleCommand("quit")]
+        [ConsoleCommand("quit", header: "Default")]
         static void QuitCommand() => Application.Quit();
         
-        [ConsoleCommand("log")]
+        [ConsoleCommand("log", header: "Logging")]
         static void LogCommand(string message) => Debug.Log(message);
         
-        [ConsoleCommand("error")]
+        [ConsoleCommand("error", header: "Logging")]
         static void LogErrorCommand(string message) => Debug.LogError(message);
         
-        [ConsoleCommand("warn")]
+        [ConsoleCommand("warn", header: "Logging")]
         static void LogWarningCommand(string message) => Debug.LogWarning(message);
     }
 }

@@ -10,10 +10,12 @@ namespace NuiN.CommandConsole
     public class ConsoleCommandAttribute : Attribute
     {
         public readonly string command;
+        public readonly string commandHeader;
     
-        public ConsoleCommandAttribute(string command)
+        public ConsoleCommandAttribute(string command, string header = "Uncategorized")
         {
             this.command = command;
+            this.commandHeader = header;
         }
     }
 }
