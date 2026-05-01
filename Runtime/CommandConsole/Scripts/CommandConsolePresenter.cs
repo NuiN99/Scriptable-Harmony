@@ -17,7 +17,7 @@ namespace NuiN.CommandConsole
         public event Action<object, LogType> OnCommandLogRecieved = delegate { };
         
         const string INVALID_PARAMETER = "invalid!";
-
+        const int MAX_VISIBLE_AUTOCOMPLETE_OPTIONS = 6;
         [SerializeField, InjectComponent] CommandConsoleModel model;
 
         public void LoadSavedValues(RectTransform root, Toggle collapseMessagesToggle)
@@ -54,7 +54,7 @@ namespace NuiN.CommandConsole
             
             IOrderedEnumerable<KeyValuePair<CommandKey, MethodInfo>> sortedCommands = 
                 from entry in model.RegisteredCommands 
-                orderby entry.Key.name descending 
+                orderby entry.Key.name
                 select entry;
             
             model.RegisteredCommands = new Dictionary<CommandKey, MethodInfo>(sortedCommands);
@@ -221,6 +221,8 @@ namespace NuiN.CommandConsole
             model.IsConsoleEnabled = false;
             
             inputField.text = string.Empty;
+            model.AutocompleteOptions.Clear();
+            model.SelectedAutocompleteIndex = -1;
             StartCoroutine(SetCaretPosition(inputField, 0));
             CommandConsoleEvents.InvokeClose();
         }
@@ -372,79 +374,203 @@ namespace NuiN.CommandConsole
             model.SetSavedCollapseMessagesValue();
         }
 
-        public void UpdatePlaceholderText(TMP_Text placeholderText, TMP_InputField input, bool ignoreStringCheck = false)
+        public void UpdatePlaceholderText(TMP_Text placeholderText, TMP_Text autocompleteOptionsText, TMP_InputField input, bool ignoreStringCheck = false)
         {
-            model.SelectedCommand = CommandKey.empty;
-            placeholderText.SetText(string.Empty);
+            RebuildAutocompleteOptions(input);
+            RenderAutocompleteText(placeholderText, autocompleteOptionsText, input);
+        }
+        
+        void RebuildAutocompleteOptions(TMP_InputField input)
+        {
+            CommandKey previousSelection = model.SelectedCommand;
             
-            foreach ((CommandKey key, MethodInfo methodInfo) in model.RegisteredCommands)
+            model.SelectedCommand = CommandKey.empty;
+            model.AutocompleteOptions.Clear();
+
+            foreach (CommandKey key in model.RegisteredCommands.Keys)
             {
-                string commandName = key.name;
+                if (!DoesCommandMatchInput(key, input.text)) continue;
 
-                string[] splitInputString = input.text.Split(new[] { ' ' }, 2);
-                string inputCommandName = splitInputString[0];
+                model.AutocompleteOptions.Add(key);
+            }
 
-                if (!commandName.ToLower().StartsWith(inputCommandName.ToLower())
-                    || (input.text.Length > commandName.Length && !key.HasParameters)
-                    || (commandName != inputCommandName && input.text.Contains(" ")))
+            if (model.AutocompleteOptions.Count <= 0)
+            {
+                model.SelectedAutocompleteIndex = -1;
+                return;
+            }
+
+            int previousIndex = model.AutocompleteOptions.FindIndex(key => AreSameCommandSignature(key, previousSelection));
+            model.SelectedAutocompleteIndex = previousIndex >= 0 ? previousIndex : 0;
+            model.SelectedCommand = model.AutocompleteOptions[model.SelectedAutocompleteIndex];
+        }
+        
+        static bool AreSameCommandSignature(CommandKey x, CommandKey y)
+        {
+            if (x.name != y.name || x.parameterTypes.Count != y.parameterTypes.Count) return false;
+
+            for (int i = 0; i < x.parameterTypes.Count; i++)
+            {
+                if (x.parameterTypes[i] != y.parameterTypes[i]) return false;
+            }
+
+            return true;
+        }
+        
+        static bool DoesCommandMatchInput(CommandKey key, string input)
+        {
+            string commandName = key.name;
+            string[] splitInputString = input.Split(new[] { ' ' }, 2);
+            string inputCommandName = splitInputString[0];
+            
+            if (inputCommandName == string.Empty) return true;
+
+            return commandName.StartsWith(inputCommandName, StringComparison.OrdinalIgnoreCase)
+                   && (input.Length <= commandName.Length || key.HasParameters)
+                   && (commandName == inputCommandName || !input.Contains(" "));
+        }
+        
+        void RenderAutocompleteText(TMP_Text placeholderText, TMP_Text autocompleteOptionsText, TMP_InputField input)
+        {
+            placeholderText.SetText(string.Empty);
+            ClearAutocompleteOptionsText(autocompleteOptionsText);
+            
+            if (model.AutocompleteOptions.Count <= 0)
+            {
+                return;
+            }
+
+            CommandKey selectedCommand = model.AutocompleteOptions[model.SelectedAutocompleteIndex];
+            placeholderText.SetText(BuildPlaceholderString(selectedCommand, input));
+
+            if (autocompleteOptionsText == null)
+            {
+                return;
+            }
+
+            string autocompleteOptionsString = BuildAutocompleteOptionsString();
+            autocompleteOptionsText.SetText(autocompleteOptionsString);
+            
+            int visibleLines = Mathf.Min(model.AutocompleteOptions.Count, MAX_VISIBLE_AUTOCOMPLETE_OPTIONS);
+            float height = visibleLines * (autocompleteOptionsText.fontSize + 6);
+            
+            RectTransform panelRect = autocompleteOptionsText.transform.parent as RectTransform;
+            if (panelRect != null)
+            {
+                panelRect.sizeDelta = new Vector2(panelRect.sizeDelta.x, height);
+            }
+
+            RectTransform textRect = autocompleteOptionsText.transform as RectTransform;
+            if (textRect != null)
+            {
+                textRect.sizeDelta = new Vector2(textRect.sizeDelta.x, height);
+            }
+        }
+        
+        static void ClearAutocompleteOptionsText(TMP_Text autocompleteOptionsText)
+        {
+            if (autocompleteOptionsText == null) return;
+            
+            autocompleteOptionsText.SetText(string.Empty);
+
+            RectTransform panelRect = autocompleteOptionsText.transform.parent as RectTransform;
+            if (panelRect != null)
+            {
+                panelRect.sizeDelta = new Vector2(panelRect.sizeDelta.x, 0);
+            }
+        }
+        
+        string BuildPlaceholderString(CommandKey key, TMP_InputField input)
+        {
+            MethodInfo methodInfo = model.RegisteredCommands[key];
+            ParameterInfo[] methodParams = methodInfo.GetParameters();
+
+            const string colorStart = "<color=#CC7744>";
+            const string colorEnd = "</color>";
+
+            string parameters = string.Empty;
+            foreach (ParameterInfo param in methodParams)
+            {
+                parameters += $" {param.Name}";
+            }
+
+            string[] splitInputString = input.text.Split(new[] { ' ' }, 2);
+            string placeHolderString = $"{key.name}";
+            string combinedParamsString = splitInputString.Length > 1 ? splitInputString[1] : string.Empty;
+
+            if (key.HasParameters && splitInputString.Length > 1 && combinedParamsString.Trim() != string.Empty)
+            {
+                string[] inputParameters = combinedParamsString.Split(' ');
+
+                int inputParamsCount = inputParameters.Length;
+                placeHolderString += " " + combinedParamsString;
+                if (inputParameters.Last().Trim() == string.Empty)
                 {
+                    inputParamsCount--;
+                    placeHolderString = placeHolderString.Remove(input.caretPosition - 1, 1);
+                }
+                for (int i = inputParamsCount; i < methodParams.Length; i++)
+                {
+                    placeHolderString += $" {colorStart}{methodParams[i].Name}{colorEnd}";
+                }
+            }
+            else
+            {
+                placeHolderString += colorStart + parameters + colorEnd;
+            }
+
+            return placeHolderString;
+        }
+        
+        string BuildAutocompleteOptionsString()
+        {
+            List<string> optionLines = new();
+            int visibleOptions = Mathf.Min(model.AutocompleteOptions.Count, MAX_VISIBLE_AUTOCOMPLETE_OPTIONS);
+            int startIndex = Mathf.Clamp(model.SelectedAutocompleteIndex - visibleOptions + 1, 0, Mathf.Max(0, model.AutocompleteOptions.Count - visibleOptions));
+            int endIndex = Mathf.Min(startIndex + visibleOptions, model.AutocompleteOptions.Count);
+            
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                CommandKey key = model.AutocompleteOptions[i];
+                if (i == model.SelectedAutocompleteIndex)
+                {
+                    optionLines.Add($"<color=#CC7744>> {key.name}</color>");
                     continue;
                 }
-
-                ParameterInfo[] methodParams = methodInfo.GetParameters();
                 
-                string parameters = string.Empty;
-                foreach (ParameterInfo param in methodParams)
-                {
-                    parameters += $" {param.Name}";
-                }
-
-                const string colorStart = "<color=#CC7744>";
-                const string colorEnd = "</color>";
-
-                string placeHolderString = $"{key.name}";
-                string combinedParamsString = splitInputString.Length > 1 ? splitInputString[1] : string.Empty;
-
-                if (key.HasParameters && splitInputString.Length > 1 && combinedParamsString.Trim() != string.Empty)
-                {
-                    string[] inputParameters = combinedParamsString.Split(' ');
-
-                    int inputParamsCount = inputParameters.Length;
-                    placeHolderString += " " + combinedParamsString;
-                    if (inputParameters.Last().Trim() == string.Empty)
-                    {
-                        inputParamsCount--;
-                        placeHolderString = placeHolderString.Remove(input.caretPosition-1, 1);
-                    }
-                    for (int i = inputParamsCount; i < methodParams.Length; i++)
-                    {
-                        placeHolderString += $" {colorStart}{methodParams[i].Name}{colorEnd}";
-                    }
-                }
-                else
-                {
-                    placeHolderString += colorStart + parameters + colorEnd;
-                }
-                
-                placeholderText.SetText(placeHolderString);
-
-                model.SelectedCommand = key;
+                optionLines.Add($"  {key.name}");
             }
-            
-            if (input.text == string.Empty)
-            {
-                placeholderText.SetText(string.Empty);
-            }
+
+            return string.Join("\n", optionLines);
         }
         
         public void FillAutoCompletedText(TMP_InputField inputField)
         {
             bool isTypingParams = inputField.text.Split(" ", 2).Length == 1;
-            if (model.IsConsoleEnabled && isTypingParams)
+            if (model.IsConsoleEnabled && isTypingParams && model.SelectedCommand.name != string.Empty)
             {
                 inputField.text = model.SelectedCommand.name;
                 StartCoroutine(SetCaretPosition(inputField, inputField.text.Length));
             }
+        }
+        
+        public void CycleAutocompleteSelection(TMP_Text placeholderText, TMP_Text autocompleteOptionsText, TMP_InputField inputField, int direction)
+        {
+            if (!model.IsConsoleEnabled) return;
+            
+            if (model.AutocompleteOptions.Count <= 0)
+            {
+                RebuildAutocompleteOptions(inputField);
+            }
+            
+            if (model.AutocompleteOptions.Count <= 0) return;
+            
+            int optionCount = model.AutocompleteOptions.Count;
+            model.SelectedAutocompleteIndex = (model.SelectedAutocompleteIndex + direction + optionCount) % optionCount;
+            model.SelectedCommand = model.AutocompleteOptions[model.SelectedAutocompleteIndex];
+            
+            RenderAutocompleteText(placeholderText, autocompleteOptionsText, inputField);
+            inputField.ActivateInputField();
         }
 
         public void ClearMessages(Transform messagesRoot)
@@ -462,11 +588,11 @@ namespace NuiN.CommandConsole
             model.Logs.Clear();
         }
 
-        public void SubmitCommand(TMP_InputField textInput, TMP_Text inputPlaceholderText, ScrollRect messagesScrollRect, RectTransform panelRoot)
+        public void SubmitCommand(TMP_InputField textInput, TMP_Text inputPlaceholderText, TMP_Text autocompleteOptionsText, ScrollRect messagesScrollRect, RectTransform panelRoot)
         {
             InvokeCommand(textInput);
             SetScrollRectPosition(messagesScrollRect, 0);
-            UpdatePlaceholderText(inputPlaceholderText, textInput);
+            UpdatePlaceholderText(inputPlaceholderText, autocompleteOptionsText, textInput);
         }
     }
 }
