@@ -76,8 +76,8 @@ namespace NuiN.CommandConsole
         }
         
         void InvokeCommandHandler(string command) => presenter.SubmitCommand(textInput, inputPlaceholderText, autocompleteOptionsText, messagesScrollRect, panelRoot);
-        void ToggleConsoleInputHandler(InputAction.CallbackContext context) => presenter.ToggleConsole(panelRoot.gameObject, textInput);
-        void ToggleConsoleHandler() => presenter.ToggleConsole(panelRoot.gameObject, textInput);
+        void ToggleConsoleInputHandler(InputAction.CallbackContext context) => ToggleConsole();
+        void ToggleConsoleHandler() => ToggleConsole();
         void DeleteTextBlockHandler(InputAction.CallbackContext context) => presenter.DeleteTextBlock(textInput);
         void FillAutoCompletedTextHandler(InputAction.CallbackContext context) => presenter.FillAutoCompletedText(textInput);
         void CycleAutocompleteUpHandler(InputAction.CallbackContext context) => presenter.CycleAutocompleteSelection(inputPlaceholderText, autocompleteOptionsText, textInput, -1);
@@ -93,6 +93,14 @@ namespace NuiN.CommandConsole
         }
 
         void ClearMessagesHandler() => presenter.ClearMessages(messagesRoot);
+        
+        void ToggleConsole()
+        {
+            presenter.ToggleConsole(panelRoot.gameObject, textInput);
+            if (!panelRoot.gameObject.activeSelf) return;
+            
+            presenter.UpdatePlaceholderText(inputPlaceholderText, autocompleteOptionsText, textInput, true);
+        }
         
         void Update()
         {

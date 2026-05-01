@@ -209,6 +209,7 @@ namespace NuiN.CommandConsole
         {
             console.SetActive(true);
             model.IsConsoleEnabled = true;
+            ResetAutocompleteSelection();
             
             inputField.ActivateInputField();
             inputField.Select();
@@ -221,8 +222,7 @@ namespace NuiN.CommandConsole
             model.IsConsoleEnabled = false;
             
             inputField.text = string.Empty;
-            model.AutocompleteOptions.Clear();
-            model.SelectedAutocompleteIndex = -1;
+            ResetAutocompleteSelection();
             StartCoroutine(SetCaretPosition(inputField, 0));
             CommandConsoleEvents.InvokeClose();
         }
@@ -405,6 +405,13 @@ namespace NuiN.CommandConsole
             model.SelectedCommand = model.AutocompleteOptions[model.SelectedAutocompleteIndex];
         }
         
+        void ResetAutocompleteSelection()
+        {
+            model.SelectedCommand = CommandKey.empty;
+            model.SelectedAutocompleteIndex = -1;
+            model.AutocompleteOptions.Clear();
+        }
+        
         static bool AreSameCommandSignature(CommandKey x, CommandKey y)
         {
             if (x.name != y.name || x.parameterTypes.Count != y.parameterTypes.Count) return false;
@@ -419,11 +426,13 @@ namespace NuiN.CommandConsole
         
         static bool DoesCommandMatchInput(CommandKey key, string input)
         {
+            if (input == string.Empty) return true;
+            
             string commandName = key.name;
             string[] splitInputString = input.Split(new[] { ' ' }, 2);
             string inputCommandName = splitInputString[0];
             
-            if (inputCommandName == string.Empty) return true;
+            if (inputCommandName == string.Empty) return false;
 
             return commandName.StartsWith(inputCommandName, StringComparison.OrdinalIgnoreCase)
                    && (input.Length <= commandName.Length || key.HasParameters)
@@ -507,7 +516,11 @@ namespace NuiN.CommandConsole
                 if (inputParameters.Last().Trim() == string.Empty)
                 {
                     inputParamsCount--;
-                    placeHolderString = placeHolderString.Remove(input.caretPosition - 1, 1);
+                    int trailingSpaceIndex = input.caretPosition - 1;
+                    if (trailingSpaceIndex >= 0 && trailingSpaceIndex < placeHolderString.Length)
+                    {
+                        placeHolderString = placeHolderString.Remove(trailingSpaceIndex, 1);
+                    }
                 }
                 for (int i = inputParamsCount; i < methodParams.Length; i++)
                 {
@@ -546,12 +559,35 @@ namespace NuiN.CommandConsole
         
         public void FillAutoCompletedText(TMP_InputField inputField)
         {
+            TryFillAutoCompletedText(inputField);
+        }
+        
+        bool TryFillAutoCompletedText(TMP_InputField inputField)
+        {
             bool isTypingParams = inputField.text.Split(" ", 2).Length == 1;
             if (model.IsConsoleEnabled && isTypingParams && model.SelectedCommand.name != string.Empty)
             {
-                inputField.text = model.SelectedCommand.name;
+                string completedText = model.SelectedCommand.name + (SelectedCommandHasRequiredParameters() ? " " : string.Empty);
+                if (inputField.text == completedText) return false;
+                
+                inputField.text = completedText;
+                inputField.ActivateInputField();
+                inputField.Select();
                 StartCoroutine(SetCaretPosition(inputField, inputField.text.Length));
+                return true;
             }
+
+            return false;
+        }
+        
+        bool SelectedCommandHasRequiredParameters()
+        {
+            if (!model.RegisteredCommands.TryGetValue(model.SelectedCommand, out MethodInfo methodInfo))
+            {
+                return false;
+            }
+
+            return methodInfo.GetParameters().Any(parameter => !parameter.IsOptional);
         }
         
         public void CycleAutocompleteSelection(TMP_Text placeholderText, TMP_Text autocompleteOptionsText, TMP_InputField inputField, int direction)
@@ -590,6 +626,14 @@ namespace NuiN.CommandConsole
 
         public void SubmitCommand(TMP_InputField textInput, TMP_Text inputPlaceholderText, TMP_Text autocompleteOptionsText, ScrollRect messagesScrollRect, RectTransform panelRoot)
         {
+            if (TryFillAutoCompletedText(textInput))
+            {
+                UpdatePlaceholderText(inputPlaceholderText, autocompleteOptionsText, textInput);
+                textInput.ActivateInputField();
+                textInput.Select();
+                return;
+            }
+            
             InvokeCommand(textInput);
             SetScrollRectPosition(messagesScrollRect, 0);
             UpdatePlaceholderText(inputPlaceholderText, autocompleteOptionsText, textInput);
