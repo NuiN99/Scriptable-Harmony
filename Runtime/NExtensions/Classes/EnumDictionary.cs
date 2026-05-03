@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -50,13 +51,10 @@ namespace NuiN.NExtensions
 
         // Session caches
         static readonly Dictionary<Type, EnumCache> SEnumCache = new();
+        static readonly Dictionary<Type, bool> SNativeDrawerCache = new();
         static readonly Dictionary<string, bool> SExpanded = new(); // header + rows
-        static readonly Dictionary<string, float[]> SRowHeights = new(); // per dictionary -> per-index value heights
         static readonly GUIContent SNone = GUIContent.none;
         
-        static readonly Color RowLight = new Color(1f, 1f, 1f); // light gray
-        static readonly Color RowDark  = new Color(0.7f, 0.7f, 0.7f); // darker gray
-
         // Header visuals
         static readonly GUIStyle HeaderBox = new GUIStyle(EditorStyles.helpBox)
         {
@@ -169,99 +167,108 @@ namespace NuiN.NExtensions
             float y = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             int indentLevel = EditorGUI.indentLevel + 1;
             float indentOffset = indentLevel * INDENT_PER_LEVEL;
-
-            float[] rowHeights = GetOrResizeRowHeights(dictKey, valuesProperty.arraySize);
+            bool useNativeValueDrawer = UseNativeValueDrawer(GetValueType());
 
             for (int i = 0; i < keysProperty.arraySize; i++)
             {
                 var valueProp = valuesProperty.GetArrayElementAtIndex(i);
 
-                float valueHeight = rowHeights[i];
-                if (Mathf.Approximately(valueHeight, 0f))
-                {
-                    valueHeight = GetFlattenedHeight(valueProp);
-                    rowHeights[i] = valueHeight;
-                }
+                float valueHeight = GetValueHeight(valueProp, GetExpanded(dictKey + "_row_" + i, false), useNativeValueDrawer);
                 bool multiline = valueHeight > EditorGUIUtility.singleLineHeight * 1.1f;
 
                 if (multiline)
                 {
-                    Color prev = GUI.backgroundColor;
-                    GUI.backgroundColor = (i % 2 == 0) ? RowLight : RowDark;
-                    
                     string rowKey = dictKey + "_row_" + i;
                     bool rowExpanded = GetExpanded(rowKey, false);
 
-                    var rowHeader = new Rect(position.x + indentOffset, y, position.width - indentOffset, EditorGUIUtility.singleLineHeight);
-
-                    if (rowExpanded)
+                    if (useNativeValueDrawer)
                     {
-                        float gap = EditorGUIUtility.standardVerticalSpacing;
-                        float combinedH = EditorGUIUtility.singleLineHeight + gap + valueHeight + EditorGUIUtility.standardVerticalSpacing;
+                        var valueRect = new Rect(position.x + indentOffset, y, position.width - indentOffset, valueHeight);
 
-                        var combinedRect = new Rect(rowHeader.x, rowHeader.y, rowHeader.width, combinedH);
-                        GUI.Box(combinedRect, GUIContent.none, HeaderBox);
-
-                        float textY = rowHeader.y + Mathf.Max(0f, (rowHeader.height - lh) * 0.5f);
-                        var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
-                        EditorGUI.LabelField(headerLabel, enumCache.labels[i], LabelText);
-
-                        if (IsAltClick(e, rowHeader))
+                        if (IsAltClick(e, valueRect))
                         {
                             GUIUtility.keyboardControl = 0;
                             GUIUtility.hotControl = 0;
 
-                            // Collapse all rows
-                            int rowCount = valuesProperty.arraySize;
-                            SetAllRowsExpanded(dictKey, rowCount, false);
+                            SetAllRowsExpanded(dictKey, valuesProperty.arraySize, !rowExpanded);
                             e.Use();
                         }
-                        else if (IsPlainClick(e, rowHeader))
+
+                        DrawValueProperty(valueRect, valueProp, controlPrefix, new GUIContent(enumCache.labels[i]));
+                        if (valueProp.isExpanded != rowExpanded)
                         {
-                            GUIUtility.keyboardControl = 0;
-                            GUIUtility.hotControl = 0;
-
-                            SetExpanded(rowKey, false);
-                            e.Use();
+                            SetExpanded(rowKey, valueProp.isExpanded);
                         }
 
-                        var valueRect = new Rect(rowHeader.x + 6f, rowHeader.y + EditorGUIUtility.singleLineHeight + gap, rowHeader.width - 12f, valueHeight);
-                        DrawFlattened(valueRect, valueProp, controlPrefix);
-
-                        y += combinedH;
+                        y += valueHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
                     else
                     {
-                        GUI.Box(rowHeader, GUIContent.none, HeaderBox);
-                        float textY = rowHeader.y + Mathf.Max(0f, (rowHeader.height - lh) * 0.5f);
-                        var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
-                        EditorGUI.LabelField(headerLabel, enumCache.labels[i], HeaderText);
+                        var rowHeader = new Rect(position.x + indentOffset, y, position.width - indentOffset, EditorGUIUtility.singleLineHeight);
 
-                        if (IsAltClick(e, rowHeader))
+                        if (rowExpanded)
                         {
-                            GUIUtility.keyboardControl = 0;
-                            GUIUtility.hotControl = 0;
+                            float gap = EditorGUIUtility.standardVerticalSpacing;
+                            float combinedH = EditorGUIUtility.singleLineHeight + gap + valueHeight + EditorGUIUtility.standardVerticalSpacing;
 
-                            // Expand all rows
-                            int rowCount = valuesProperty.arraySize;
-                            SetAllRowsExpanded(dictKey, rowCount, true);
-                            // Ensure dictionary stays open
-                            SetExpanded(dictKey, true);
-                            e.Use();
+                            var combinedRect = new Rect(rowHeader.x, rowHeader.y, rowHeader.width, combinedH);
+                            GUI.Box(combinedRect, GUIContent.none, HeaderBox);
+
+                            float textY = rowHeader.y + Mathf.Max(0f, (rowHeader.height - lh) * 0.5f);
+                            var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
+                            EditorGUI.LabelField(headerLabel, enumCache.labels[i], LabelText);
+
+                            if (IsAltClick(e, rowHeader))
+                            {
+                                GUIUtility.keyboardControl = 0;
+                                GUIUtility.hotControl = 0;
+
+                                SetAllRowsExpanded(dictKey, valuesProperty.arraySize, false);
+                                e.Use();
+                            }
+                            else if (IsPlainClick(e, rowHeader))
+                            {
+                                GUIUtility.keyboardControl = 0;
+                                GUIUtility.hotControl = 0;
+
+                                SetExpanded(rowKey, false);
+                                e.Use();
+                            }
+
+                            var valueRect = new Rect(rowHeader.x + 6f, rowHeader.y + EditorGUIUtility.singleLineHeight + gap, rowHeader.width - 12f, valueHeight);
+                            DrawFlattenedValue(valueRect, valueProp, controlPrefix);
+
+                            y += combinedH;
                         }
-                        else if (IsPlainClick(e, rowHeader))
+                        else
                         {
-                            GUIUtility.keyboardControl = 0;
-                            GUIUtility.hotControl = 0;
+                            GUI.Box(rowHeader, GUIContent.none, HeaderBox);
 
-                            SetExpanded(rowKey, true);
-                            e.Use();
+                            float textY = rowHeader.y + Mathf.Max(0f, (rowHeader.height - lh) * 0.5f);
+                            var headerLabel = new Rect(rowHeader.x + 6f, textY, rowHeader.width - 12f, lh);
+                            EditorGUI.LabelField(headerLabel, enumCache.labels[i], HeaderText);
+
+                            if (IsAltClick(e, rowHeader))
+                            {
+                                GUIUtility.keyboardControl = 0;
+                                GUIUtility.hotControl = 0;
+
+                                SetAllRowsExpanded(dictKey, valuesProperty.arraySize, true);
+                                SetExpanded(dictKey, true);
+                                e.Use();
+                            }
+                            else if (IsPlainClick(e, rowHeader))
+                            {
+                                GUIUtility.keyboardControl = 0;
+                                GUIUtility.hotControl = 0;
+
+                                SetExpanded(rowKey, true);
+                                e.Use();
+                            }
+
+                            y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                         }
-
-                        y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     }
-                    
-                    GUI.backgroundColor = prev;
                 }
                 else
                 {
@@ -277,7 +284,7 @@ namespace NuiN.NExtensions
                     EditorGUI.LabelField(keyTextRect, enumCache.labels[i], HeaderText);
 
                     GUI.SetNextControlName(controlPrefix + valueProp.propertyPath);
-                    EditorGUI.PropertyField(valRect, valueProp, SNone, true);
+                    DrawValueProperty(valRect, valueProp, controlPrefix, SNone);
 
                     y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 }
@@ -309,24 +316,25 @@ namespace NuiN.NExtensions
             if (valuesProperty == null)
                 return total;
 
-            float[] rowHeights = GetOrResizeRowHeights(dictKey, valuesProperty.arraySize);
-
+            bool useNativeValueDrawer = UseNativeValueDrawer(GetValueType());
             for (int i = 0; i < valuesProperty.arraySize; i++)
             {
-                float vHeight = rowHeights[i];
-                if (Mathf.Approximately(vHeight, 0f))
-                {
-                    vHeight = GetFlattenedHeight(valuesProperty.GetArrayElementAtIndex(i));
-                    rowHeights[i] = vHeight;
-                }
+                float vHeight = GetValueHeight(valuesProperty.GetArrayElementAtIndex(i), GetExpanded(dictKey + "_row_" + i, false), useNativeValueDrawer);
                 bool multiline = vHeight > EditorGUIUtility.singleLineHeight * 1.1f;
 
                 if (multiline)
                 {
-                    total += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                    string rowKey = dictKey + "_row_" + i;
-                    if (GetExpanded(rowKey, false))
+                    if (useNativeValueDrawer)
+                    {
                         total += vHeight + EditorGUIUtility.standardVerticalSpacing;
+                    }
+                    else
+                    {
+                        total += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                        string rowKey = dictKey + "_row_" + i;
+                        if (GetExpanded(rowKey, false))
+                            total += vHeight + EditorGUIUtility.standardVerticalSpacing;
+                    }
                 }
                 else
                 {
@@ -365,6 +373,12 @@ namespace NuiN.NExtensions
             return null;
         }
 
+        Type GetValueType()
+        {
+            var args = fieldInfo.FieldType.GetGenericArguments();
+            return args.Length >= 2 ? args[1] : null;
+        }
+
         EnumCache GetOrBuildEnumCache(Type enumType)
         {
             if (!SEnumCache.TryGetValue(enumType, out var cache))
@@ -401,25 +415,22 @@ namespace NuiN.NExtensions
             }
         }
 
-        static float[] GetOrResizeRowHeights(string dictKey, int count)
+        // Draw through Unity's property drawer pipeline so custom drawers still work.
+        static void DrawValueProperty(Rect rect, SerializedProperty prop, string controlPrefix, GUIContent label)
         {
-            if (!SRowHeights.TryGetValue(dictKey, out var arr) || arr == null || arr.Length != count)
-            {
-                arr = new float[count]; // zeros => lazy compute
-                SRowHeights[dictKey] = arr;
-            }
-            return arr;
+            if (prop == null) return;
+
+            GUI.SetNextControlName(controlPrefix + prop.propertyPath);
+            EditorGUI.PropertyField(rect, prop, label, true);
         }
 
-        // Draw complex properties flattened, with stable control names
-        static void DrawFlattened(Rect rect, SerializedProperty prop, string controlPrefix)
+        static void DrawFlattenedValue(Rect rect, SerializedProperty prop, string controlPrefix)
         {
             if (prop == null) return;
 
             if (prop.propertyType != SerializedPropertyType.Generic)
             {
-                GUI.SetNextControlName(controlPrefix + prop.propertyPath);
-                EditorGUI.PropertyField(rect, prop, SNone, true);
+                DrawValueProperty(rect, prop, controlPrefix, SNone);
                 return;
             }
 
@@ -446,12 +457,15 @@ namespace NuiN.NExtensions
             }
         }
 
-        static float GetFlattenedHeight(SerializedProperty prop)
+        static float GetValueHeight(SerializedProperty prop, bool expanded, bool useNativeValueDrawer)
         {
             if (prop == null) return EditorGUIUtility.singleLineHeight;
 
-            if (prop.propertyType != SerializedPropertyType.Generic)
+            if (useNativeValueDrawer || prop.propertyType != SerializedPropertyType.Generic)
+            {
+                prop.isExpanded = expanded;
                 return EditorGUI.GetPropertyHeight(prop, SNone, true);
+            }
 
             float total = 4f;
             var iter = prop.Copy();
@@ -465,6 +479,67 @@ namespace NuiN.NExtensions
             }
             total += 4f;
             return total + 2f;
+        }
+
+        static bool UseNativeValueDrawer(Type valueType)
+        {
+            if (valueType == null)
+                return false;
+
+            if (SNativeDrawerCache.TryGetValue(valueType, out bool cached))
+                return cached;
+
+            bool hasCustomDrawer = HasCustomPropertyDrawer(valueType);
+            SNativeDrawerCache[valueType] = hasCustomDrawer;
+            return hasCustomDrawer;
+        }
+
+        static bool HasCustomPropertyDrawer(Type valueType)
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types;
+                try
+                {
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types;
+                }
+
+                if (types == null)
+                    continue;
+
+                foreach (var type in types)
+                {
+                    if (type == null || !typeof(PropertyDrawer).IsAssignableFrom(type))
+                        continue;
+
+                    var attributes = type.GetCustomAttributes(typeof(CustomPropertyDrawer), true);
+                    foreach (CustomPropertyDrawer attribute in attributes)
+                    {
+                        if (DrawerTargetsType(attribute, valueType))
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        static bool DrawerTargetsType(CustomPropertyDrawer attribute, Type valueType)
+        {
+            var drawerTypeField = typeof(CustomPropertyDrawer).GetField("m_Type", BindingFlags.NonPublic | BindingFlags.Instance);
+            var useForChildrenField = typeof(CustomPropertyDrawer).GetField("m_UseForChildren", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            var targetType = drawerTypeField?.GetValue(attribute) as Type;
+            bool useForChildren = useForChildrenField?.GetValue(attribute) as bool? ?? false;
+
+            if (targetType == null)
+                return false;
+
+            return targetType == valueType || (useForChildren && targetType.IsAssignableFrom(valueType));
         }
 
         static void SyncEnumWithKeys(SerializedProperty keysProperty, SerializedProperty valuesProperty, int[] enumInts)
