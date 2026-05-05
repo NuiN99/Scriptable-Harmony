@@ -447,11 +447,11 @@ namespace NuiN.NExtensions
             while (iter.NextVisible(enter) && !SerializedProperty.EqualContents(iter, end))
             {
                 enter = false;
-                float h = EditorGUI.GetPropertyHeight(iter, SNone, false);
+                float h = EditorGUI.GetPropertyHeight(iter, SNone, true);
                 var r = new Rect(x, y, w, h);
 
                 GUI.SetNextControlName(controlPrefix + iter.propertyPath);
-                EditorGUI.PropertyField(r, iter, false);
+                EditorGUI.PropertyField(r, iter, true);
 
                 y += h + EditorGUIUtility.standardVerticalSpacing;
             }
@@ -474,7 +474,7 @@ namespace NuiN.NExtensions
             while (iter.NextVisible(enter) && !SerializedProperty.EqualContents(iter, end))
             {
                 enter = false;
-                total += EditorGUI.GetPropertyHeight(iter, SNone, false)
+                total += EditorGUI.GetPropertyHeight(iter, SNone, true)
                       + EditorGUIUtility.standardVerticalSpacing;
             }
             total += 4f;
