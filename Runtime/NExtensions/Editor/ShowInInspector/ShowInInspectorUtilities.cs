@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -86,13 +85,11 @@ namespace NuiN.NExtensions
                         break;
 
                     case SerializedPropertyType.ObjectReference:
-                        var objRef = field.GetValue();
-                        field.SetValue(EditorGUILayout.ObjectField(field.Name, (Object)objRef, objRef.GetType(), true));
+                        field.SetValue(EditorGUILayout.ObjectField(field.Name, field.GetValue() as Object, field.ValueType, true));
                         break;
                     
                     case SerializedPropertyType.ExposedReference:
-                        var exposedRef = field.GetValue();
-                        field.SetValue(EditorGUILayout.ObjectField(field.Name, (Object)exposedRef, exposedRef.GetType(), true));
+                        field.SetValue(EditorGUILayout.ObjectField(field.Name, field.GetValue() as Object, field.ValueType, true));
                         break;
 
                     case SerializedPropertyType.LayerMask:
@@ -242,6 +239,7 @@ namespace NuiN.NExtensions
         {
             public System.Object Instance { get; protected set; }
             public SerializedPropertyType InspectorType { get; protected set; }
+            public Type ValueType { get; protected set; }
             protected readonly MemberInfo memberInfo;
 
             public string Name => ObjectNames.NicifyVariableName(memberInfo.Name);
@@ -273,7 +271,8 @@ namespace NuiN.NExtensions
             public PropertyData(System.Object instance, PropertyInfo info)
                 : base(instance, info)
             {
-                InspectorType = GetInspectorType(info.PropertyType);
+                ValueType = info.PropertyType;
+                InspectorType = GetInspectorType(ValueType);
 
                 _getMethodInfo = Info.GetGetMethod();
                 _setMethodInfo = Info.GetSetMethod();
@@ -284,9 +283,8 @@ namespace NuiN.NExtensions
                 return _getMethodInfo.Invoke(Instance, null);
             }
 
-            public override void SetValue([NotNull] object value)
+            public override void SetValue(object value)
             {
-                if (value == null) throw new ArgumentNullException(nameof(value));
                 if ((_setMethodInfo == null))
                     return;
                 _setMethodInfo.Invoke(Instance, new[] { value });
@@ -312,7 +310,8 @@ namespace NuiN.NExtensions
             public FieldData(System.Object instance, FieldInfo info)
                 : base(instance, info)
             {
-                InspectorType = GetInspectorType(info.FieldType);
+                ValueType = info.FieldType;
+                InspectorType = GetInspectorType(ValueType);
             }
 
             public override System.Object GetValue()
@@ -401,11 +400,7 @@ namespace NuiN.NExtensions
         }
 #endif
 
-            if (type == typeof(Material))
-            {
-                return SerializedPropertyType.ObjectReference;
-            }
-            return type == typeof(Object) ? SerializedPropertyType.ObjectReference : SerializedPropertyType.Generic;
+            return typeof(Object).IsAssignableFrom(type) ? SerializedPropertyType.ObjectReference : SerializedPropertyType.Generic;
         }
     }
 }
